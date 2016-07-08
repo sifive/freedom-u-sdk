@@ -22,11 +22,12 @@ pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
 bbl := $(pk_wrkdir)/bbl
 bin := $(wrkdir)/bbl.bin
+hex := $(wrkdir)/bbl.hex
 
 target := riscv64-unknown-linux-gnu
 
 .PHONY: all
-all: $(bin)
+all: $(hex)
 
 $(buildroot_tar): $(buildroot_srcdir)
 	$(MAKE) -C $< O=$(buildroot_wrkdir) riscv64_defconfig
@@ -71,6 +72,9 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 
 $(bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
+
+$(hex):	$(bin)
+	xxd -c1 -p $< > $@
 
 .PHONY: sysroot vmlinux bbl
 sysroot: $(sysroot)
