@@ -1,2 +1,4 @@
 linux-*.tar.xz
 work/
+toolchain
+riscv-tools/

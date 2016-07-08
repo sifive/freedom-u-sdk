@@ -1,3 +1,5 @@
+RISCV ?= $(CURDIR)/toolchain
+PATH := $(RISCV)/bin:$(PATH)
 
 srcdir := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 srcdir := $(srcdir:/=)
@@ -30,8 +32,21 @@ target := riscv64-unknown-linux-gnu
 
 .PHONY: all
 all: $(hex)
+	@echo
+	@echo Find the SD-card image in work/bbl.bin
+	@echo Program it with: dd if=work/bbl.bin of=/dev/sd-your-card bs=1M
+	@echo
 
-$(buildroot_tar): $(buildroot_srcdir)
+$(CURDIR)/toolchain/bin/$(target)-gcc:
+	@echo
+	@echo WARNING: You have no RISC-V toolchain installed.
+	@echo A toolchain will be downloaded and built in 5 seconds...
+	@echo
+	@sleep 5
+	test -d riscv-tools || git clone -b freedom-unleashed-v0.1 --recursive https://github.com/ucb-bar/riscv-tools.git
+	cd riscv-tools; RISCV=$(RISCV) ./build.sh
+
+$(buildroot_tar): $(buildroot_srcdir) $(RISCV)/bin/$(target)-gcc
 	$(MAKE) -C $< O=$(buildroot_wrkdir) riscv64_defconfig
 	$(MAKE) -C $< O=$(buildroot_wrkdir)
 
