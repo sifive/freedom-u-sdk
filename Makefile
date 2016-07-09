@@ -6,6 +6,10 @@ srcdir := $(srcdir:/=)
 confdir := $(srcdir)/conf
 wrkdir := $(CURDIR)/work
 
+toolchain_srcdir := $(srcdir)/riscv-gnu-toolchain
+toolchain_wrkdir := $(wrkdir)/riscv-gnu-toolchain
+toolchain_dest := $(CURDIR)/toolchain
+
 buildroot_srcdir := $(srcdir)/buildroot
 buildroot_wrkdir := $(wrkdir)/buildroot
 buildroot_tar := $(buildroot_wrkdir)/images/rootfs.tar
@@ -37,18 +41,14 @@ all: $(hex)
 	@echo Program it with: dd if=work/bbl.bin of=/dev/sd-your-card bs=1M
 	@echo
 
-$(CURDIR)/toolchain/bin/$(target)-gcc:
-	@echo
-	@echo WARNING: You have no RISC-V toolchain installed.
-	@echo A toolchain will be downloaded and built in 5 seconds...
-	@echo
-	@sleep 5
-	test -d riscv-tools || git clone -b freedom-unleashed-v0.1 --recursive https://github.com/ucb-bar/riscv-tools.git
-	cd riscv-tools; RISCV=$(RISCV) ./build.sh
+$(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
+	mkdir -p $(toolchain_wrkdir)
+	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure --prefix=$(toolchain_dest)
+	$(MAKE) -C $(toolchain_wrkdir) linux
 
 $(buildroot_tar): $(buildroot_srcdir) $(RISCV)/bin/$(target)-gcc
-	$(MAKE) -C $< O=$(buildroot_wrkdir) riscv64_defconfig
-	$(MAKE) -C $< O=$(buildroot_wrkdir)
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_wrkdir) riscv64_defconfig
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_wrkdir)
 
 .PHONY: buildroot-menuconfig
 buildroot-menuconfig: $(buildroot_srcdir)
@@ -104,4 +104,4 @@ bbl: $(bbl)
 
 .PHONY: clean
 clean:
-	rm -rf -- $(wrkdir)
+	rm -rf -- $(wrkdir) $(toolchain_dest)
