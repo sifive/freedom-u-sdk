@@ -56,7 +56,7 @@ buildroot-menuconfig: $(buildroot_srcdir)
 
 $(sysroot_stamp): $(buildroot_tar)
 	mkdir -p $(sysroot)
-	tar -xpf $< -C $(sysroot) --exclude ./dev
+	tar -xpf $< -C $(sysroot) --exclude ./dev --exclude ./usr/share/locale
 	touch $@
 
 $(linux_release):
