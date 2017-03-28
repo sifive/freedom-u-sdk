@@ -89,7 +89,7 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	cd $(pk_wrkdir) && $</configure \
 		--host=$(target) \
 		--with-payload=$(vmlinux_stripped)
-	$(MAKE) -C $(pk_wrkdir)
+	CFLAGS="-mabi=lp64 -march=rv64imac" $(MAKE) -C $(pk_wrkdir)
 
 $(bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
