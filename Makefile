@@ -21,7 +21,7 @@ linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
 linux_defconfig := $(confdir)/linux_defconfig
 linux_release := linux-4.6.2.tar.xz
-linux_url := ftp://ftp.kernel.org/pub/linux/kernel/v4.x
+linux_url := https://www.kernel.org/pub/linux/kernel/v4.x
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
