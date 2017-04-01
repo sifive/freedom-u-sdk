@@ -65,7 +65,7 @@ $(linux_release):
 $(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir) $(linux_release)
 	mkdir -p $(dir $@)
 	cp -p $< $@
-	cd $(linux_srcdir); tar --strip-components=1 -xJf ../$(linux_release); git checkout .gitignore arch/.gitignore
+	cd $(linux_srcdir); tar --strip-components=1 -xJf ../$(linux_release); git checkout .
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(sysroot_stamp)
