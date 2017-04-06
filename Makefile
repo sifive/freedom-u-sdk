@@ -20,8 +20,6 @@ sysroot := $(wrkdir)/sysroot
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
 linux_defconfig := $(confdir)/linux_defconfig
-linux_release := linux-4.6.2.tar.xz
-linux_url := https://www.kernel.org/pub/linux/kernel/v4.x
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -59,13 +57,9 @@ $(sysroot_stamp): $(buildroot_tar)
 	tar -xpf $< -C $(sysroot) --exclude ./dev --exclude ./usr/share/locale
 	touch $@
 
-$(linux_release):
-	curl -O $(linux_url)/$(linux_release)
-
-$(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir) $(linux_release)
+$(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
 	mkdir -p $(dir $@)
 	cp -p $< $@
-	cd $(linux_srcdir); tar --strip-components=1 -xJf ../$(linux_release); git checkout .
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(sysroot_stamp)
