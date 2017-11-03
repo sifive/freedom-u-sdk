@@ -30,6 +30,14 @@ bbl := $(pk_wrkdir)/bbl
 bin := $(wrkdir)/bbl.bin
 hex := $(wrkdir)/bbl.hex
 
+fesvr_srcdir := $(srcdir)/riscv-fesvr
+fesvr_wrkdir := $(wrkdir)/riscv-fesvr
+libfesvr := $(fesvr_wrkdir)/prefix/lib/libfesvr.so
+
+spike_srcdir := $(srcdir)/riscv-isa-sim
+spike_wrkdir := $(wrkdir)/riscv-isa-sim
+spike := $(spike_wrkdir)/prefix/bin/spike
+
 target := riscv64-unknown-linux-gnu
 
 .PHONY: all
@@ -91,6 +99,27 @@ $(bin): $(bbl)
 $(hex):	$(bin)
 	xxd -c1 -p $< > $@
 
+$(libfesvr): $(fesvr_srcdir)
+	rm -rf $(fesvr_wrkdir)
+	mkdir -p $(fesvr_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(fesvr_wrkdir) && $</configure \
+		--prefix=$(dir $(abspath $(dir $@)))
+	$(MAKE) -C $(fesvr_wrkdir)
+	$(MAKE) -C $(fesvr_wrkdir) install
+	touch -c $@
+
+$(spike): $(spike_srcdir) $(libfesvr)
+	rm -rf $(spike_wrkdir)
+	mkdir -p $(spike_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(spike_wrkdir) && $</configure \
+		--prefix=$(dir $(abspath $(dir $@))) \
+		--with-fesvr=$(dir $(abspath $(dir $(libfesvr))))
+	$(MAKE) -C $(spike_wrkdir)
+	$(MAKE) -C $(spike_wrkdir) install
+	touch -c $@
+
 .PHONY: sysroot vmlinux bbl
 sysroot: $(sysroot)
 vmlinux: $(vmlinux)
@@ -99,3 +128,7 @@ bbl: $(bbl)
 .PHONY: clean
 clean:
 	rm -rf -- $(wrkdir) $(toolchain_dest)
+
+.PHONY: sim
+sim: $(spike) $(bbl)
+	$(spike) -p4 $(bbl)
