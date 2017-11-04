@@ -90,8 +90,10 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	mkdir -p $(pk_wrkdir)
 	cd $(pk_wrkdir) && $</configure \
 		--host=$(target) \
-		--with-payload=$(vmlinux_stripped)
-	CFLAGS="-mabi=lp64d -march=rv64imafdc -DDISABLED_HART_MASK=1" $(MAKE) -C $(pk_wrkdir)
+		--with-payload=$(vmlinux_stripped) \
+		--enable-logo \
+		--with-logo=$(abspath conf/sifive_logo.txt)
+	CFLAGS="-mabi=lp64d -march=rv64imafdc" $(MAKE) -C $(pk_wrkdir)
 
 $(bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
