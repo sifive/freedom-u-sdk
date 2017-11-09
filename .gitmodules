@@ -1,12 +1,18 @@
 [submodule "linux"]
 	path = linux
-	url = https://github.com/sifive/riscv-linux.git
+	url = https://github.com/riscv/riscv-linux.git
 [submodule "buildroot"]
 	path = buildroot
 	url = https://github.com/sifive/buildroot.git
 [submodule "riscv-pk"]
 	path = riscv-pk
-	url = https://github.com/sifive/riscv-pk.git
+	url = https://github.com/riscv/riscv-pk.git
 [submodule "riscv-gnu-toolchain"]
 	path = riscv-gnu-toolchain
 	url = https://github.com/riscv/riscv-gnu-toolchain.git
+[submodule "riscv-isa-sim"]
+	path = riscv-isa-sim
+	url = https://github.com/riscv/riscv-isa-sim.git
+[submodule "riscv-fesvr"]
+	path = riscv-fesvr
+	url = https://github.com/riscv/riscv-fesvr.git

@@ -20,8 +20,6 @@ sysroot := $(wrkdir)/sysroot
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
 linux_defconfig := $(confdir)/linux_defconfig
-linux_release := linux-4.6.2.tar.xz
-linux_url := ftp://ftp.kernel.org/pub/linux/kernel/v4.x
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -31,6 +29,14 @@ pk_wrkdir := $(wrkdir)/riscv-pk
 bbl := $(pk_wrkdir)/bbl
 bin := $(wrkdir)/bbl.bin
 hex := $(wrkdir)/bbl.hex
+
+fesvr_srcdir := $(srcdir)/riscv-fesvr
+fesvr_wrkdir := $(wrkdir)/riscv-fesvr
+libfesvr := $(fesvr_wrkdir)/prefix/lib/libfesvr.so
+
+spike_srcdir := $(srcdir)/riscv-isa-sim
+spike_wrkdir := $(wrkdir)/riscv-isa-sim
+spike := $(spike_wrkdir)/prefix/bin/spike
 
 target := riscv64-unknown-linux-gnu
 
@@ -45,6 +51,7 @@ $(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
 	mkdir -p $(toolchain_wrkdir)
 	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure --prefix=$(toolchain_dest)
 	$(MAKE) -C $(toolchain_wrkdir) linux
+	sed 's/^#define LINUX_VERSION_CODE.*/#define LINUX_VERSION_CODE 263682/' -i $(toolchain_dest)/sysroot/usr/include/linux/version.h
 
 $(buildroot_tar): $(buildroot_srcdir) $(RISCV)/bin/$(target)-gcc
 	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_wrkdir) riscv64_defconfig
@@ -59,13 +66,9 @@ $(sysroot_stamp): $(buildroot_tar)
 	tar -xpf $< -C $(sysroot) --exclude ./dev --exclude ./usr/share/locale
 	touch $@
 
-$(linux_release):
-	curl -O $(linux_url)/$(linux_release)
-
-$(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir) $(linux_release)
+$(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
 	mkdir -p $(dir $@)
 	cp -p $< $@
-	cd $(linux_srcdir); tar --strip-components=1 -xJf ../$(linux_release); git checkout .gitignore arch/.gitignore
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(sysroot_stamp)
@@ -88,14 +91,37 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	mkdir -p $(pk_wrkdir)
 	cd $(pk_wrkdir) && $</configure \
 		--host=$(target) \
-		--with-payload=$(vmlinux_stripped)
-	$(MAKE) -C $(pk_wrkdir)
+		--with-payload=$(vmlinux_stripped) \
+		--enable-logo \
+		--with-logo=$(abspath conf/sifive_logo.txt)
+	CFLAGS="-mabi=lp64d -march=rv64imafdc" $(MAKE) -C $(pk_wrkdir)
 
 $(bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
 $(hex):	$(bin)
 	xxd -c1 -p $< > $@
+
+$(libfesvr): $(fesvr_srcdir)
+	rm -rf $(fesvr_wrkdir)
+	mkdir -p $(fesvr_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(fesvr_wrkdir) && $</configure \
+		--prefix=$(dir $(abspath $(dir $@)))
+	$(MAKE) -C $(fesvr_wrkdir)
+	$(MAKE) -C $(fesvr_wrkdir) install
+	touch -c $@
+
+$(spike): $(spike_srcdir) $(libfesvr)
+	rm -rf $(spike_wrkdir)
+	mkdir -p $(spike_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(spike_wrkdir) && $</configure \
+		--prefix=$(dir $(abspath $(dir $@))) \
+		--with-fesvr=$(dir $(abspath $(dir $(libfesvr))))
+	$(MAKE) -C $(spike_wrkdir)
+	$(MAKE) -C $(spike_wrkdir) install
+	touch -c $@
 
 .PHONY: sysroot vmlinux bbl
 sysroot: $(sysroot)
@@ -105,3 +131,7 @@ bbl: $(bbl)
 .PHONY: clean
 clean:
 	rm -rf -- $(wrkdir) $(toolchain_dest)
+
+.PHONY: sim
+sim: $(spike) $(bbl)
+	$(spike) -p4 $(bbl)
