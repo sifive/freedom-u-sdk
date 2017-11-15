@@ -1,5 +1,7 @@
 RISCV ?= $(CURDIR)/toolchain
 PATH := $(RISCV)/bin:$(PATH)
+ISA ?= rv64imafdc
+ABI ?= lp64d
 
 srcdir := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 srcdir := $(srcdir:/=)
@@ -43,13 +45,17 @@ target := riscv64-unknown-linux-gnu
 .PHONY: all
 all: $(hex)
 	@echo
+	@echo This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)
 	@echo Find the SD-card image in work/bbl.bin
 	@echo Program it with: dd if=work/bbl.bin of=/dev/sd-your-card bs=1M
 	@echo
 
 $(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
 	mkdir -p $(toolchain_wrkdir)
-	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure --prefix=$(toolchain_dest)
+	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure \
+		--prefix=$(toolchain_dest) \
+		--with-isa=$(ISA) \
+		--with-abi=$(ABI)
 	$(MAKE) -C $(toolchain_wrkdir) linux
 	sed 's/^#define LINUX_VERSION_CODE.*/#define LINUX_VERSION_CODE 263682/' -i $(toolchain_dest)/sysroot/usr/include/linux/version.h
 
@@ -70,6 +76,17 @@ $(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
 	mkdir -p $(dir $@)
 	cp -p $< $@
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
+	echo $(ISA)
+	echo $(filter rv32%,$(ISA))
+ifeq (,$(filter rv%c,$(ISA)))
+	sed 's/^.*CONFIG_RISCV_ISA_C.*$$/CONFIG_RISCV_ISA_C=n/' -i $@
+	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
+endif
+ifeq ($(ISA),$(filter rv32%,$(ISA)))
+	sed 's/^.*CONFIG_ARCH_RV32I.*$$/CONFIG_ARCH_RV32I=y/' -i $@
+	sed 's/^.*CONFIG_ARCH_RV64I.*$$/CONFIG_ARCH_RV64I=n/' -i $@
+	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
+endif
 
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(sysroot_stamp)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
@@ -94,7 +111,7 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 		--with-payload=$(vmlinux_stripped) \
 		--enable-logo \
 		--with-logo=$(abspath conf/sifive_logo.txt)
-	CFLAGS="-mabi=lp64d -march=rv64imafdc" $(MAKE) -C $(pk_wrkdir)
+	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
 
 $(bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
@@ -134,4 +151,4 @@ clean:
 
 .PHONY: sim
 sim: $(spike) $(bbl)
-	$(spike) -p4 $(bbl)
+	$(spike) --isa=$(ISA) -p4 $(bbl)
