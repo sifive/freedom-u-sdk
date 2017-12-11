@@ -40,6 +40,12 @@ spike_srcdir := $(srcdir)/riscv-isa-sim
 spike_wrkdir := $(wrkdir)/riscv-isa-sim
 spike := $(spike_wrkdir)/prefix/bin/spike
 
+qemu_srcdir := $(srcdir)/riscv-qemu
+qemu_wrkdir := $(wrkdir)/riscv-qemu
+qemu := $(qemu_wrkdir)/prefix/bin/qemu-system-riscv64
+
+rootfs := $(wrkdir)/rootfs.bin
+
 target := riscv64-unknown-linux-gnu
 
 .PHONY: all
@@ -110,7 +116,7 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	cd $(pk_wrkdir) && $</configure \
 		--host=$(target) \
 		--with-payload=$(vmlinux_stripped) \
-		--enable-logo \
+		--enable-logo --enable-print-device-tree \
 		--with-logo=$(abspath conf/sifive_logo.txt)
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
 
@@ -141,6 +147,21 @@ $(spike): $(spike_srcdir) $(libfesvr)
 	$(MAKE) -C $(spike_wrkdir) install
 	touch -c $@
 
+$(qemu): $(qemu_srcdir)
+	rm -rf $(qemu_wrkdir)
+	mkdir -p $(qemu_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(qemu_wrkdir) && $</configure \
+		--prefix=$(dir $(abspath $(dir $@))) \
+		--target-list=riscv64-softmmu
+	$(MAKE) -C $(qemu_wrkdir)
+	$(MAKE) -C $(qemu_wrkdir) install
+	touch -c $@
+
+$(rootfs):
+	truncate --size=1G $@
+	mkfs.ext4 $@
+
 .PHONY: sysroot vmlinux bbl
 sysroot: $(sysroot)
 vmlinux: $(vmlinux)
@@ -153,3 +174,7 @@ clean:
 .PHONY: sim
 sim: $(spike) $(bbl)
 	$(spike) --isa=$(ISA) -p4 $(bbl)
+
+.PHONY: qemu
+qemu: $(qemu) $(bbl) $(rootfs)
+	$(qemu) -nographic -machine virt -kernel $(bbl) -drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0
