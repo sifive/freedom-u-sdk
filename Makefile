@@ -133,7 +133,9 @@ $(vmlinux_stripped): $(vmlinux)
 
 .PHONY: linux-menuconfig
 linux-menuconfig: $(linux_wrkdir)/.config
-	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv menuconfig savedefconfig
+	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv menuconfig
+	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv savedefconfig
+	cp $(dir $<)/defconfig conf/linux_defconfig
 
 $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	rm -rf $(pk_wrkdir)
