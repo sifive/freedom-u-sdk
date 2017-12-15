@@ -16,9 +16,11 @@ buildroot_srcdir := $(srcdir)/buildroot
 buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
 buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
-
 buildroot_initramfs_sysroot_stamp := $(wrkdir)/.buildroot_initramfs_sysroot
 buildroot_initramfs_sysroot := $(wrkdir)/buildroot_initramfs_sysroot
+buildroot_rootfs_wrkdir := $(wrkdir)/buildroot_rootfs
+buildroot_rootfs_ext := $(buildroot_rootfs_wrkdir)/images/rootfs.ext4
+buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
@@ -77,8 +79,25 @@ $(buildroot_initramfs_tar): $(buildroot_srcdir) $(buildroot_initramfs_wrkdir)/.c
 	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_initramfs_wrkdir)
 
 .PHONY: buildroot_initramfs-menuconfig
-buildroot_initramfs-menuconfig: $(buildroot_srcdir)
-	$(MAKE) -C $< O=$(buildroot_initramfs_wrkdir) menuconfig
+buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroot_srcdir)
+	$(MAKE) -C $(dir $<) O=$(buildroot_initramfs_wrkdir) menuconfig
+	$(MAKE) -C $(dir $<) O=$(buildroot_initramfs_wrkdir) savedefconfig
+	cp $(dir $<)/defconfig conf/buildroot_initramfs_config
+
+$(buildroot_rootfs_wrkdir)/.config: $(buildroot_srcdir)
+	rm -rf $(dir $@)
+	mkdir -p $(dir $@)
+	cp $(buildroot_rootfs_config) $@
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_rootfs_wrkdir) olddefconfig
+
+$(buildroot_rootfs_ext): $(buildroot_srcdir) $(buildroot_rootfs_wrkdir)/.config $(RISCV)/bin/$(target)-gcc $(buildroot_rootfs_config)
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_rootfs_wrkdir)
+
+.PHONY: buildroot_rootfs-menuconfig
+buildroot_rootfs-menuconfig: $(buildroot_rootfs_wrkdir)/.config $(buildroot_srcdir)
+	$(MAKE) -C $(dir $<) O=$(buildroot_rootfs_wrkdir) menuconfig
+	$(MAKE) -C $(dir $<) O=$(buildroot_rootfs_wrkdir) savedefconfig
+	cp $(dir $<)/defconfig conf/buildroot_rootfs_config
 
 $(buildroot_initramfs_sysroot_stamp): $(buildroot_initramfs_tar)
 	mkdir -p $(buildroot_initramfs_sysroot)
@@ -164,9 +183,8 @@ $(qemu): $(qemu_srcdir)
 	$(MAKE) -C $(qemu_wrkdir) install
 	touch -c $@
 
-$(rootfs):
-	truncate --size=1G $@
-	mkfs.ext4 $@
+$(rootfs): $(buildroot_rootfs_ext)
+	cp $< $@
 
 .PHONY: buildroot_initramfs_sysroot vmlinux bbl
 buildroot_initramfs_sysroot: $(buildroot_initramfs_sysroot)
