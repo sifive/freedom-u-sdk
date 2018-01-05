@@ -55,8 +55,9 @@ $(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
 	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure \
 		--prefix=$(toolchain_dest) \
 		--with-arch=$(ISA) \
-		--with-abi=$(ABI)
-	$(MAKE) -C $(toolchain_wrkdir) linux
+		--with-abi=$(ABI) \
+		--enable-linux
+	$(MAKE) -C $(toolchain_wrkdir)
 	sed 's/^#define LINUX_VERSION_CODE.*/#define LINUX_VERSION_CODE 263682/' -i $(toolchain_dest)/sysroot/usr/include/linux/version.h
 
 $(buildroot_tar): $(buildroot_srcdir) $(RISCV)/bin/$(target)-gcc
