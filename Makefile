@@ -61,6 +61,7 @@ all: $(hex)
 
 $(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
 	mkdir -p $(toolchain_wrkdir)
+	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv INSTALL_HDR_PATH=$(abspath $(toolchain_srcdir)/linux-headers) headers_install
 	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure \
 		--prefix=$(toolchain_dest) \
 		--with-arch=$(ISA) \
