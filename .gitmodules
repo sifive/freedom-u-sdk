@@ -16,3 +16,6 @@
 [submodule "riscv-fesvr"]
 	path = riscv-fesvr
 	url = https://github.com/riscv/riscv-fesvr.git
+[submodule "riscv-qemu"]
+	path = riscv-qemu
+	url = git://github.com/riscv/riscv-qemu.git
