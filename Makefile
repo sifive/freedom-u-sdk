@@ -1,3 +1,5 @@
+# RISCV should either be unset, or set to point to a directory that contains
+# a toolchain install tree that was built via other means.
 RISCV ?= $(CURDIR)/toolchain
 PATH := $(RISCV)/bin:$(PATH)
 ISA ?= rv64imafdc
@@ -58,6 +60,11 @@ all: $(hex)
 	@echo Find the SD-card image in work/bbl.bin
 	@echo Program it with: dd if=work/bbl.bin of=/dev/sd-your-card bs=1M
 	@echo
+
+ifneq ($(RISCV),$(toolchain_dest))
+$(RISCV)/bin/$(target)-gcc:
+	$(error The RISCV environment variable was set, but is not pointing at a toolchain install tree)
+endif
 
 $(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
 	mkdir -p $(toolchain_wrkdir)
