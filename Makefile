@@ -56,9 +56,12 @@ target := riscv64-unknown-linux-gnu
 .PHONY: all
 all: $(hex)
 	@echo
-	@echo This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)
-	@echo Find the SD-card image in work/bbl.bin
-	@echo Program it with: dd if=work/bbl.bin of=/dev/sd-your-card bs=1M
+	@echo "This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)"
+	@echo "Find the image in work/bbl.bin, which should be written to a boot partition"
+	@echo
+	@echo "To completely erase, reformat, and program a disk sdX, run:"
+	@echo "  sudo make DISK=/dev/sdX format-boot-loader"
+	@echo "  ... you will need gdisk and e2fsprogs installed"
 	@echo
 
 ifneq ($(RISCV),$(toolchain_dest))
@@ -214,3 +217,19 @@ qemu: $(qemu) $(bbl) $(rootfs)
 	$(qemu) -nographic -machine virt -kernel $(bbl) \
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
+
+# Relevant partition type codes
+BBL   = 2E54B353-1271-4842-806F-E436D6AF6985
+LINUX = 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+FSBL  = 5B193300-FC78-40CD-8002-E86C45580B47
+
+.PHONY: format-boot-loader
+format-boot-loader: $(bin)
+	@test -b $(DISK) || echo "$DISK: is not a block device"
+	sgdisk --clear                                                               \
+		--new=1:2048:67583  --change-name=1:bootloader --typecode=1:$(BBL)   \
+		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
+		$(DISK)
+	@sleep 1
+	dd if=$< of=$(DISK)*1 bs=4096
+	mke2fs -t ext3 $(DISK)*2
