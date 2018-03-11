@@ -76,6 +76,7 @@ $(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
 		--prefix=$(toolchain_dest) \
 		--with-arch=$(ISA) \
 		--with-abi=$(ABI) \
+		--with-guile=guile-2.0 \
 		--enable-linux
 	$(MAKE) -C $(toolchain_wrkdir)
 	sed 's/^#define LINUX_VERSION_CODE.*/#define LINUX_VERSION_CODE 263682/' -i $(toolchain_dest)/sysroot/usr/include/linux/version.h
