@@ -192,6 +192,7 @@ $(qemu): $(qemu_srcdir)
 	mkdir -p $(dir $@)
 	cd $(qemu_wrkdir) && $</configure \
 		--prefix=$(dir $(abspath $(dir $@))) \
+		--python=python2 \
 		--target-list=riscv64-softmmu
 	$(MAKE) -C $(qemu_wrkdir)
 	$(MAKE) -C $(qemu_wrkdir) install
