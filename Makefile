@@ -231,5 +231,18 @@ format-boot-loader: $(bin)
 		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
 		$(DISK)
 	@sleep 1
-	dd if=$< of=$(DISK)*1 bs=4096
-	mke2fs -t ext3 $(DISK)*2
+ifeq ($(DISK)p1,$(wildcard $(DISK)p1))
+	@$(eval PART1 := $(DISK)p1)
+	@$(eval PART2 := $(DISK)p2)
+else ifeq ($(DISK)s1,$(wildcard $(DISK)s1))
+	@$(eval PART1 := $(DISK)s1)
+	@$(eval PART2 := $(DISK)s2)
+else ifeq ($(DISK)1,$(wildcard $(DISK)1))
+	@$(eval PART1 := $(DISK)1)
+	@$(eval PART2 := $(DISK)2)
+else
+	@echo Error: Could not find bootloader partition for $(DISK)
+	@exit 1
+endif
+	dd if=$< of=$(PART1) bs=4096
+	mke2fs -t ext3 $(PART2)
