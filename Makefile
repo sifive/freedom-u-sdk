@@ -225,7 +225,7 @@ FSBL  = 5B193300-FC78-40CD-8002-E86C45580B47
 
 .PHONY: format-boot-loader
 format-boot-loader: $(bin)
-	@test -b $(DISK) || echo "$DISK: is not a block device"
+	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	sgdisk --clear                                                               \
 		--new=1:2048:67583  --change-name=1:bootloader --typecode=1:$(BBL)   \
 		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
