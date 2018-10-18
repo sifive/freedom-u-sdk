@@ -23,4 +23,4 @@
                    55555
                      5
 
-           SiFive RISC-V Coreplex
+           SiFive RISC-V Core IP
