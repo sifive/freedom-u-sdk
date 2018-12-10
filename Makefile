@@ -49,6 +49,10 @@ qemu_srcdir := $(srcdir)/riscv-qemu
 qemu_wrkdir := $(wrkdir)/riscv-qemu
 qemu := $(qemu_wrkdir)/prefix/bin/qemu-system-riscv64
 
+uboot_srcdir := $(srcdir)/HiFive_U-Boot
+uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
+uboot := $(uboot_wrkdir)/u-boot.bin
+
 rootfs := $(wrkdir)/rootfs.bin
 
 target := riscv64-unknown-linux-gnu
@@ -201,6 +205,13 @@ $(qemu): $(qemu_srcdir)
 	$(MAKE) -C $(qemu_wrkdir) install
 	touch -c $@
 
+$(uboot): $(uboot_srcdir)
+	rm -rf $(uboot_wrkdir)
+	mkdir -p $(uboot_wrkdir)
+	mkdir -p $(dir $@)
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir)
+
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
 
@@ -223,31 +234,48 @@ qemu: $(qemu) $(bbl) $(rootfs)
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
 
+.PHONY: uboot
+uboot: $(uboot)
+
 # Relevant partition type codes
-BBL   = 2E54B353-1271-4842-806F-E436D6AF6985
-LINUX = 0FC63DAF-8483-4772-8E79-3D69D8477DE4
-FSBL  = 5B193300-FC78-40CD-8002-E86C45580B47
+BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
+LINUX		= 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+#FSBL		= 5B193300-FC78-40CD-8002-E86C45580B47
+UBOOT		= 5B193300-FC78-40CD-8002-E86C45580B47
+UBOOTENV	= a09354ac-cd63-11e8-9aff-70b3d592f0fa
+UBOOTDTB	= 070dd1a8-cd64-11e8-aa3d-70b3d592f0fa
+UBOOTFIT	= 04ffcafa-cd65-11e8-b974-70b3d592f0fa
 
 .PHONY: format-boot-loader
-format-boot-loader: $(bin)
+format-boot-loader: $(bin) $(uboot)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
-	sgdisk --clear                                                               \
-		--new=1:2048:67583  --change-name=1:bootloader --typecode=1:$(BBL)   \
+	/sbin/sgdisk --clear                                                               \
+		--new=1:2048:67583  --change-name=1:BBL/linux  --typecode=1:$(BBL)   \
 		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
+		--new=3:1248:2047   --change-name=3:uboot      --typecode=3:$(UBOOT) \
+		--new=4:1024:1247   --change-name=4:env        --typecode=4:$(UBOOTENV) \
 		$(DISK)
+	#/sbin/partprobe
 	@sleep 1
 ifeq ($(DISK)p1,$(wildcard $(DISK)p1))
 	@$(eval PART1 := $(DISK)p1)
 	@$(eval PART2 := $(DISK)p2)
+	@$(eval PART3 := $(DISK)p3)
+	@$(eval PART4 := $(DISK)p4)
 else ifeq ($(DISK)s1,$(wildcard $(DISK)s1))
 	@$(eval PART1 := $(DISK)s1)
 	@$(eval PART2 := $(DISK)s2)
+	@$(eval PART3 := $(DISK)s3)
+	@$(eval PART4 := $(DISK)s4)
 else ifeq ($(DISK)1,$(wildcard $(DISK)1))
 	@$(eval PART1 := $(DISK)1)
 	@$(eval PART2 := $(DISK)2)
+	@$(eval PART3 := $(DISK)3)
+	@$(eval PART4 := $(DISK)4)
 else
 	@echo Error: Could not find bootloader partition for $(DISK)
 	@exit 1
 endif
-	dd if=$< of=$(PART1) bs=4096
-	mke2fs -t ext3 $(PART2)
+	dd if=$(bin) of=$(PART1) bs=4096
+	dd if=$(uboot) of=$(PART3) bs=4096
+	/sbin/mke2fs -t ext3 $(PART2)

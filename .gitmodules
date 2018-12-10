@@ -19,3 +19,7 @@
 [submodule "riscv-qemu"]
 	path = riscv-qemu
 	url = git://github.com/riscv/riscv-qemu.git
+[submodule "HiFive_U-Boot"]
+	path = HiFive_U-Boot
+	url = https://github.com/tmagik/HiFive_U-Boot
+	branch = regression
