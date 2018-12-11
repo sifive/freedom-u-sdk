@@ -138,6 +138,7 @@ endif
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
 		ARCH=riscv \
+		CROSS_COMPILE=$(target)- \
 		vmlinux
 
 $(vmlinux)-initramfs: $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
@@ -210,7 +211,7 @@ $(uboot): $(uboot_srcdir)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
-	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir)
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(target)-
 
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
