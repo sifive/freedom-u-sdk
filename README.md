@@ -1,13 +1,13 @@
-# SiFive Freedom Uleashed SDK
+# SiFive Freedom Unleashed SDK
 
-This builds a complete RISC-V cross-compile toolchain for the SiFive Freedom Unleashed U500 SoC. It also builds a `bbl` image for booting the Freedom Unleash development board.
+This builds a complete RISC-V cross-compile toolchain for the SiFive Freedom Unleashed U500 SoC. It also builds a `bbl` image for booting the Freedom Unleashed development board.
 
 ## Tested Configurations
 
 ### Ubuntu 16.04 x86_64 host
 
 - Status: Working
-- Build dependencies: `build-essential git autotools texinfo bison flex libgmp-dev libmpfr-dev libmpc-dev`
+- Build dependencies: `build-essential git autotools texinfo bison flex libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev`
 
 ### Arch Linux x86_64 Host
 
@@ -27,3 +27,8 @@ Once the submodules are initialized, run `make` and the complete toolchain and b
 
 Once the build of the SDK is complete, there will be a new bbl image under `work/bbl.bin`. This can be copied to the first partition of the MicroSD card using the `dd` tool.
 
+## Booting Linux on a simulator
+
+You can boot linux on qemu by running `make qemu`.
+
+You can boot linux on spike by running `make sim`.
