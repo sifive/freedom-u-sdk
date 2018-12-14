@@ -8,6 +8,8 @@ This builds a complete RISC-V cross-compile toolchain for the SiFive Freedom Unl
 
 - Status: Working
 - Build dependencies: `build-essential git autotools texinfo bison flex libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev`
+- Additional build deps for QEMU: `libglib2.0-dev libpixman-1-dev`
+- Additional build deps for Spike: `device-tree-compiler`
 
 ### Arch Linux x86_64 Host
 
@@ -31,4 +33,22 @@ Once the build of the SDK is complete, there will be a new bbl image under `work
 
 You can boot linux on qemu by running `make qemu`.
 
-You can boot linux on spike by running `make sim`.
+You can boot linux on spike by running `make sim`.  This requires a patch to
+enable the old serial driver, because the new one which works best on the
+Freedom Unleashed hardware unfortunately does not work on spike.
+
+```
+diff --git a/conf/linux_defconfig b/conf/linux_defconfig
+index cd87340..87b480f 100644
+--- a/conf/linux_defconfig
++++ b/conf/linux_defconfig
+@@ -53,7 +53,7 @@ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_OF_PLATFORM=y
+ CONFIG_SERIAL_SIFIVE=y
+ CONFIG_SERIAL_SIFIVE_CONSOLE=y
+-# CONFIG_HVC_RISCV_SBI is not set
++CONFIG_HVC_RISCV_SBI=y
+ CONFIG_VIRTIO_CONSOLE=y
+ # CONFIG_HW_RANDOM is not set
+ CONFIG_I2C=y
+```
