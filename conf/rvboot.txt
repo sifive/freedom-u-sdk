@@ -1,0 +1,5 @@
+bblfile=bbl.bin
+bbladdr=80000000
+loadbbl=dhcp ${bbladdr} ${bblfile}; setenv bblsize ${filesize}
+newfdt=f0000000
+boot2=run loadbbl; go ${bbladdr}

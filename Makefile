@@ -35,6 +35,7 @@ pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
 bbl := $(pk_wrkdir)/bbl
 bin := $(wrkdir)/bbl.bin
+fit := $(wrkdir)/image.fit
 hex := $(wrkdir)/bbl.hex
 
 fesvr_srcdir := $(srcdir)/riscv-fesvr
@@ -162,14 +163,28 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	rm -rf $(pk_wrkdir)
 	mkdir -p $(pk_wrkdir)
 	cd $(pk_wrkdir) && $</configure \
+		--enable-print-device-tree \
 		--host=$(target) \
 		--with-payload=$(vmlinux_stripped) \
 		--enable-logo \
 		--with-logo=$(abspath conf/sifive_logo.txt)
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
 
+$(bbl)-nopayload: $(pk_srcdir) $(vmlinux_stripped)
+	rm -rf $(pk_wrkdir)
+	mkdir -p $(pk_wrkdir)
+	cd $(pk_wrkdir) && $</configure \
+		--enable-print-device-tree \
+		--host=$(target) \
+		--enable-logo \
+		--with-logo=$(abspath conf/sifive_logo.txt)
+	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
+
 $(bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
+
+$(fit): $(bbl)-nopayload $(vmlinux_stripped)
+	$(uboot_wrkdir)/tools/mkimage -f auto -A riscv -O linux -T flat_dt -d $(pk_wrkdir)/bbl -d $(vmlinux_stripped) -i $( $@
 
 $(hex):	$(bin)
 	xxd -c1 -p $< > $@
