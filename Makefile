@@ -31,6 +31,8 @@ linux_defconfig := $(confdir)/linux_defconfig
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 
+initramfs := $(wrkdir)/initramfs.cpio.gz
+
 pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
 bbl := $(pk_wrkdir)/bbl
@@ -142,13 +144,23 @@ $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroo
 		CROSS_COMPILE=$(target)- \
 		vmlinux
 
-$(vmlinux)-initramfs: $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
+.PHONY: initrd
+initrd: 
+	# force removal and rebuild 
+	rm -f $(linux_wrkdir)/usr/initramfs_data.*
+	$(MAKE) $(initramfs)
+
+$(initramfs): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
 		CONFIG_INITRAMFS_SOURCE="$(confdir)/initramfs.txt $(buildroot_initramfs_sysroot)" \
 		CONFIG_INITRAMFS_ROOT_UID=$(shell id -u) \
 		CONFIG_INITRAMFS_ROOT_GID=$(shell id -g) \
+		CROSS_COMPILE=$(target)- \
 		ARCH=riscv \
-		vmlinux
+		usr/initramfs_data.o
+	gzip -cvf9 $(linux_wrkdir)/usr/initramfs_data.cpio > $(initramfs)
+	# Remove this afterwards so 'make vmlinux' doesn't include an initrd
+	rm -f $(linux_wrkdir)/usr/initramfs_data.*
 
 $(vmlinux_stripped): $(vmlinux)
 	$(target)-strip -o $@ $<
@@ -165,7 +177,6 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	cd $(pk_wrkdir) && $</configure \
 		--enable-print-device-tree \
 		--host=$(target) \
-		--with-payload=$(vmlinux_stripped) \
 		--enable-logo \
 		--with-logo=$(abspath conf/sifive_logo.txt)
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
@@ -246,7 +257,7 @@ sim: $(spike) $(bbl)
 
 .PHONY: qemu
 qemu: $(qemu) $(bbl) $(rootfs)
-	$(qemu) -nographic -machine virt -kernel $(bbl) \
+	$(qemu) -nographic -machine virt -bios $(bbl) -kernel $(vmlinux) -initrd $(initramfs) \
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
 

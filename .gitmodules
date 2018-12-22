@@ -23,3 +23,6 @@
 	path = HiFive_U-Boot
 	url = https://github.com/tmagik/HiFive_U-Boot
 	branch = regression
+[submodule "gptfdisk"]
+	path = gptfdisk
+	url = https://github.com/tmagik/gptfdisk
