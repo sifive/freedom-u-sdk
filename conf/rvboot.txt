@@ -1,5 +1,18 @@
 bblfile=bbl.bin
+vmlfile=vmlinux.bin
+irdfile=initramfs.cpio.gz
+fdtfile=hifive-unleashed-a00-fu540.dtb
 bbladdr=80000000
+vmladdr=81000000
+irdaddr=82000000
+fdtaddr=83000000
 loadbbl=dhcp ${bbladdr} ${bblfile}; setenv bblsize ${filesize}
+loadvml=dhcp ${vmladdr} ${vmlfile}; setenv vmlsize ${filesize}
+loadird=dhcp ${irdaddr} ${irdfile}; setenv irdsize ${filesize}
+loadfdt=dhcp ${fdtaddr} ${fdtfile}; setenv fdtsize ${filesize}
 newfdt=f0000000
-boot2=run loadbbl; go ${bbladdr}
+setup1=fdt addr ${newfdt}; fdt resize; fdt set /chosen linux,initrd-start <0x0 0x${irdaddr}>; fdt set /chosen riscv,kernel-start <0x0 0x${vmladdr}>
+setup2=setexpr vmlend ${vmladdr} + ${vmlsize}; setexpr irdend ${irdaddr} + ${irdsize}
+setup3=fdt set /chosen linux,initrd-end <0x0 0x${irdend}>; fdt set /chosen riscv,kernel-end <0x0 0x${vmlend}>
+boot2=run loadbbl; run loadvml; run loadird; run loadfdt; run setup1; run setup2; run setup3; go 80000000
+
