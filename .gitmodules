@@ -1,6 +1,6 @@
 [submodule "linux"]
 	path = linux
-	url = https://github.com/riscv/riscv-linux.git
+	url = https://github.com/sifive/riscv-linux.git
 [submodule "buildroot"]
 	path = buildroot
 	url = https://github.com/sifive/buildroot.git
@@ -19,3 +19,10 @@
 [submodule "riscv-qemu"]
 	path = riscv-qemu
 	url = git://github.com/riscv/riscv-qemu.git
+[submodule "HiFive_U-Boot"]
+	path = HiFive_U-Boot
+	url = https://github.com/tmagik/HiFive_U-Boot
+	branch = regression
+[submodule "gptfdisk"]
+	path = gptfdisk
+	url = https://github.com/tmagik/gptfdisk
