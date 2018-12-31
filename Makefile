@@ -30,13 +30,14 @@ linux_defconfig := $(confdir)/linux_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
+vmlinux_bin := $(wrkdir)/vmlinux.bin
 
 initramfs := $(wrkdir)/initramfs.cpio.gz
 
 pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
 bbl := $(pk_wrkdir)/bbl
-bin := $(wrkdir)/bbl.bin
+bbl_bin := $(wrkdir)/bbl.bin
 fit := $(wrkdir)/image.fit
 hex := $(wrkdir)/bbl.hex
 
@@ -145,25 +146,23 @@ $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroo
 		vmlinux
 
 .PHONY: initrd
-initrd: 
-	# force removal and rebuild 
-	rm -f $(linux_wrkdir)/usr/initramfs_data.*
-	$(MAKE) $(initramfs)
+initrd: $(initramfs)
 
-$(initramfs): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
-	$(MAKE) -C $< O=$(linux_wrkdir) \
-		CONFIG_INITRAMFS_SOURCE="$(confdir)/initramfs.txt $(buildroot_initramfs_sysroot)" \
-		CONFIG_INITRAMFS_ROOT_UID=$(shell id -u) \
-		CONFIG_INITRAMFS_ROOT_GID=$(shell id -g) \
-		CROSS_COMPILE=$(target)- \
-		ARCH=riscv \
-		usr/initramfs_data.o
-	gzip -cvf9 $(linux_wrkdir)/usr/initramfs_data.cpio > $(initramfs)
-	# Remove this afterwards so 'make vmlinux' doesn't include an initrd
-	rm -f $(linux_wrkdir)/usr/initramfs_data.*
+$(initramfs).d:
+	$(linux_srcdir)/usr/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
+
+$(initramfs):
+	cd $(linux_wrkdir) && \
+		$(linux_srcdir)/usr/gen_initramfs_list.sh \
+		-o $@ -u $(shell id -u) -g $(shell id -g) \
+		$(confdir)/initramfs.txt \
+		$(buildroot_initramfs_sysroot) 
 
 $(vmlinux_stripped): $(vmlinux)
 	$(target)-strip -o $@ $<
+
+$(vmlinux_bin): $(vmlinux)
+	$(target)-objcopy -O binary $< $@
 
 .PHONY: linux-menuconfig
 linux-menuconfig: $(linux_wrkdir)/.config
@@ -180,13 +179,13 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 		--with-logo=$(abspath conf/sifive_logo.txt)
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
 
-$(bin): $(bbl)
+$(bbl_bin): $(bbl)
 	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
-$(fit): $(bbl) $(vmlinux_stripped) $(uboot)
-	$(uboot_wrkdir)/tools/mkimage -f auto -A riscv -O linux -T flat_dt -d $(pk_wrkdir)/bbl -d $(vmlinux_stripped) -i $(initramfs) $@
+$(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(initramfs) $(confdir)/uboot-fit-image.its
+	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
 
-$(hex):	$(bin)
+$(hex):	$(bbl_bin)
 	xxd -c1 -p $< > $@
 
 $(libfesvr): $(fesvr_srcdir)
@@ -264,7 +263,7 @@ UBOOTDTB	= 070dd1a8-cd64-11e8-aa3d-70b3d592f0fa
 UBOOTFIT	= 04ffcafa-cd65-11e8-b974-70b3d592f0fa
 
 .PHONY: format-boot-loader
-format-boot-loader: $(bin) $(uboot)
+format-boot-loader: $(bbl_bin) $(uboot)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear                                                               \
 		--new=1:2048:67583  --change-name=1:BBL/linux  --typecode=1:$(BBL)   \
@@ -293,6 +292,8 @@ else
 	@echo Error: Could not find bootloader partition for $(DISK)
 	@exit 1
 endif
-	dd if=$(bin) of=$(PART1) bs=4096
+	dd if=$(bbl_bin) of=$(PART1) bs=4096
 	dd if=$(uboot) of=$(PART3) bs=4096
 	/sbin/mke2fs -t ext3 $(PART2)
+
+-include $(initramfs).d
