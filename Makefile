@@ -149,11 +149,11 @@ $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroo
 initrd: $(initramfs)
 
 $(initramfs).d:
-	$(linux_srcdir)/usr/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
+	$(linux_srcdir)/scripts/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
 
 $(initramfs):
 	cd $(linux_wrkdir) && \
-		$(linux_srcdir)/usr/gen_initramfs_list.sh \
+		$(linux_srcdir)/scripts/gen_initramfs_list.sh \
 		-o $@ -u $(shell id -u) -g $(shell id -g) \
 		$(confdir)/initramfs.txt \
 		$(buildroot_initramfs_sysroot) 
