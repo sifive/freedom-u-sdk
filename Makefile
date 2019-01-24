@@ -245,7 +245,7 @@ sim: $(spike) $(bbl)
 	$(spike) --isa=$(ISA) -p4 $(bbl)
 
 .PHONY: qemu
-qemu: $(qemu) $(bbl) $(rootfs)
+qemu: $(qemu) $(bbl) $(rootfs) $(initramfs)
 	$(qemu) -nographic -machine virt -bios $(bbl) -kernel $(vmlinux) -initrd $(initramfs) \
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
@@ -255,6 +255,7 @@ uboot: $(uboot)
 
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
+VFAT            = EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
 LINUX		= 0FC63DAF-8483-4772-8E79-3D69D8477DE4
 #FSBL		= 5B193300-FC78-40CD-8002-E86C45580B47
 UBOOT		= 5B193300-FC78-40CD-8002-E86C45580B47
@@ -266,7 +267,7 @@ UBOOTFIT	= 04ffcafa-cd65-11e8-b974-70b3d592f0fa
 format-boot-loader: $(bbl_bin) $(uboot)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear                                                               \
-		--new=1:2048:67583  --change-name=1:BBL/linux  --typecode=1:$(BBL)   \
+		--new=1:2048:67583  --change-name=1:Vfat Boot  --typecode=1:$(VFAT)   \
 		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
 		--new=3:1248:2047   --change-name=3:uboot      --typecode=3:$(UBOOT) \
 		--new=4:1024:1247   --change-name=4:env        --typecode=4:$(UBOOTENV) \
@@ -294,6 +295,11 @@ else
 endif
 	dd if=$(bbl_bin) of=$(PART1) bs=4096
 	dd if=$(uboot) of=$(PART3) bs=4096
+	/sbin/mkfs.vfat $(PART1)
 	/sbin/mke2fs -t ext3 $(PART2)
+	echo "Please mount and copy work/image.fit & conf/uEnv.txt to the MSDOS(vfat) partition"
+	#mount $(PART1) some/mount/path
+	#cp work/image.fit conf/uEnv.txt some/mount/path hifiveu.fit
+	#umount some/mount/path
 
 -include $(initramfs).d

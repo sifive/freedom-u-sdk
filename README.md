@@ -29,6 +29,10 @@ Once the submodules are initialized, run `make` and the complete toolchain and b
 
 Once the build of the SDK is complete, there will be a new bbl image under `work/bbl.bin`. This can be copied to the first partition of the MicroSD card using the `dd` tool.
 
+## Installing image.fit and uEnv.txt
+
+ - Status: works, needs documentation
+
 ## Booting Linux on a simulator
 
 You can boot linux on qemu by running `make qemu`.
