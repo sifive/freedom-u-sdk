@@ -49,4 +49,3 @@ boot2=fatload mmc 0:1 ${fileaddr} ${fitfile}; bootm start ${fileaddr}; run setup
 
 # if you want to network boot, for testing, uncomment the following:
 #boot2=dhcp; env import -t ${fileaddr} ${filesize}; run boot2
-

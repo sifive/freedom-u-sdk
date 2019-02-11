@@ -264,15 +264,15 @@ UBOOTDTB	= 070dd1a8-cd64-11e8-aa3d-70b3d592f0fa
 UBOOTFIT	= 04ffcafa-cd65-11e8-b974-70b3d592f0fa
 
 .PHONY: format-boot-loader
-format-boot-loader: $(bbl_bin) $(uboot)
+format-boot-loader: $(bbl_bin) $(uboot) $(fit)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
-	/sbin/sgdisk --clear                                                               \
-		--new=1:2048:67583  --change-name=1:Vfat Boot  --typecode=1:$(VFAT)   \
-		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
-		--new=3:1248:2047   --change-name=3:uboot      --typecode=3:$(UBOOT) \
-		--new=4:1024:1247   --change-name=4:env        --typecode=4:$(UBOOTENV) \
+	/sbin/sgdisk --clear  \
+		--new=1:2048:67583  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
+		--new=2:264192:     --change-name=2:root	--typecode=2:$(LINUX) \
+		--new=3:1248:2047   --change-name=3:uboot	--typecode=3:$(UBOOT) \
+		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
-	#/sbin/partprobe
+	-/sbin/partprobe
 	@sleep 1
 ifeq ($(DISK)p1,$(wildcard $(DISK)p1))
 	@$(eval PART1 := $(DISK)p1)
@@ -293,13 +293,11 @@ else
 	@echo Error: Could not find bootloader partition for $(DISK)
 	@exit 1
 endif
-	dd if=$(bbl_bin) of=$(PART1) bs=4096
 	dd if=$(uboot) of=$(PART3) bs=4096
 	/sbin/mkfs.vfat $(PART1)
-	/sbin/mke2fs -t ext3 $(PART2)
-	echo "Please mount and copy work/image.fit & conf/uEnv.txt to the MSDOS(vfat) partition"
-	#mount $(PART1) some/mount/path
-	#cp work/image.fit conf/uEnv.txt some/mount/path hifiveu.fit
-	#umount some/mount/path
+	# disabled, for now
+	#/sbin/mke2fs -t ext4 $(PART2)
+	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(fit) ::hifiveu.fit
+	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(confdir)/uEnv.txt ::uEnv.txt
 
 -include $(initramfs).d
