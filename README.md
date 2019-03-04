@@ -1,37 +1,68 @@
 # SiFive Freedom Unleashed SDK
 
-This builds a complete RISC-V cross-compile toolchain for the SiFive Freedom Unleashed U500 SoC. It also builds a `bbl` image for booting the Freedom Unleashed development board.
+This builds a complete RISC-V cross-compile toolchain for the SiFive Freedom
+Unleashed U500 SoC. It also builds U-boot and a flattened image tree (FIT)
+image with a BBL binary, linux kernel, device tree, and ramdisk for the HiFive
+Unleashed development board.
 
 ## Tested Configurations
 
 ### Ubuntu 16.04 x86_64 host
 
 - Status: Working
-- Build dependencies: `build-essential git autotools texinfo bison flex libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev`
+- Build dependencies: `build-essential git autotools texinfo bison flex
+  libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev`
 - Additional build deps for QEMU: `libglib2.0-dev libpixman-1-dev`
 - Additional build deps for Spike: `device-tree-compiler`
 
-### Arch Linux x86_64 Host
+### Debian Linux (sid) RiscV Host
 
- - Status: Not working (Broken Python development environment)
+- Status: Not supported (Riscv-gnu-toolchain does not build natively)
+- Likely to work native Debian gcc 
 
 ## Build Instructions
 
-Checkout this repository. Then you will need to checkout all of the linked submodules using:
+Checkout this repository. Then you will need to checkout all of the linked
+submodules using:
 
 `git submodule update --recursive --init`
 
-This will take some time and require around 7GB of disk space. Some modules may fail because certain dependencies don't have the best git hosting. The only solution is to wait and try again later (or ask someone for a copy of that source repository).
+This will take some time and require around 7GB of disk space. Some modules may
+fail because certain dependencies don't have the best git hosting. The only
+solution is to wait and try again later (or ask someone for a copy of that
+source repository).
 
-Once the submodules are initialized, run `make` and the complete toolchain and bbl image will be built. The completed build tree will consume about 14G of disk space.
+Once the submodules are initialized, run `make` and the complete toolchain and
+bbl image will be built. The completed build tree will consume about 14G of
+disk space.
 
-## Upgrading the BBL for booting the Freedom Unleashed dev board
+## Upgrading to U-boot for booting the Freedom Unleashed dev board
 
-Once the build of the SDK is complete, there will be a new bbl image under `work/bbl.bin`. This can be copied to the first partition of the MicroSD card using the `dd` tool.
+Once the build of the SDK is complete, there will be a new u-boot FIT image
+under 'work/image.fit'. This can be copied to the first partition of the
+MicroSD card, which should be formatted as an MSDOS partition and contain a
+file called 'uEnv.txt' which contains the default U-boot environment. This file
+can be edited to change boot behavior. See the inline comments in the file for
+further information. (The file can be found in conf/uEnv.txt as well)
 
-## Installing image.fit and uEnv.txt
+To boot U-boot, the currently supported method is to set the mode select
+switches to boot from the SDcard, and have U-boot on an SDcard, which can be
+formatted and set up with the command `make DISK=/dev/sdX format-boot-loader`
+where X is replaced with the device name of the SDcard.
 
- - Status: works, needs documentation
+TODO: document Udev rules to allow this to run without root or sudo
+
+The mode select switches should be set as follows:
+```
+      USB   LED    Mode Select                  Ethernet
+ +===|___|==****==+-+-+-+-+-+-+=================|******|===+
+ |                | | | | |X| |                 |      |   |
+ |                | | | | | | |                 |      |   |
+ |        HFXSEL->|X|X|X|X| |X|                 |______|   |
+ |                +-+-+-+-+-+-+                            |
+ |        RTCSEL-----/ 0 1 2 3 <--MSEL                     |
+ |                                                         |
+```
 
 ## Booting Linux on a simulator
 

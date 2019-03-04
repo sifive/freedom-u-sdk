@@ -39,7 +39,6 @@ pk_wrkdir := $(wrkdir)/riscv-pk
 bbl := $(pk_wrkdir)/bbl
 bbl_bin := $(wrkdir)/bbl.bin
 fit := $(wrkdir)/image.fit
-hex := $(wrkdir)/bbl.hex
 
 fesvr_srcdir := $(srcdir)/riscv-fesvr
 fesvr_wrkdir := $(wrkdir)/riscv-fesvr
@@ -62,14 +61,16 @@ rootfs := $(wrkdir)/rootfs.bin
 target := riscv64-unknown-linux-gnu
 
 .PHONY: all
-all: $(hex)
+all: $(fit)
 	@echo
 	@echo "This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)"
-	@echo "Find the image in work/bbl.bin, which should be written to a boot partition"
+	@echo "Find the image in work/image.fit, which should be copied to an MSDOS boot partition 1"
 	@echo
 	@echo "To completely erase, reformat, and program a disk sdX, run:"
 	@echo "  sudo make DISK=/dev/sdX format-boot-loader"
 	@echo "  ... you will need gdisk and e2fsprogs installed"
+	@echo "  Please note this will not currently format the SDcard ext4 partition"
+	@echo "  This can be done manually if needed"
 	@echo
 
 ifneq ($(RISCV),$(toolchain_dest))
@@ -184,9 +185,6 @@ $(bbl_bin): $(bbl)
 
 $(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(initramfs) $(confdir)/uboot-fit-image.its
 	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
-
-$(hex):	$(bbl_bin)
-	xxd -c1 -p $< > $@
 
 $(libfesvr): $(fesvr_srcdir)
 	rm -rf $(fesvr_wrkdir)
