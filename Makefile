@@ -266,7 +266,7 @@ format-boot-loader: $(bbl_bin) $(uboot) $(fit)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear  \
 		--new=1:2048:67583  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
-		--new=2:264192:     --change-name=2:root	--typecode=2:$(LINUX) \
+		--new=2:264192:11718750 --change-name=2:root	--typecode=2:$(LINUX) \
 		--new=3:1248:2047   --change-name=3:uboot	--typecode=3:$(UBOOT) \
 		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
@@ -293,9 +293,22 @@ else
 endif
 	dd if=$(uboot) of=$(PART3) bs=4096
 	/sbin/mkfs.vfat $(PART1)
-	# disabled, for now
-	#/sbin/mke2fs -t ext4 $(PART2)
 	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(fit) ::hifiveu.fit
 	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(confdir)/uEnv.txt ::uEnv.txt
+
+DEMO_IMAGE	:= sifive-debian-demo-mar5.tar.xz
+DEMO_URL	:= http://msp.7el.us/riscv/
+
+format-demo-image: format-boot-loader
+	@echo "Done setting up basic initramfs boot. We will now try to install"
+	@echo "a Debian snapshot to the Linux partition, which requires sudo"
+	@echo "you can safely cancel here"
+	# disabled, for now
+	/sbin/mke2fs -t ext4 $(PART2)
+	-mkdir tmp-mnt
+	-sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
+		sudo wget $(DEMO_URL)$(DEMO_IMAGE) && \
+		sudo tar -Jxvf $(DEMO_IMAGE)
+	sudo umount tmp-mnt
 
 -include $(initramfs).d

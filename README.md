@@ -14,11 +14,12 @@ Unleashed development board.
   libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev`
 - Additional build deps for QEMU: `libglib2.0-dev libpixman-1-dev`
 - Additional build deps for Spike: `device-tree-compiler`
+- tools require for 'format-boot-loader' target: mtools
 
 ### Debian Linux (sid) RiscV Host
 
 - Status: Not supported (Riscv-gnu-toolchain does not build natively)
-- Likely to work native Debian gcc 
+- Likely to work with native Debian gcc 
 
 ## Build Instructions
 
@@ -47,8 +48,13 @@ further information. (The file can be found in conf/uEnv.txt as well)
 
 To boot U-boot, the currently supported method is to set the mode select
 switches to boot from the SDcard, and have U-boot on an SDcard, which can be
-formatted and set up with the command `make DISK=/dev/sdX format-boot-loader`
-where X is replaced with the device name of the SDcard.
+formatted and set up with the command: 
+
+`make DISK=/dev/sdX format-boot-loader`
+
+where X is replaced with the device name of the SDcard. Alternatively,
+to download a pre-built Debian demo image, use the 'format-demo-image'
+target with the same syntax.
 
 TODO: document Udev rules to allow this to run without root or sudo
 
