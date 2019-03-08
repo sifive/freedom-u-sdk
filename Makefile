@@ -266,7 +266,7 @@ format-boot-loader: $(bbl_bin) $(uboot) $(fit)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear  \
 		--new=1:2048:67583  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
-		--new=2:264192:11718750 --change-name=2:root	--typecode=2:$(LINUX) \
+		--new=2:264192:10000000 --change-name=2:root	--typecode=2:$(LINUX) \
 		--new=3:1248:2047   --change-name=3:uboot	--typecode=3:$(UBOOT) \
 		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
@@ -296,8 +296,8 @@ endif
 	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(fit) ::hifiveu.fit
 	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(confdir)/uEnv.txt ::uEnv.txt
 
-DEMO_IMAGE	:= sifive-debian-demo-mar5.tar.xz
-DEMO_URL	:= http://msp.7el.us/riscv/
+DEMO_IMAGE	:= sifive-debian-demo-mar7.tar.xz
+DEMO_URL	:= https://github.com/tmagik/freedom-u-sdk/releases/download/hifiveu-2.0-alpha.1/
 
 format-demo-image: format-boot-loader
 	@echo "Done setting up basic initramfs boot. We will now try to install"
