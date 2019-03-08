@@ -32,6 +32,9 @@ vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
 
+flash_image := $(wrkdir)/hifive-unleashed-a00-YYYY-MM-DD.gpt
+vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
+
 initramfs := $(wrkdir)/initramfs.cpio.gz
 
 pk_srcdir := $(srcdir)/riscv-pk
@@ -261,6 +264,32 @@ UBOOTENV	= a09354ac-cd63-11e8-9aff-70b3d592f0fa
 UBOOTDTB	= 070dd1a8-cd64-11e8-aa3d-70b3d592f0fa
 UBOOTFIT	= 04ffcafa-cd65-11e8-b974-70b3d592f0fa
 
+flash.gpt: $(flash_image)
+
+VFAT_START=2048
+VFAT_END=65502
+VFAT_SIZE=63454
+UBOOT_START=1248
+UBOOT_END=2047
+UBOOT_SIZE=799
+
+$(vfat_image): $(fit) $(confdir)/uEnv.txt
+	dd if=/dev/zero of=$(vfat_image) bs=512 count=$(VFAT_SIZE)
+	/sbin/mkfs.vfat $(vfat_image)
+	MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(fit) ::hifiveu.fit
+	MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(confdir)/uEnv.txt ::uEnv.txt
+
+.PHONY: $(flash_image)
+$(flash_image): $(uboot) $(fit) $(vfat_image)
+	dd if=/dev/zero of=$(flash_image) bs=1M count=32
+	/sbin/sgdisk --clear  \
+		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
+		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
+		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
+		$(flash_image)
+	dd conv=notrunc if=$(vfat_image) of=$(flash_image) bs=512 seek=$(VFAT_START)
+	dd conv=notrunc if=$(uboot) of=$(flash_image) bs=512 seek=$(UBOOT_START) count=$(UBOOT_SIZE)
+
 .PHONY: format-boot-loader
 format-boot-loader: $(bbl_bin) $(uboot) $(fit)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
@@ -292,9 +321,7 @@ else
 	@exit 1
 endif
 	dd if=$(uboot) of=$(PART3) bs=4096
-	/sbin/mkfs.vfat $(PART1)
-	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(fit) ::hifiveu.fit
-	MTOOLS_SKIP_CHECK=1 mcopy -i $(PART1) $(confdir)/uEnv.txt ::uEnv.txt
+	dd if=$(vfat_image) of=$(PART1) bs=4096
 
 DEMO_IMAGE	:= sifive-debian-demo-mar7.tar.xz
 DEMO_URL	:= https://github.com/tmagik/freedom-u-sdk/releases/download/hifiveu-2.0-alpha.1/
