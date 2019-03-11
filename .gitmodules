@@ -7,9 +7,6 @@
 [submodule "riscv-pk"]
 	path = riscv-pk
 	url = https://github.com/riscv/riscv-pk.git
-[submodule "riscv-gnu-toolchain"]
-	path = riscv-gnu-toolchain
-	url = https://github.com/riscv/riscv-gnu-toolchain.git
 [submodule "riscv-isa-sim"]
 	path = riscv-isa-sim
 	url = https://github.com/riscv/riscv-isa-sim.git
@@ -23,6 +20,3 @@
 	path = HiFive_U-Boot
 	url = https://github.com/sifive/HiFive_U-Boot
 	branch = regression
-[submodule "gptfdisk"]
-	path = gptfdisk
-	url = https://github.com/sifive/gptfdisk

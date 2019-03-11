@@ -1,7 +1,3 @@
-# RISCV should either be unset, or set to point to a directory that contains
-# a toolchain install tree that was built via other means.
-RISCV ?= $(CURDIR)/toolchain
-PATH := $(RISCV)/bin:$(PATH)
 ISA ?= rv64imafdc
 ABI ?= lp64d
 
@@ -10,12 +6,12 @@ srcdir := $(srcdir:/=)
 confdir := $(srcdir)/conf
 wrkdir := $(CURDIR)/work
 
-toolchain_srcdir := $(srcdir)/riscv-gnu-toolchain
-toolchain_wrkdir := $(wrkdir)/riscv-gnu-toolchain
-toolchain_dest := $(CURDIR)/toolchain
-
 buildroot_srcdir := $(srcdir)/buildroot
 buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
+
+RISCV ?= $(buildroot_initramfs_wrkdir)/host
+PATH := $(RISCV)/bin:$(PATH)
+
 buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
 buildroot_initramfs_sysroot_stamp := $(wrkdir)/.buildroot_initramfs_sysroot
@@ -62,7 +58,7 @@ uboot := $(uboot_wrkdir)/u-boot.bin
 
 rootfs := $(wrkdir)/rootfs.bin
 
-target := riscv64-unknown-linux-gnu
+target := riscv64-buildroot-linux-gnu
 
 .PHONY: all
 all: $(fit)
@@ -77,21 +73,10 @@ all: $(fit)
 	@echo "  This can be done manually if needed"
 	@echo
 
-ifneq ($(RISCV),$(toolchain_dest))
+ifneq ($(RISCV),$(buildroot_initramfs_wrkdir)/host)
 $(RISCV)/bin/$(target)-gcc:
 	$(error The RISCV environment variable was set, but is not pointing at a toolchain install tree)
 endif
-
-$(toolchain_dest)/bin/$(target)-gcc: $(toolchain_srcdir)
-	mkdir -p $(toolchain_wrkdir)
-	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv INSTALL_HDR_PATH=$(abspath $(toolchain_srcdir)/linux-headers) headers_install
-	cd $(toolchain_wrkdir); $(toolchain_srcdir)/configure \
-		--prefix=$(toolchain_dest) \
-		--with-arch=$(ISA) \
-		--with-abi=$(ABI) \
-		--enable-linux
-	$(MAKE) -C $(toolchain_wrkdir)
-	sed 's/^#define LINUX_VERSION_CODE.*/#define LINUX_VERSION_CODE 263682/' -i $(toolchain_dest)/sysroot/usr/include/linux/version.h
 
 $(buildroot_initramfs_wrkdir)/.config: $(buildroot_srcdir)
 	rm -rf $(dir $@)
@@ -99,7 +84,8 @@ $(buildroot_initramfs_wrkdir)/.config: $(buildroot_srcdir)
 	cp $(buildroot_initramfs_config) $@
 	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_initramfs_wrkdir) olddefconfig CROSS_COMPILE=riscv64-unknown-linux-gnu-
 
-$(buildroot_initramfs_tar): $(buildroot_srcdir) $(buildroot_initramfs_wrkdir)/.config $(RISCV)/bin/$(target)-gcc $(buildroot_initramfs_config)
+# buildroot_initrams provides gcc
+$(buildroot_initramfs_tar): $(buildroot_srcdir) $(buildroot_initramfs_wrkdir)/.config $(buildroot_initramfs_config)
 	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_initramfs_wrkdir)
 
 .PHONY: buildroot_initramfs-menuconfig
@@ -108,7 +94,8 @@ buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroo
 	$(MAKE) -C $(dir $<) O=$(buildroot_initramfs_wrkdir) savedefconfig
 	cp $(dir $<)/defconfig conf/buildroot_initramfs_config
 
-$(buildroot_rootfs_wrkdir)/.config: $(buildroot_srcdir)
+# use buildroot_initramfs toolchain
+$(buildroot_rootfs_wrkdir)/.config: $(buildroot_srcdir) $(buildroot_initramfs_tar)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
 	cp $(buildroot_rootfs_config) $@
@@ -132,8 +119,6 @@ $(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
 	mkdir -p $(dir $@)
 	cp -p $< $@
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
-	echo $(ISA)
-	echo $(filter rv32%,$(ISA))
 ifeq (,$(filter rv%c,$(ISA)))
 	sed 's/^.*CONFIG_RISCV_ISA_C.*$$/CONFIG_RISCV_ISA_C=n/' -i $@
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
