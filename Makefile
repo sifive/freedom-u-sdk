@@ -34,6 +34,7 @@ vmlinux_bin := $(wrkdir)/vmlinux.bin
 
 flash_image := $(wrkdir)/hifive-unleashed-a00-YYYY-MM-DD.gpt
 vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
+#ext_image := $(wrkdir)  # TODO
 
 initramfs := $(wrkdir)/initramfs.cpio.gz
 
@@ -279,7 +280,6 @@ $(vfat_image): $(fit) $(confdir)/uEnv.txt
 	MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(fit) ::hifiveu.fit
 	MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(confdir)/uEnv.txt ::uEnv.txt
 
-.PHONY: $(flash_image)
 $(flash_image): $(uboot) $(fit) $(vfat_image)
 	dd if=/dev/zero of=$(flash_image) bs=1M count=32
 	/sbin/sgdisk --clear  \
@@ -290,12 +290,25 @@ $(flash_image): $(uboot) $(fit) $(vfat_image)
 	dd conv=notrunc if=$(vfat_image) of=$(flash_image) bs=512 seek=$(VFAT_START)
 	dd conv=notrunc if=$(uboot) of=$(flash_image) bs=512 seek=$(UBOOT_START) count=$(UBOOT_SIZE)
 
+DEMO_END=11718750
+
+#$(demo_image): $(uboot) $(fit) $(vfat_image) $(ext_image)
+#	dd if=/dev/zero of=$(flash_image) bs=512 count=$(DEMO_END)
+#	/sbin/sgdisk --clear  \
+#		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
+#		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
+#		--new=2:264192:$(DEMO_END) --change-name=2:root	--typecode=2:$(LINUX) \
+#		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
+#		$(flash_image)
+#	dd conv=notrunc if=$(vfat_image) of=$(flash_image) bs=512 seek=$(VFAT_START)
+#	dd conv=notrunc if=$(uboot) of=$(flash_image) bs=512 seek=$(UBOOT_START) count=$(UBOOT_SIZE)
+
 .PHONY: format-boot-loader
 format-boot-loader: $(bbl_bin) $(uboot) $(fit)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear  \
 		--new=1:2048:67583  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
-		--new=2:264192:10000000 --change-name=2:root	--typecode=2:$(LINUX) \
+		--new=2:264192:$(DEMO_END) --change-name=2:root	--typecode=2:$(LINUX) \
 		--new=3:1248:2047   --change-name=3:uboot	--typecode=3:$(UBOOT) \
 		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
