@@ -148,11 +148,11 @@ $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(target_gcc)
 initrd: $(initramfs)
 
 $(initramfs).d: $(buildroot_initramfs_sysroot)
-	$(linux_srcdir)/scripts/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
+	$(linux_srcdir)/usr/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
 
 $(initramfs): $(buildroot_initramfs_sysroot)
 	cd $(linux_wrkdir) && \
-		$(linux_srcdir)/scripts/gen_initramfs_list.sh \
+		$(linux_srcdir)/usr/gen_initramfs_list.sh \
 		-o $@ -u $(shell id -u) -g $(shell id -g) \
 		$(confdir)/initramfs.txt \
 		$(buildroot_initramfs_sysroot) 
@@ -237,7 +237,7 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
-	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(target)-
+	$(MAKE) PATH=$(RVPATH) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(target)-
 
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
