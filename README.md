@@ -78,6 +78,11 @@ You can boot linux on spike by running `make sim`.  This requires a patch to
 enable the old serial driver, because the new one which works best on the
 Freedom Unleashed hardware unfortunately does not work on spike.
 
+The current build process also does not include an initrd with spike, so
+even if you do boot the kernel it will not have a root filesystem. If you
+would like to help, please see the qemu code for separate firmware and
+kernel payload options (commit 16aad29) or add an option to the riscv-pk
+build to allow a '--with-ramdisk' option, and send a patch or pull request.
 ```
 diff --git a/conf/linux_defconfig b/conf/linux_defconfig
 index cd87340..87b480f 100644

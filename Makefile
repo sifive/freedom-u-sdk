@@ -9,8 +9,9 @@ wrkdir := $(CURDIR)/work
 buildroot_srcdir := $(srcdir)/buildroot
 buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
 
+# TODO: make RISCV be able to be set to alternate toolchain path
 RISCV ?= $(buildroot_initramfs_wrkdir)/host
-PATH := $(RISCV)/bin:$(PATH)
+RVPATH := $(RISCV)/bin:$(PATH)
 
 buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
@@ -36,7 +37,9 @@ initramfs := $(wrkdir)/initramfs.cpio.gz
 
 pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
+pk_payload_wrkdir := $(wrkdir)/riscv-payload-pk
 bbl := $(pk_wrkdir)/bbl
+bbl_payload :=$(pk_payload_wrkdir)/bbl
 bbl_bin := $(wrkdir)/bbl.bin
 fit := $(wrkdir)/image.fit
 
@@ -59,34 +62,38 @@ uboot := $(uboot_wrkdir)/u-boot.bin
 rootfs := $(wrkdir)/rootfs.bin
 
 target := riscv64-buildroot-linux-gnu
+target_gcc := $(RISCV)/bin/$(target)-gcc
 
 .PHONY: all
-all: $(fit)
+all: $(fit) $(flash_image)
 	@echo
 	@echo "This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)"
 	@echo "Find the image in work/image.fit, which should be copied to an MSDOS boot partition 1"
 	@echo
 	@echo "To completely erase, reformat, and program a disk sdX, run:"
-	@echo "  sudo make DISK=/dev/sdX format-boot-loader"
+	@echo "  make DISK=/dev/sdX format-boot-loader"
 	@echo "  ... you will need gdisk and e2fsprogs installed"
 	@echo "  Please note this will not currently format the SDcard ext4 partition"
 	@echo "  This can be done manually if needed"
 	@echo
 
-ifneq ($(RISCV),$(buildroot_initramfs_wrkdir)/host)
-$(RISCV)/bin/$(target)-gcc:
-	$(error The RISCV environment variable was set, but is not pointing at a toolchain install tree)
-endif
+# TODO: depracated for now
+#ifneq ($(RISCV),$(buildroot_initramfs_wrkdir)/host)
+#$(target_gcc):
+#	$(error The RISCV environment variable was set, but is not pointing at a toolchain install tree)
+#else
+#$(target_gcc): $(buildroot_initramfs_tar)
+#endif
 
 $(buildroot_initramfs_wrkdir)/.config: $(buildroot_srcdir)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
 	cp $(buildroot_initramfs_config) $@
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_initramfs_wrkdir) olddefconfig CROSS_COMPILE=riscv64-unknown-linux-gnu-
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_initramfs_wrkdir) olddefconfig CROSS_COMPILE=riscv64-unknown-linux-gnu-
 
-# buildroot_initrams provides gcc
+# buildroot_initramfs provides gcc
 $(buildroot_initramfs_tar): $(buildroot_srcdir) $(buildroot_initramfs_wrkdir)/.config $(buildroot_initramfs_config)
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_initramfs_wrkdir)
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_initramfs_wrkdir)
 
 .PHONY: buildroot_initramfs-menuconfig
 buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroot_srcdir)
@@ -95,14 +102,15 @@ buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroo
 	cp $(dir $<)/defconfig conf/buildroot_initramfs_config
 
 # use buildroot_initramfs toolchain
+# TODO: fix path and conf/buildroot_rootfs_config
 $(buildroot_rootfs_wrkdir)/.config: $(buildroot_srcdir) $(buildroot_initramfs_tar)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
 	cp $(buildroot_rootfs_config) $@
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_rootfs_wrkdir) olddefconfig
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_rootfs_wrkdir) olddefconfig
 
-$(buildroot_rootfs_ext): $(buildroot_srcdir) $(buildroot_rootfs_wrkdir)/.config $(RISCV)/bin/$(target)-gcc $(buildroot_rootfs_config)
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(PATH) O=$(buildroot_rootfs_wrkdir)
+$(buildroot_rootfs_ext): $(buildroot_srcdir) $(buildroot_rootfs_wrkdir)/.config $(target_gcc) $(buildroot_rootfs_config)
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_rootfs_wrkdir)
 
 .PHONY: buildroot_rootfs-menuconfig
 buildroot_rootfs-menuconfig: $(buildroot_rootfs_wrkdir)/.config $(buildroot_srcdir)
@@ -129,19 +137,20 @@ ifeq ($(ISA),$(filter rv32%,$(ISA)))
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 endif
 
-$(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
+$(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(target_gcc)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
 		ARCH=riscv \
 		CROSS_COMPILE=$(target)- \
+		PATH=$(RVPATH) \
 		vmlinux
 
 .PHONY: initrd
 initrd: $(initramfs)
 
-$(initramfs).d:
+$(initramfs).d: $(buildroot_initramfs_sysroot)
 	$(linux_srcdir)/scripts/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
 
-$(initramfs):
+$(initramfs): $(buildroot_initramfs_sysroot)
 	cd $(linux_wrkdir) && \
 		$(linux_srcdir)/scripts/gen_initramfs_list.sh \
 		-o $@ -u $(shell id -u) -g $(shell id -g) \
@@ -149,10 +158,10 @@ $(initramfs):
 		$(buildroot_initramfs_sysroot) 
 
 $(vmlinux_stripped): $(vmlinux)
-	$(target)-strip -o $@ $<
+	PATH=$(RVPATH) $(target)-strip -o $@ $<
 
 $(vmlinux_bin): $(vmlinux)
-	$(target)-objcopy -O binary $< $@
+	PATH=$(RVPATH) $(target)-objcopy -O binary $< $@
 
 .PHONY: linux-menuconfig
 linux-menuconfig: $(linux_wrkdir)/.config
@@ -160,17 +169,31 @@ linux-menuconfig: $(linux_wrkdir)/.config
 	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv savedefconfig
 	cp $(dir $<)/defconfig conf/linux_defconfig
 
-$(bbl): $(pk_srcdir) $(vmlinux_stripped)
+$(bbl): $(pk_srcdir)
 	rm -rf $(pk_wrkdir)
 	mkdir -p $(pk_wrkdir)
-	cd $(pk_wrkdir) && $</configure \
+	cd $(pk_wrkdir) && PATH=$(RVPATH) $</configure \
 		--host=$(target) \
 		--enable-logo \
 		--with-logo=$(abspath conf/sifive_logo.txt)
-	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
+	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) PATH=$(RVPATH) -C $(pk_wrkdir)
+
+# Workaround for SPIKE until it can support loading bbl and
+# kernel as separate images like qemu and uboot. Unfortuately
+# at this point this means no easy way to have an initrd for spike
+$(bbl_payload): $(pk_srcdir) $(vmlinux_stripped) 
+	rm -rf $(pk_payload_wrkdir)
+	mkdir -p $(pk_payload_wrkdir)
+	cd $(pk_payload_wrkdir) && PATH=$(RVPATH) $</configure \
+		--host=$(target) \
+		--enable-logo \
+		--with-payload=$(vmlinux_stripped) \
+		--with-logo=$(abspath conf/sifive_logo.txt)
+	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) PATH=$(RVPATH) -C $(pk_payload_wrkdir)
+
 
 $(bbl_bin): $(bbl)
-	$(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
+	PATH=$(RVPATH) $(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
 $(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(initramfs) $(confdir)/uboot-fit-image.its
 	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
@@ -189,10 +212,10 @@ $(spike): $(spike_srcdir) $(libfesvr)
 	rm -rf $(spike_wrkdir)
 	mkdir -p $(spike_wrkdir)
 	mkdir -p $(dir $@)
-	cd $(spike_wrkdir) && $</configure \
+	cd $(spike_wrkdir) && PATH=$(RVPATH) $</configure \
 		--prefix=$(dir $(abspath $(dir $@))) \
 		--with-fesvr=$(dir $(abspath $(dir $(libfesvr))))
-	$(MAKE) -C $(spike_wrkdir)
+	$(MAKE) PATH=$(RVPATH) -C $(spike_wrkdir)
 	$(MAKE) -C $(spike_wrkdir) install
 	touch -c $@
 
@@ -200,6 +223,8 @@ $(qemu): $(qemu_srcdir)
 	rm -rf $(qemu_wrkdir)
 	mkdir -p $(qemu_wrkdir)
 	mkdir -p $(dir $@)
+	which pkg-config
+	# pkg-config from buildroot blows up qemu configure 
 	cd $(qemu_wrkdir) && $</configure \
 		--prefix=$(dir $(abspath $(dir $@))) \
 		--target-list=riscv64-softmmu
@@ -207,7 +232,7 @@ $(qemu): $(qemu_srcdir)
 	$(MAKE) -C $(qemu_wrkdir) install
 	touch -c $@
 
-$(uboot): $(uboot_srcdir)
+$(uboot): $(uboot_srcdir) $(target_gcc)
 	rm -rf $(uboot_wrkdir)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
@@ -216,6 +241,8 @@ $(uboot): $(uboot_srcdir)
 
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
+
+$(buildroot_initramfs_sysroot): $(buildroot_initramfs_sysroot_stamp)
 
 .PHONY: buildroot_initramfs_sysroot vmlinux bbl fit
 buildroot_initramfs_sysroot: $(buildroot_initramfs_sysroot)
@@ -228,14 +255,20 @@ clean:
 	rm -rf -- $(wrkdir) $(toolchain_dest)
 
 .PHONY: sim
-sim: $(spike) $(bbl)
-	$(spike) --isa=$(ISA) -p4 $(bbl)
+sim: $(spike) $(bbl_payload)
+	$(spike) --isa=$(ISA) -p4 $(bbl_payload)
 
 .PHONY: qemu
-qemu: $(qemu) $(bbl) $(rootfs) $(initramfs)
+qemu: $(qemu) $(bbl) $(vmlinux) $(initramfs)
+	$(qemu) -nographic -machine virt -bios $(bbl) -kernel $(vmlinux) -initrd $(initramfs) \
+		-netdev user,id=net0 -device virtio-net-device,netdev=net0
+
+.PHONY: qemu-rootfs
+qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 	$(qemu) -nographic -machine virt -bios $(bbl) -kernel $(vmlinux) -initrd $(initramfs) \
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
+
 
 .PHONY: uboot
 uboot: $(uboot)
@@ -255,22 +288,25 @@ flash.gpt: $(flash_image)
 VFAT_START=2048
 VFAT_END=65502
 VFAT_SIZE=63454
-UBOOT_START=1248
-UBOOT_END=2047
-UBOOT_SIZE=799
+UBOOT_START=1100
+UBOOT_END=2020
+UBOOT_SIZE=950
 
 $(vfat_image): $(fit) $(confdir)/uEnv.txt
+	@if [ `du --apparent-size --block-size=512 $(uboot) | cut -f 1` -ge $(UBOOT_SIZE) ]; then \
+		echo "Uboot is too large for partition!!\nReduce uboot or increase partition size"; \
+		rm $(flash_image); exit 1; fi
 	dd if=/dev/zero of=$(vfat_image) bs=512 count=$(VFAT_SIZE)
 	/sbin/mkfs.vfat $(vfat_image)
-	MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(fit) ::hifiveu.fit
-	MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(confdir)/uEnv.txt ::uEnv.txt
+	PATH=$(RVPATH) MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(fit) ::hifiveu.fit
+	PATH=$(RVPATH) MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(confdir)/uEnv.txt ::uEnv.txt
 
 $(flash_image): $(uboot) $(fit) $(vfat_image)
 	dd if=/dev/zero of=$(flash_image) bs=1M count=32
 	/sbin/sgdisk --clear  \
 		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
 		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
-		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
+		--new=4:1024:1099   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(flash_image)
 	dd conv=notrunc if=$(vfat_image) of=$(flash_image) bs=512 seek=$(VFAT_START)
 	dd conv=notrunc if=$(uboot) of=$(flash_image) bs=512 seek=$(UBOOT_START) count=$(UBOOT_SIZE)
@@ -289,7 +325,7 @@ DEMO_END=11718750
 #	dd conv=notrunc if=$(uboot) of=$(flash_image) bs=512 seek=$(UBOOT_START) count=$(UBOOT_SIZE)
 
 .PHONY: format-boot-loader
-format-boot-loader: $(bbl_bin) $(uboot) $(fit)
+format-boot-loader: $(bbl_bin) $(uboot) $(fit) $(vfat_image)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear  \
 		--new=1:2048:67583  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
@@ -328,7 +364,6 @@ format-demo-image: format-boot-loader
 	@echo "Done setting up basic initramfs boot. We will now try to install"
 	@echo "a Debian snapshot to the Linux partition, which requires sudo"
 	@echo "you can safely cancel here"
-	# disabled, for now
 	/sbin/mke2fs -t ext4 $(PART2)
 	-mkdir tmp-mnt
 	-sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
