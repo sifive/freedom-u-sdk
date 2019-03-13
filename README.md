@@ -52,11 +52,16 @@ formatted and set up with the command:
 
 `make DISK=/dev/sdX format-boot-loader`
 
-where X is replaced with the device name of the SDcard. Alternatively,
-to download a pre-built Debian demo image, use the 'format-demo-image'
-target with the same syntax.
+where X is replaced with the device name of the SDcard. Alternatively, to
+download a pre-built Debian demo image, use the 'format-demo-image' target with
+the same syntax. You may need to use sudo if you do not have udev rules set.
 
 TODO: document Udev rules to allow this to run without root or sudo
+
+The hifive-unleashed-a00-YYYY-MM-DD.gpt image file can be written to the flash
+with `dd` or another similiar tool, or flashed to the SPI flash with `flashcp`.
+Running from flash is not (yet) well supported, please file issues and send
+patches to fix problems.
 
 The mode select switches should be set as follows:
 ```

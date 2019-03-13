@@ -150,7 +150,7 @@ initrd: $(initramfs)
 $(initramfs).d: $(buildroot_initramfs_sysroot)
 	$(linux_srcdir)/usr/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
 
-$(initramfs): $(buildroot_initramfs_sysroot)
+$(initramfs): $(buildroot_initramfs_sysroot) $(vmlinux)
 	cd $(linux_wrkdir) && \
 		$(linux_srcdir)/usr/gen_initramfs_list.sh \
 		-o $@ -u $(shell id -u) -g $(shell id -g) \
