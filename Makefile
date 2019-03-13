@@ -12,6 +12,9 @@ buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
 # TODO: make RISCV be able to be set to alternate toolchain path
 RISCV ?= $(buildroot_initramfs_wrkdir)/host
 RVPATH := $(RISCV)/bin:$(PATH)
+target := riscv64-buildroot-linux-gnu
+
+CROSS_COMPILE := $(RISCV)/bin/$(target)-
 
 buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
@@ -61,8 +64,7 @@ uboot := $(uboot_wrkdir)/u-boot.bin
 
 rootfs := $(wrkdir)/rootfs.bin
 
-target := riscv64-buildroot-linux-gnu
-target_gcc := $(RISCV)/bin/$(target)-gcc
+target_gcc := $(CROSS_COMPILE)gcc
 
 .PHONY: all
 all: $(fit) $(flash_image)
@@ -89,11 +91,11 @@ $(buildroot_initramfs_wrkdir)/.config: $(buildroot_srcdir)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
 	cp $(buildroot_initramfs_config) $@
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_initramfs_wrkdir) olddefconfig CROSS_COMPILE=riscv64-unknown-linux-gnu-
+	$(MAKE) -C $< RISCV=$(RISCV) O=$(buildroot_initramfs_wrkdir) olddefconfig 
 
 # buildroot_initramfs provides gcc
 $(buildroot_initramfs_tar): $(buildroot_srcdir) $(buildroot_initramfs_wrkdir)/.config $(buildroot_initramfs_config)
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_initramfs_wrkdir)
+	$(MAKE) -C $< RISCV=$(RISCV) O=$(buildroot_initramfs_wrkdir)
 
 .PHONY: buildroot_initramfs-menuconfig
 buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroot_srcdir)
@@ -140,7 +142,7 @@ endif
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(target_gcc)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
 		ARCH=riscv \
-		CROSS_COMPILE=$(target)- \
+		CROSS_COMPILE=$(CROSS_COMPILE) \
 		PATH=$(RVPATH) \
 		vmlinux
 
@@ -237,7 +239,7 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
-	$(MAKE) PATH=$(RVPATH) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(target)-
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
 
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
