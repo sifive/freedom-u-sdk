@@ -293,6 +293,8 @@ VFAT_SIZE=63454
 UBOOT_START=1100
 UBOOT_END=2020
 UBOOT_SIZE=950
+UENV_START=1024
+UENV_END=1099
 
 $(vfat_image): $(fit) $(confdir)/uEnv.txt
 	@if [ `du --apparent-size --block-size=512 $(uboot) | cut -f 1` -ge $(UBOOT_SIZE) ]; then \
@@ -308,7 +310,7 @@ $(flash_image): $(uboot) $(fit) $(vfat_image)
 	/sbin/sgdisk --clear  \
 		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
 		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
-		--new=4:1024:1099   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
+		--new=4:$(UENV_START):$(UENV_END)   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(flash_image)
 	dd conv=notrunc if=$(vfat_image) of=$(flash_image) bs=512 seek=$(VFAT_START)
 	dd conv=notrunc if=$(uboot) of=$(flash_image) bs=512 seek=$(UBOOT_START) count=$(UBOOT_SIZE)
@@ -330,10 +332,10 @@ DEMO_END=11718750
 format-boot-loader: $(bbl_bin) $(uboot) $(fit) $(vfat_image)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
 	/sbin/sgdisk --clear  \
-		--new=1:2048:67583  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
+		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
 		--new=2:264192:$(DEMO_END) --change-name=2:root	--typecode=2:$(LINUX) \
-		--new=3:1248:2047   --change-name=3:uboot	--typecode=3:$(UBOOT) \
-		--new=4:1024:1247   --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
+		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
+		--new=4:$(UENV_START):$(UENV_END)  --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
 	-/sbin/partprobe
 	@sleep 1
