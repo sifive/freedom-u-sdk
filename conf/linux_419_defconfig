@@ -1,3 +1,7 @@
+# Things we added manually
+CONFIG_MMC=y
+CONFIG_MMC_SPI=y
+
 #
 # General setup
 #
