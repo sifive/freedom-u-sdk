@@ -20,3 +20,9 @@
 	path = HiFive_U-Boot
 	url = https://github.com/sifive/HiFive_U-Boot
 	branch = regression
+[submodule "u-boot"]
+	path = u-boot
+	url = git://github.com/sifive/u-boot
+[submodule "riscv-openocd"]
+	path = riscv-openocd
+	url = https://github.com/sifive/riscv-openocd

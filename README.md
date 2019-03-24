@@ -1,3 +1,5 @@
+# U-boot development sandbox. Work-in-progress
+
 # SiFive Freedom Unleashed SDK
 
 This builds a complete RISC-V cross-compile toolchain for the SiFive Freedom
@@ -18,8 +20,8 @@ Unleashed development board.
 
 ### Debian Linux (sid) RiscV Host
 
-- Status: Not supported (Riscv-gnu-toolchain does not build natively)
-- Likely to work with native Debian gcc 
+- Status: Not supported (buildroot fails)
+- Likely to work with native Debian gcc (RISCV=/usr)
 
 ## Build Instructions
 
