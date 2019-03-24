@@ -13,7 +13,12 @@ buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
 RISCV ?= $(buildroot_initramfs_wrkdir)/host
 RVPATH := $(RISCV)/bin:$(PATH)
 GITID := $(shell git describe --dirty --always)
+
+# The second option is the more standard version, however in
+# the interest of reproducibility, use the buildroot version that
+# we compile so as to minimize unepected surprises. 
 target := riscv64-sifive-linux-gnu
+#target := riscv64-linux-gnu
 
 CROSS_COMPILE := $(RISCV)/bin/$(target)-
 
