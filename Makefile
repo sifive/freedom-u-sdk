@@ -12,6 +12,7 @@ buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
 # TODO: make RISCV be able to be set to alternate toolchain path
 RISCV ?= $(buildroot_initramfs_wrkdir)/host
 RVPATH := $(RISCV)/bin:$(PATH)
+GITID := $(shell git describe --dirty --always)
 target := riscv64-sifive-linux-gnu
 
 CROSS_COMPILE := $(RISCV)/bin/$(target)-
@@ -32,7 +33,7 @@ vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
 
-flash_image := $(wrkdir)/hifive-unleashed-a00-YYYY-MM-DD.gpt
+flash_image := $(wrkdir)/hifive-unleashed-$(GITID).gpt
 vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
 #ext_image := $(wrkdir)  # TODO
 
@@ -44,7 +45,7 @@ pk_payload_wrkdir := $(wrkdir)/riscv-payload-pk
 bbl := $(pk_wrkdir)/bbl
 bbl_payload :=$(pk_payload_wrkdir)/bbl
 bbl_bin := $(wrkdir)/bbl.bin
-fit := $(wrkdir)/image.fit
+fit := $(wrkdir)/image-$(GITID).fit
 
 fesvr_srcdir := $(srcdir)/riscv-fesvr
 fesvr_wrkdir := $(wrkdir)/riscv-fesvr
@@ -69,8 +70,11 @@ target_gcc := $(CROSS_COMPILE)gcc
 .PHONY: all
 all: $(fit) $(flash_image)
 	@echo
-	@echo "This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)"
-	@echo "Find the image in work/image.fit, which should be copied to an MSDOS boot partition 1"
+	@echo "GPT (for SPI flash or SDcard) and U-boot Image files have"
+	@echo "been generated for an ISA of $(ISA) and an ABI of $(ABI)"
+	@echo
+	@echo $(fit)
+	@echo $(flash_image)
 	@echo
 	@echo "To completely erase, reformat, and program a disk sdX, run:"
 	@echo "  make DISK=/dev/sdX format-boot-loader"
