@@ -68,9 +68,14 @@ uboot_srcdir := $(srcdir)/HiFive_U-Boot
 uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
 uboot := $(uboot_wrkdir)/u-boot.bin
 
+openocd_srcdir := $(srcdir)/riscv-openocd
+openocd_wrkdir := $(wrkdir)/riscv-openocd
+openocd := $(openocd_wrkdir)/src/openocd
+
 rootfs := $(wrkdir)/rootfs.bin
 
 target_gcc := $(CROSS_COMPILE)gcc
+target_gdb := $(CROSS_COMPILE)gdb
 
 .PHONY: all
 all: $(fit) $(flash_image)
@@ -250,6 +255,15 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
 
+$(openocd): $(openocd_srcdir)
+	rm -rf $(openocd_wrkdir)
+	mkdir -p $(openocd_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(openocd_wrkdir) && $</configure
+	$(MAKE) -C $(openocd_wrkdir)
+
+
+
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
 
@@ -260,6 +274,26 @@ buildroot_initramfs_sysroot: $(buildroot_initramfs_sysroot)
 vmlinux: $(vmlinux)
 bbl: $(bbl)
 fit: $(fit)
+
+.PHONY: openocd
+openocd: $(openocd)
+	$(openocd) -f $(confdir)/u540-openocd.cfg
+
+
+terminfo := $(buildroot_initramfs_wrkdir)/host/share/terminfo
+
+$(terminfo): $(target_gdb)
+	mkdir -p $(terminfo)
+	# hack for problems with https://git.buildroot.org/buildroot/commit/?id=b35ad5d0b45e5288f4019aeaa06b87ef0f2ef016
+	$(buildroot_initramfs_wrkdir)/host/bin/tic \
+		$(buildroot_initramfs_wrkdir)/build/ncurses-6.1/misc/terminfo.src \
+		-o $(terminfo)
+
+.PHONY: gdb gdb-u-boot
+gdb: $(target_gdb) $(terminfo)
+
+gdb-u-boot: $(target_gdb) $(terminfo)
+	$(target_gdb) -ex "set remotetimeout 240" -ex "target extended-remote localhost:3333" u-boot/u-boot
 
 .PHONY: clean
 clean:
