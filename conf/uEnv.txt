@@ -3,7 +3,7 @@
 # will be loaded from the first MSDOS(fat) GPT partition on the
 # MMC card. 
 
-bootargs=debug console=tty0 console=ttySIF0 root=/dev/mmcblk0p2
+bootargs=debug console=tty0 console=ttySIF0 root=/dev/mmcblk0p2 rootwait
 
 # To boot from partition 2 of an NVME drive (with a PCI iofpga,
 # such as the MicroSemi expansion board, uncomment below:
