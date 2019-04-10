@@ -26,3 +26,6 @@
 [submodule "riscv-openocd"]
 	path = riscv-openocd
 	url = https://github.com/sifive/riscv-openocd
+[submodule "opensbi"]
+	path = opensbi
+	url = https://github.com/riscv/opensbi
