@@ -212,7 +212,23 @@ bbl: $(bbl)
 
 .PHONY: clean
 clean:
-	rm -rf -- $(wrkdir) $(toolchain_dest)
+	rm -rf -- $(wrkdir)
+
+.PHONY: clean-toolchain
+clean-toolchain:
+	rm -rf -- $(toolchain_dest)
+
+.PHONY: clean-kernel
+clean-kernel:
+	rm -rf -- $(linux_wrkdir)
+
+.PHONY: clean-pk
+clean-pk:
+	rm -rf -- $(pk_wrkdir)
+
+.PHONY: clean-buildroot
+clean-buildroot:
+	rm -rf -- $(buildroot_initramfs_sysroot) $(buildroot_initramfs_wrkdir)
 
 .PHONY: sim
 sim: $(spike) $(bbl)
