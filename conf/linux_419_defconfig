@@ -358,9 +358,6 @@ CONFIG_PREVENT_FIRMWARE_BUILD=y
 # Firmware loader
 #
 CONFIG_FW_LOADER=y
-CONFIG_EXTRA_FIRMWARE="radeon/BTC_rlc.bin radeon/CAICOS_mc.bin radeon/CAICOS_me.bin radeon/CAICOS_pfp.bin radeon/CAICOS_smc.bin radeon/SUMO_uvd.bin"
-CONFIG_EXTRA_FIRMWARE_DIR="firmware"
-/
 CONFIG_ALLOW_DEV_COREDUMP=y
 CONFIG_GENERIC_CPU_DEVICES=y
 CONFIG_REGMAP=y
