@@ -422,14 +422,13 @@ endif
 	dd if=$(uboot) of=$(PART3) bs=4096
 	dd if=$(vfat_image) of=$(PART1) bs=4096
 
-DEB_IMAGE := debian-riscv64-tarball-20180418.tar.xz
-DEB_URL   := https://people.debian.org/~mafm/
+DEB_IMAGE := debian_nvdla.tar.xz
 
 format-nvdla-root: format-nvdla-disk
 	@echo "Done setting up basic initramfs boot. We will now try to install"
 	@echo "a Debian snapshot to the Linux partition, which requires sudo"
 	@echo "you can safely cancel here"
-	@test -e $(wrkdir)/$(DEB_IMAGE) || wget $(DEB_URL)/$(DEB_IMAGE) -O $(wrkdir)/$(DEB_IMAGE)
+	@test -e $(DEB_IMAGE) || (echo "$(DEB_IMAGE) is not found" && exit 1)
 	/sbin/mke2fs -t ext4 $(PART2)
 	-mkdir -p tmp-mnt
 	-mount $(PART2) tmp-mnt && \
