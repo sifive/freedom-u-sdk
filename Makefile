@@ -27,10 +27,13 @@ buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
 linux_defconfig := $(confdir)/linux_419_defconfig
+linux_defconfig := $(confdir)/linux_415_nvdla_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
+
+its_file=$(confdir)/nvdla-uboot-fit-image.its
 
 flash_image := $(wrkdir)/hifive-unleashed-a00-YYYY-MM-DD.gpt
 vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
@@ -61,12 +64,22 @@ qemu := $(qemu_wrkdir)/prefix/bin/qemu-system-riscv64
 uboot_srcdir := $(srcdir)/HiFive_U-Boot
 uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
 uboot := $(uboot_wrkdir)/u-boot.bin
+uboot_config := HiFive-U540_regression_defconfig
+uboot_config := HiFive-U540_nvdla_defconfig
 
 rootfs := $(wrkdir)/rootfs.bin
 
 target_gcc := $(CROSS_COMPILE)gcc
 
-.PHONY: all
+.PHONY: all nvdla-demo
+nvdla-demo: $(fit) $(vfat_image)
+	@echo "To completely erase, reformat, and program a disk sdX, run:"
+	@echo "  make DISK=/dev/sdX format-nvdla-disk"
+	@echo "  ... you will need gdisk and e2fsprogs installed"
+	@echo "  Please note this will not currently format the SDcard ext4 partition"
+	@echo "  This can be done manually if needed"
+	@echo
+
 all: $(fit) $(flash_image)
 	@echo
 	@echo "This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)"
@@ -171,12 +184,13 @@ linux-menuconfig: $(linux_wrkdir)/.config
 	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv savedefconfig
 	cp $(dir $<)/defconfig conf/linux_defconfig
 
-$(bbl): $(pk_srcdir)
+$(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	rm -rf $(pk_wrkdir)
 	mkdir -p $(pk_wrkdir)
 	cd $(pk_wrkdir) && PATH=$(RVPATH) $</configure \
 		--host=$(target) \
 		--enable-logo \
+		--with-payload=$(vmlinux_stripped) \
 		--with-logo=$(abspath conf/sifive_logo.txt)
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) PATH=$(RVPATH) -C $(pk_wrkdir)
 
@@ -197,8 +211,8 @@ $(bbl_payload): $(pk_srcdir) $(vmlinux_stripped)
 $(bbl_bin): $(bbl)
 	PATH=$(RVPATH) $(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
-$(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(initramfs) $(confdir)/uboot-fit-image.its
-	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
+$(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(its_file)
+	$(uboot_wrkdir)/tools/mkimage -f $(its_file) -A riscv -O linux -T flat_dt $@
 
 $(libfesvr): $(fesvr_srcdir)
 	rm -rf $(fesvr_wrkdir)
@@ -238,7 +252,7 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	rm -rf $(uboot_wrkdir)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
-	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) $(uboot_config)
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
 
 $(rootfs): $(buildroot_rootfs_ext)
@@ -374,5 +388,53 @@ format-demo-image: format-boot-loader
 		sudo wget $(DEMO_URL)$(DEMO_IMAGE) && \
 		sudo tar -Jxvf $(DEMO_IMAGE)
 	sudo umount tmp-mnt
+
+ROOT_BEGIN=264192
+# default size: 20GB
+ROOT_CLUSTER_NUM=$(shell echo $$((20*1024*1024*1024/512)))
+ROOT_END=$(shell echo $$(($(ROOT_BEGIN)+$(ROOT_CLUSTER_NUM))))
+
+format-nvdla-disk: $(bbl_bin) $(uboot) $(fit) $(vfat_image)
+	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
+	/sbin/sgdisk --clear  \
+		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"  --typecode=1:$(VFAT)   \
+		--new=2:$(ROOT_BEGIN):$(ROOT_END) --change-name=2:root  --typecode=2:$(LINUX) \
+		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot --typecode=3:$(UBOOT) \
+		$(DISK)
+	-/sbin/partprobe
+	@sleep 1
+ifeq ($(DISK)p1,$(wildcard $(DISK)p1))
+	@$(eval PART1 := $(DISK)p1)
+	@$(eval PART2 := $(DISK)p2)
+	@$(eval PART3 := $(DISK)p3)
+else ifeq ($(DISK)s1,$(wildcard $(DISK)s1))
+	@$(eval PART1 := $(DISK)s1)
+	@$(eval PART2 := $(DISK)s2)
+	@$(eval PART3 := $(DISK)s3)
+else ifeq ($(DISK)1,$(wildcard $(DISK)1))
+	@$(eval PART1 := $(DISK)1)
+	@$(eval PART2 := $(DISK)2)
+	@$(eval PART3 := $(DISK)3)
+else
+	@echo Error: Could not find bootloader partition for $(DISK)
+	@exit 1
+endif
+	dd if=$(uboot) of=$(PART3) bs=4096
+	dd if=$(vfat_image) of=$(PART1) bs=4096
+
+DEB_IMAGE := debian-riscv64-tarball-20180418.tar.xz
+DEB_URL   := https://people.debian.org/~mafm/
+
+format-nvdla-root: format-nvdla-disk
+	@echo "Done setting up basic initramfs boot. We will now try to install"
+	@echo "a Debian snapshot to the Linux partition, which requires sudo"
+	@echo "you can safely cancel here"
+	@test -e $(wrkdir)/$(DEB_IMAGE) || wget $(DEB_URL)/$(DEB_IMAGE) -O $(wrkdir)/$(DEB_IMAGE)
+	/sbin/mke2fs -t ext4 $(PART2)
+	-mkdir -p tmp-mnt
+	-mount $(PART2) tmp-mnt && \
+		tar Jxf $(wrkdir)/$(DEB_IMAGE) -C tmp-mnt --strip-components=1
+		sed -i 's/root:x:/root::/g' tmp-mnt/etc/passwd
+	umount tmp-mnt
 
 -include $(initramfs).d
