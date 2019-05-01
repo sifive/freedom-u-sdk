@@ -364,15 +364,17 @@ endif
 DEMO_IMAGE	:= sifive-debian-demo-mar7.tar.xz
 DEMO_URL	:= https://github.com/tmagik/freedom-u-sdk/releases/download/hifiveu-2.0-alpha.1/
 
-format-demo-image: format-boot-loader
+$(DEMO_IMAGE):
+	wget $(DEMO_URL)$(DEMO_IMAGE)
+
+format-demo-image: $(DEMO_IMAGE) format-boot-loader
 	@echo "Done setting up basic initramfs boot. We will now try to install"
 	@echo "a Debian snapshot to the Linux partition, which requires sudo"
 	@echo "you can safely cancel here"
 	/sbin/mke2fs -t ext4 $(PART2)
 	-mkdir tmp-mnt
 	-sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
-		sudo wget $(DEMO_URL)$(DEMO_IMAGE) && \
-		sudo tar -Jxvf $(DEMO_IMAGE)
+		sudo tar -Jxf ../$(DEMO_IMAGE) -C .
 	sudo umount tmp-mnt
 
 -include $(initramfs).d
