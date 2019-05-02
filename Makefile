@@ -65,7 +65,7 @@ uboot_srcdir := $(srcdir)/HiFive_U-Boot
 uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
 uboot := $(uboot_wrkdir)/u-boot.bin
 uboot_config := HiFive-U540_regression_defconfig
-uboot_config := HiFive-U540_nvdla_defconfig
+uboot_config := HiFive-U540_nvdla_iofpga_defconfig
 
 rootfs := $(wrkdir)/rootfs.bin
 
