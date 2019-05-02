@@ -432,8 +432,7 @@ format-nvdla-root: format-nvdla-disk
 	/sbin/mke2fs -t ext4 $(PART2)
 	-mkdir -p tmp-mnt
 	-mount $(PART2) tmp-mnt && \
-		tar Jxf $(wrkdir)/$(DEB_IMAGE) -C tmp-mnt --strip-components=1
-		sed -i 's/root:x:/root::/g' tmp-mnt/etc/passwd
+		tar Jxf $(DEB_IMAGE) -C tmp-mnt --checkpoint=1000
 	umount tmp-mnt
 
 -include $(initramfs).d
