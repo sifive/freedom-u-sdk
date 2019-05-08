@@ -422,17 +422,19 @@ endif
 	dd if=$(uboot) of=$(PART3) bs=4096
 	dd if=$(vfat_image) of=$(PART1) bs=4096
 
-DEB_IMAGE := debian_nvdla.tar.xz
+DEB_IMAGE := debian_nvdla_20190506.tar.xz
+DEB_URL := https://github.com/sifive/freedom-u-sdk/releases/download/nvdla-demo-0.1
 
 format-nvdla-root: format-nvdla-disk
 	@echo "Done setting up basic initramfs boot. We will now try to install"
 	@echo "a Debian snapshot to the Linux partition, which requires sudo"
 	@echo "you can safely cancel here"
-	@test -e $(DEB_IMAGE) || (echo "$(DEB_IMAGE) is not found" && exit 1)
+	@test -e $(wrkdir)/$(DEB_IMAGE) || (wget -P $(wrkdir) $(DEB_URL)/$(DEB_IMAGE))
 	/sbin/mke2fs -t ext4 $(PART2)
 	-mkdir -p tmp-mnt
 	-mount $(PART2) tmp-mnt && \
-		tar Jxf $(DEB_IMAGE) -C tmp-mnt --checkpoint=1000
+		echo "please wait until checkpoint reaches 489k" && \
+		tar Jxf $(wrkdir)/$(DEB_IMAGE) -C tmp-mnt --checkpoint=1000
 	umount tmp-mnt
 
 -include $(initramfs).d
