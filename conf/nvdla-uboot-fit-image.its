@@ -20,7 +20,7 @@
                 };
 
                 fdt {
-                        data = /incbin/("../work/HiFive_U-Boot/arch/riscv/dts/hifive_u540.dtb");
+                        data = /incbin/("../work/HiFive_U-Boot/arch/riscv/dts/hifive_u540_nvdla_iofpga.dtb");
                         type = "flat_dt";
                         arch = "riscv";
                         load = <0x81f00000>;
