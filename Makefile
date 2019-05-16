@@ -176,15 +176,16 @@ else
 		@echo Error: Could not find bootloader partition for $(DISK)
 		@exit 1
 endif
-		-mkdir tmp-mnt
-		sudo mount $(PART2) tmp-mnt
+		-mkdir /mnt/tmp-mnt
+		sudo mount $(PART2) /mnt/tmp-mnt
 		sudo $(MAKE) -C $< O=$(linux_wrkdir) \
 		ARCH=riscv \
 		CROSS_COMPILE=$(CROSS_COMPILE) \
 		PATH=$(RVPATH) \
 		modules_install \
-		INSTALL_MOD_PATH=./tmp-mnt
-		sudo umount tmp-mnt
+		INSTALL_MOD_PATH=/mnt/tmp-mnt/
+		sudo umount /mnt/tmp-mnt
+		rmdir /mnt/tmp-mnt
 
 .PHONY: initrd
 initrd: $(initramfs)
