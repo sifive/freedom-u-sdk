@@ -32,7 +32,7 @@ buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_419_defconfig
+linux_defconfig := $(confdir)/linux_52_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -67,6 +67,14 @@ qemu := $(qemu_wrkdir)/prefix/bin/qemu-system-riscv64
 uboot_srcdir := $(srcdir)/HiFive_U-Boot
 uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
 uboot := $(uboot_wrkdir)/u-boot.bin
+
+uboot_s_srcdir := $(srcdir)/u-boot
+uboot_s_wrkdir := $(wrkdir)/u-boot-smode
+uboot_s := $(uboot_s_wrkdir)/u-boot.bin
+
+opensbi_srcdir := $(srcdir)/opensbi
+opensbi_wrkdir := $(wrkdir)/opensbi
+opensbi := $(opensbi_wrkdir)/platform/sifive/fu540/firmware/fw_payload.bin
 
 openocd_srcdir := $(srcdir)/riscv-openocd
 openocd_wrkdir := $(wrkdir)/riscv-openocd
@@ -252,8 +260,25 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	rm -rf $(uboot_wrkdir)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
-	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
+	cp $(confdir)/uboot-fsbl-citest_defconfig $(uboot_wrkdir)/.config
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) olddefconfig
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
+
+$(uboot_s): $(uboot_s_srcdir) $(target_gcc)
+	rm -rf $(uboot_s_wrkdir)
+	mkdir -p $(uboot_s_wrkdir)
+	mkdir -p $(dir $@)
+	cp $(confdir)/uboot-smode-citest_defconfig $(uboot_s_wrkdir)/.config
+	$(MAKE) -C $(uboot_s_srcdir) O=$(uboot_s_wrkdir) olddefconfig
+	$(MAKE) -C $(uboot_s_srcdir) O=$(uboot_s_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
+
+$(opensbi): $(uboot_s) $(target_gcc)
+	rm -rf $(opensbi_wrkdir)
+	mkdir -p $(opensbi_wrkdir)
+	mkdir -p $(dir $@)
+	$(MAKE) -C $(opensbi_srcdir) O=$(opensbi_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE) \
+		PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=$(uboot_s)
+
 
 $(openocd): $(openocd_srcdir)
 	rm -rf $(openocd_wrkdir)
@@ -316,7 +341,15 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 
 
 .PHONY: uboot
-uboot: $(uboot)
+uboot: $(uboot) $(uboot_s)
+
+.PHONY: test
+test: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
+	# this does way more than it needs to right now
+	cp -v $(vmlinux_bin) /var/lib/tftpboot
+	cp -v $(initramfs) /var/lib/tftpboot
+	cp -v $(opensbi) /var/lib/tftpboot
+	test/jtag-boot.sh
 
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
