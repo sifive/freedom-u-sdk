@@ -32,7 +32,7 @@ buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_52_defconfig
+linux_defconfig := $(confdir)/linux_419_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -264,6 +264,13 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) olddefconfig
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
 
+$(openocd): $(openocd_srcdir)
+	rm -rf $(openocd_wrkdir)
+	mkdir -p $(openocd_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(openocd_wrkdir) && $</configure
+	$(MAKE) -C $(openocd_wrkdir)
+
 $(uboot_s): $(uboot_s_srcdir) $(target_gcc)
 	rm -rf $(uboot_s_wrkdir)
 	mkdir -p $(uboot_s_wrkdir)
@@ -278,16 +285,6 @@ $(opensbi): $(uboot_s) $(target_gcc)
 	mkdir -p $(dir $@)
 	$(MAKE) -C $(opensbi_srcdir) O=$(opensbi_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE) \
 		PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=$(uboot_s)
-
-
-$(openocd): $(openocd_srcdir)
-	rm -rf $(openocd_wrkdir)
-	mkdir -p $(openocd_wrkdir)
-	mkdir -p $(dir $@)
-	cd $(openocd_wrkdir) && $</configure
-	$(MAKE) -C $(openocd_wrkdir)
-
-
 
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@

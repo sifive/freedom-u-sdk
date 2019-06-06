@@ -20,10 +20,6 @@ setupchosen=run setupvml; run setupird
 # The FIT file to boot from
 fitfile=hifiveu.fit
 
-serverip=10.16.1.89
-netmask=255.255.240.0
-ipaddr=10.16.2.120
-
 # The rest of this is mostly of interest to u-boot developers
 # below much match what's in FIT (ugha)
 bbladdr=80000000

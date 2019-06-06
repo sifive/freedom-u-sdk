@@ -117,7 +117,7 @@ CONFIG_BOOTSTAGE_STASH_SIZE=0x1000
 # CONFIG_SPI_BOOT is not set
 CONFIG_BOOTDELAY=2
 # CONFIG_USE_BOOTARGS is not set
-CONFIG_BOOTCOMMAND="uEnv-smode.txt; env import -t 0x80200000 ${filesize}; run boot2"
+CONFIG_BOOTCOMMAND="dhcp uEnv-smode.txt; env import -t 0x80200000 ${filesize}; run boot2"
 # CONFIG_USE_PREBOOT is not set
 
 #

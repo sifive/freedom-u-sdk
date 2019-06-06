@@ -1,21 +1,10 @@
 # This is the sample uEnv.txt file for HiFive Unleashed U-boot
-# The current convention (SUBJECT TO CHANGE) is that this file
-# will be loaded from the first MSDOS(fat) GPT partition on the
-# MMC card. 
 
 bootargs=debug console=tty0 console=ttySIF0 
-
-# To boot from partition 2 of an NVME drive (with a PCI iofpga,
-# such as the MicroSemi expansion board, uncomment below:
-
-#bootargs=debug console=tty0 console=ttySIF0 root=/dev/nvme0n1p2
 
 # to boot an initramfs (buildroot or debian/etc) use this
 setupchosen=run setupvml; run setupird
 
-# to boot with straight to the root= parition, uncomment below
-# so we do not set the ramdisk pointers
-#setupchosen=run setupvml
 
 vmlfile=vmlinux.bin
 irdfile=initramfs.cpio.gz
@@ -53,5 +42,3 @@ bootwait=setenv _delay ${bootdelay}; echo ${_delay}; while test ${_delay} > 0; d
 boot2=tftp ${vmladdr} ${vmlfile}; tftp ${irdaddr} ${irdfile}; run setupfdt1; run setupchosen; run setupfdt2; echo "Booting kernel in"; run bootwait; go 80200000
 
 
-# if you want to network boot, for testing, uncomment the following:
-#boot2=dhcp; env import -t ${fileaddr} ${filesize}; run boot2
