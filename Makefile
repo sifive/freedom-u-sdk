@@ -344,12 +344,22 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 uboot: $(uboot) $(uboot_s)
 
 .PHONY: test
-test: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
+test: $(uboot) $(fit)
 	# this does way more than it needs to right now
+	cp -v $(confdir)/uEnv-net.txt /var/lib/tftpboot/uEnv.txt
+	cp -v $(fit) /var/lib/tftpboot/hifiveu.fit
+	test/jtag-boot.sh
+
+.PHONY: test_s
+test_s: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
+	# this does way more than it needs to right now
+	cp -v $(confdir)/uEnv-net.txt /var/lib/tftpboot
+	cp -v $(confdir)/uEnv-smode.txt /var/lib/tftpboot
 	cp -v $(vmlinux_bin) /var/lib/tftpboot
 	cp -v $(initramfs) /var/lib/tftpboot
 	cp -v $(opensbi) /var/lib/tftpboot
 	test/jtag-boot.sh
+
 
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
