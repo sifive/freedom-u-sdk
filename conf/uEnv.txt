@@ -26,8 +26,8 @@ bbladdr=80000000
 fdtaddr=81f00000
 vmladdr=80200000
 irdaddr=82000000
-# oh the hack.. use a large size.. ugh
-irdsize=01000000
+# oh the hack.. use a (ver) large size.. ugh (allows ~64mb LTP initramfs)
+irdsize=04000000
 vmlsize=00800000
 newfdt=f0000000
 # Use the FDT in the FIT image..
