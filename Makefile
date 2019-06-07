@@ -12,7 +12,13 @@ buildroot_initramfs_wrkdir := $(wrkdir)/buildroot_initramfs
 # TODO: make RISCV be able to be set to alternate toolchain path
 RISCV ?= $(buildroot_initramfs_wrkdir)/host
 RVPATH := $(RISCV)/bin:$(PATH)
-target := riscv64-buildroot-linux-gnu
+GITID := $(shell git describe --dirty --always)
+
+# The second option is the more standard version, however in
+# the interest of reproducibility, use the buildroot version that
+# we compile so as to minimize unepected surprises. 
+target := riscv64-sifive-linux-gnu
+#target := riscv64-linux-gnu
 
 CROSS_COMPILE := $(RISCV)/bin/$(target)-
 
@@ -32,7 +38,7 @@ vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
 
-flash_image := $(wrkdir)/hifive-unleashed-a00-YYYY-MM-DD.gpt
+flash_image := $(wrkdir)/hifive-unleashed-$(GITID).gpt
 vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
 #ext_image := $(wrkdir)  # TODO
 
@@ -44,7 +50,7 @@ pk_payload_wrkdir := $(wrkdir)/riscv-payload-pk
 bbl := $(pk_wrkdir)/bbl
 bbl_payload :=$(pk_payload_wrkdir)/bbl
 bbl_bin := $(wrkdir)/bbl.bin
-fit := $(wrkdir)/image.fit
+fit := $(wrkdir)/image-$(GITID).fit
 
 fesvr_srcdir := $(srcdir)/riscv-fesvr
 fesvr_wrkdir := $(wrkdir)/riscv-fesvr
@@ -62,15 +68,31 @@ uboot_srcdir := $(srcdir)/HiFive_U-Boot
 uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
 uboot := $(uboot_wrkdir)/u-boot.bin
 
+uboot_s_srcdir := $(srcdir)/u-boot
+uboot_s_wrkdir := $(wrkdir)/u-boot-smode
+uboot_s := $(uboot_s_wrkdir)/u-boot.bin
+
+opensbi_srcdir := $(srcdir)/opensbi
+opensbi_wrkdir := $(wrkdir)/opensbi
+opensbi := $(opensbi_wrkdir)/platform/sifive/fu540/firmware/fw_payload.bin
+
+openocd_srcdir := $(srcdir)/riscv-openocd
+openocd_wrkdir := $(wrkdir)/riscv-openocd
+openocd := $(openocd_wrkdir)/src/openocd
+
 rootfs := $(wrkdir)/rootfs.bin
 
 target_gcc := $(CROSS_COMPILE)gcc
+target_gdb := $(CROSS_COMPILE)gdb
 
 .PHONY: all
 all: $(fit) $(flash_image)
 	@echo
-	@echo "This image has been generated for an ISA of $(ISA) and an ABI of $(ABI)"
-	@echo "Find the image in work/image.fit, which should be copied to an MSDOS boot partition 1"
+	@echo "GPT (for SPI flash or SDcard) and U-boot Image files have"
+	@echo "been generated for an ISA of $(ISA) and an ABI of $(ABI)"
+	@echo
+	@echo $(fit)
+	@echo $(flash_image)
 	@echo
 	@echo "To completely erase, reformat, and program a disk sdX, run:"
 	@echo "  make DISK=/dev/sdX format-boot-loader"
@@ -238,8 +260,31 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	rm -rf $(uboot_wrkdir)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
-	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) HiFive-U540_regression_defconfig
+	cp $(confdir)/uboot-fsbl-citest_defconfig $(uboot_wrkdir)/.config
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) olddefconfig
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
+
+$(openocd): $(openocd_srcdir)
+	rm -rf $(openocd_wrkdir)
+	mkdir -p $(openocd_wrkdir)
+	mkdir -p $(dir $@)
+	cd $(openocd_wrkdir) && $</configure
+	$(MAKE) -C $(openocd_wrkdir)
+
+$(uboot_s): $(uboot_s_srcdir) $(target_gcc)
+	rm -rf $(uboot_s_wrkdir)
+	mkdir -p $(uboot_s_wrkdir)
+	mkdir -p $(dir $@)
+	cp $(confdir)/uboot-smode-citest_defconfig $(uboot_s_wrkdir)/.config
+	$(MAKE) -C $(uboot_s_srcdir) O=$(uboot_s_wrkdir) olddefconfig
+	$(MAKE) -C $(uboot_s_srcdir) O=$(uboot_s_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
+
+$(opensbi): $(uboot_s) $(target_gcc)
+	rm -rf $(opensbi_wrkdir)
+	mkdir -p $(opensbi_wrkdir)
+	mkdir -p $(dir $@)
+	$(MAKE) -C $(opensbi_srcdir) O=$(opensbi_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE) \
+		PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=$(uboot_s)
 
 $(rootfs): $(buildroot_rootfs_ext)
 	cp $< $@
@@ -251,6 +296,26 @@ buildroot_initramfs_sysroot: $(buildroot_initramfs_sysroot)
 vmlinux: $(vmlinux)
 bbl: $(bbl)
 fit: $(fit)
+
+.PHONY: openocd
+openocd: $(openocd)
+	$(openocd) -f $(confdir)/u540-openocd.cfg
+
+
+terminfo := $(buildroot_initramfs_wrkdir)/host/share/terminfo
+
+$(terminfo): $(target_gdb)
+	mkdir -p $(terminfo)
+	# hack for problems with https://git.buildroot.org/buildroot/commit/?id=b35ad5d0b45e5288f4019aeaa06b87ef0f2ef016
+	$(buildroot_initramfs_wrkdir)/host/bin/tic \
+		$(buildroot_initramfs_wrkdir)/build/ncurses-6.1/misc/terminfo.src \
+		-o $(terminfo)
+
+.PHONY: gdb gdb-u-boot
+gdb: $(target_gdb) $(terminfo)
+
+gdb-u-boot: $(target_gdb) $(terminfo)
+	$(target_gdb) -ex "set remotetimeout 240" -ex "target extended-remote localhost:3333" u-boot/u-boot
 
 .PHONY: clean
 clean:
@@ -273,7 +338,25 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 
 
 .PHONY: uboot
-uboot: $(uboot)
+uboot: $(uboot) $(uboot_s)
+
+.PHONY: test
+test: $(uboot) $(fit)
+	# this does way more than it needs to right now
+	cp -v $(confdir)/uEnv-net.txt /var/lib/tftpboot/uEnv.txt
+	cp -v $(fit) /var/lib/tftpboot/hifiveu.fit
+	test/jtag-boot.sh
+
+.PHONY: test_s
+test_s: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
+	# this does way more than it needs to right now
+	cp -v $(confdir)/uEnv-net.txt /var/lib/tftpboot
+	cp -v $(confdir)/uEnv-smode.txt /var/lib/tftpboot
+	cp -v $(vmlinux_bin) /var/lib/tftpboot
+	cp -v $(initramfs) /var/lib/tftpboot
+	cp -v $(opensbi) /var/lib/tftpboot
+	test/jtag-boot.sh
+
 
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
