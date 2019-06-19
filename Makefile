@@ -26,13 +26,14 @@ buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
 buildroot_initramfs_sysroot_stamp := $(wrkdir)/.buildroot_initramfs_sysroot
 buildroot_initramfs_sysroot := $(wrkdir)/buildroot_initramfs_sysroot
-buildroot_rootfs_wrkdir := $(wrkdir)/buildroot_rootfs
-buildroot_rootfs_ext := $(buildroot_rootfs_wrkdir)/images/rootfs.ext4
-buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
+buildroot_ltp_ramfs_tar := $(buildroot_ltp_ramfs_wrkdir)/images/rootfs.tar
+buildroot_ltp_ramfs_config := $(confdir)/buildroot_ltp_ramfs_config
+buildroot_ltp_ramfs_sysroot_stamp := $(wrkdir)/.buildroot_ltp_ramfs_sysroot
+buildroot_ltp_ramfs_sysroot := $(wrkdir)/buildroot_ltp_ramfs_sysroot
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_419_defconfig
+linux_defconfig := $(confdir)/linux_52_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -43,6 +44,7 @@ vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
 #ext_image := $(wrkdir)  # TODO
 
 initramfs := $(wrkdir)/initramfs.cpio.gz
+ltp_ramfs := $(wrkdir)/ltp_ramfs.cpio.gz
 
 pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
@@ -51,6 +53,7 @@ bbl := $(pk_wrkdir)/bbl
 bbl_payload :=$(pk_payload_wrkdir)/bbl
 bbl_bin := $(wrkdir)/bbl.bin
 fit := $(wrkdir)/image-$(GITID).fit
+ltp_fit := $(wrkdir)/image-ltp-$(GITID).fit
 
 fesvr_srcdir := $(srcdir)/riscv-fesvr
 fesvr_wrkdir := $(wrkdir)/riscv-fesvr
@@ -126,26 +129,32 @@ buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroo
 	cp $(dir $<)/defconfig conf/buildroot_initramfs_config
 
 # use buildroot_initramfs toolchain
-# TODO: fix path and conf/buildroot_rootfs_config
-$(buildroot_rootfs_wrkdir)/.config: $(buildroot_srcdir) $(buildroot_initramfs_tar)
+# TODO: fix path and conf/buildroot_ltp_config
+$(buildroot_ltp_ramfs_wrkdir)/.config: $(buildroot_srcdir) $(target_gcc)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
-	cp $(buildroot_rootfs_config) $@
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_rootfs_wrkdir) olddefconfig
+	cp $(buildroot_ltp_config) $@
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_ltp_ramfs_wrkdir) olddefconfig
 
-$(buildroot_rootfs_ext): $(buildroot_srcdir) $(buildroot_rootfs_wrkdir)/.config $(target_gcc) $(buildroot_rootfs_config)
-	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_rootfs_wrkdir)
+$(buildroot_ltp_ramfs_tar): $(buildroot_srcdir) $(buildroot_ltp_ramfs_wrkdir)/.config $(target_gcc) $(buildroot_ltp_ramfs_config)
+	$(MAKE) -C $< RISCV=$(RISCV) PATH=$(RVPATH) O=$(buildroot_ltp_wrkdir)
 
-.PHONY: buildroot_rootfs-menuconfig
-buildroot_rootfs-menuconfig: $(buildroot_rootfs_wrkdir)/.config $(buildroot_srcdir)
-	$(MAKE) -C $(dir $<) O=$(buildroot_rootfs_wrkdir) menuconfig
-	$(MAKE) -C $(dir $<) O=$(buildroot_rootfs_wrkdir) savedefconfig
-	cp $(dir $<)/defconfig conf/buildroot_rootfs_config
+.PHONY: buildroot_ltp-menuconfig
+buildroot_ltp_ramfs-menuconfig: $(buildroot_ltp_ramfs_wrkdir)/.config $(buildroot_srcdir)
+	$(MAKE) -C $(dir $<) O=$(buildroot_ltp_ramfs_wrkdir) menuconfig
+	$(MAKE) -C $(dir $<) O=$(buildroot_ltp_ramfs_wrkdir) savedefconfig
+	cp $(dir $<)/defconfig conf/buildroot_ltp_ramfs_config
 
 $(buildroot_initramfs_sysroot_stamp): $(buildroot_initramfs_tar)
 	mkdir -p $(buildroot_initramfs_sysroot)
 	tar -xpf $< -C $(buildroot_initramfs_sysroot) --exclude ./dev --exclude ./usr/share/locale
 	touch $@
+
+$(buildroot_ltp_ramfs_sysroot_stamp): $(buildroot_ltp_ramfs_tar)
+	mkdir -p $(buildroot_ltp_ramfs_sysroot)
+	tar -xpf $< -C $(buildroot_ltp_ramfs_sysroot) --exclude ./dev --exclude ./usr/share/locale
+	touch $@
+
 
 $(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
 	mkdir -p $(dir $@)
@@ -180,6 +189,13 @@ $(initramfs): $(buildroot_initramfs_sysroot) $(vmlinux)
 		-o $@ -u $(shell id -u) -g $(shell id -g) \
 		$(confdir)/initramfs.txt \
 		$(buildroot_initramfs_sysroot) 
+
+$(ltp_ramfs): $(buildroot_ltp_ramfs_sysroot) $(vmlinux)
+	cd $(linux_wrkdir) && \
+		$(linux_srcdir)/usr/gen_initramfs_list.sh \
+		-o $@ -u $(shell id -u) -g $(shell id -g) \
+		$(confdir)/initramfs.txt \
+		$(buildroot_ltp_ramfs_sysroot) 
 
 $(vmlinux_stripped): $(vmlinux)
 	PATH=$(RVPATH) $(target)-strip -o $@ $<
@@ -220,6 +236,9 @@ $(bbl_bin): $(bbl)
 	PATH=$(RVPATH) $(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
 $(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(initramfs) $(confdir)/uboot-fit-image.its
+	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
+
+$(ltp_fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(ltp_ramfs) $(confdir)/uboot-fit-image.its
 	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
 
 $(libfesvr): $(fesvr_srcdir)
@@ -286,7 +305,7 @@ $(opensbi): $(uboot_s) $(target_gcc)
 	$(MAKE) -C $(opensbi_srcdir) O=$(opensbi_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE) \
 		PLATFORM=sifive/fu540 FW_PAYLOAD_PATH=$(uboot_s)
 
-$(rootfs): $(buildroot_rootfs_ext)
+$(ltp): $(buildroot_ltp_ext)
 	cp $< $@
 
 $(buildroot_initramfs_sysroot): $(buildroot_initramfs_sysroot_stamp)
@@ -330,8 +349,8 @@ qemu: $(qemu) $(bbl) $(vmlinux) $(initramfs)
 	$(qemu) -nographic -machine virt -bios $(bbl) -kernel $(vmlinux) -initrd $(initramfs) \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
 
-.PHONY: qemu-rootfs
-qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
+.PHONY: qemu-ltp
+qemu-ltp: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 	$(qemu) -nographic -machine virt -bios $(bbl) -kernel $(vmlinux) -initrd $(initramfs) \
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
