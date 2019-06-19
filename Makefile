@@ -369,7 +369,7 @@ test: $(uboot) $(fit)
 .PHONY: test_s
 test_s: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
 	# this does way more than it needs to right now
-	cp -v $(confdir)/uEnv-net.txt /var/lib/tftpboot
+	cp -v $(confdir)/uEnv-osbi.txt /var/lib/tftpboot/uEnv.txt
 	cp -v $(confdir)/uEnv-smode.txt /var/lib/tftpboot
 	cp -v $(vmlinux_bin) /var/lib/tftpboot
 	cp -v $(initramfs) /var/lib/tftpboot
