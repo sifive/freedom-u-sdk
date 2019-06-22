@@ -33,7 +33,7 @@ buildroot_ltp_ramfs_sysroot := $(wrkdir)/buildroot_ltp_ramfs_sysroot
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_52_defconfig
+linux_defconfig := $(confdir)/linux_419_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -287,6 +287,7 @@ $(openocd): $(openocd_srcdir)
 	rm -rf $(openocd_wrkdir)
 	mkdir -p $(openocd_wrkdir)
 	mkdir -p $(dir $@)
+	cd $(openocd_srcdir) && ./bootstrap
 	cd $(openocd_wrkdir) && $</configure
 	$(MAKE) -C $(openocd_wrkdir)
 

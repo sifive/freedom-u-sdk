@@ -6,13 +6,13 @@ bootargs=debug console=tty0 console=ttySIF0
 setupchosen=run setupvml; run setupird
 
 
-vmlfile=vmlinux.bin
+vmlfile=uImage
 irdfile=initramfs.cpio.gz
 
 # The rest of this is mostly of interest to u-boot developers
 # below much match what's in FIT (ugha)
 fdtaddr=81f00000
-vmladdr=80200000
+vmladdr=84000000
 irdaddr=82000000
 # oh the hack.. use a large size.. ugh
 irdsize=01000000
@@ -39,6 +39,6 @@ bootwait=setenv _delay ${bootdelay}; echo ${_delay}; while test ${_delay} > 0; d
 #boot2=fatload mmc 0:1 ${fileaddr} ${fitfile}; bootm start ${fileaddr}; run setupfdt1; run setupchosen; run setupfdt2; bootm loados ${fileaddr}; echo "Booting kernel in"; run bootwait; go 80000000
 
 #TODO: actually look at filesize..
-boot2=tftp ${vmladdr} ${vmlfile}; tftp ${irdaddr} ${irdfile}; run setupfdt1; run setupchosen; run setupfdt2; echo "Booting kernel in"; run bootwait; go 80200000
+boot2=tftp ${vmladdr} ${vmlfile}; tftp ${irdaddr} ${irdfile}; run setupfdt1; run setupchosen; run setupfdt2; echo "Booting kernel in"; run bootwait; bootm ${vmladdr} - ${newfdt}
 
 

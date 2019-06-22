@@ -4,8 +4,9 @@
 GDB=work/buildroot_initramfs/host/bin/riscv64-sifive-linux-gnu-gdb
 OCD=work/riscv-openocd/src/openocd
 
-
-$OCD -f conf/u540-openocd-flash.cfg &
+# disabling flash due to reliablility problems
+#$OCD -f conf/u540-openocd-flash.cfg &
+$OCD -f conf/u540-openocd.cfg &
 OCDPID=$!
 
 #nc <<EOF
@@ -13,6 +14,8 @@ OCDPID=$!
 #load_image work/HiFive_U-Boot/u-boot.bin 0x08000000 bin
 #reg pc 0x08000000
 #resume
+
+sleep 0.5
 
 $GDB << EOF &
 set remotetimeout 240
