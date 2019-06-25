@@ -33,11 +33,12 @@ buildroot_ltp_ramfs_sysroot := $(wrkdir)/buildroot_ltp_ramfs_sysroot
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_419_defconfig
+linux_defconfig := $(confdir)/linux_52_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
+uImage := $(wrkdir)/uImage
 
 flash_image := $(wrkdir)/hifive-unleashed-$(GITID).gpt
 vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
@@ -89,7 +90,7 @@ target_gcc := $(CROSS_COMPILE)gcc
 target_gdb := $(CROSS_COMPILE)gdb
 
 .PHONY: all
-all: $(fit) $(flash_image)
+all: $(fit) $(flash_image) $(uImage) $(uboot_s)
 	@echo
 	@echo "GPT (for SPI flash or SDcard) and U-boot Image files have"
 	@echo "been generated for an ISA of $(ISA) and an ABI of $(ABI)"
@@ -202,6 +203,9 @@ $(vmlinux_stripped): $(vmlinux)
 
 $(vmlinux_bin): $(vmlinux)
 	PATH=$(RVPATH) $(target)-objcopy -O binary $< $@
+
+$(uImage): $(vmlinux_bin)
+	$(uboot_wrkdir)/tools/mkimage -A riscv -O linux -T kernel -C "none" -a 80200000 -e 80200000 -d $< $@
 
 .PHONY: linux-menuconfig
 linux-menuconfig: $(linux_wrkdir)/.config
@@ -368,12 +372,12 @@ test: $(uboot) $(fit)
 	test/jtag-boot.sh
 
 .PHONY: test_s
-test_s: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
+test_s: $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
 	# this does way more than it needs to right now
 	cp -v $(confdir)/uEnv-osbi.txt /var/lib/tftpboot/uEnv.txt
 	cp -v $(confdir)/uEnv-smode.txt /var/lib/tftpboot
 	cp -v $(vmlinux_bin) /var/lib/tftpboot
-	cp -v $(initramfs) /var/lib/tftpboot
+	cp -v $(uImage) /var/lib/tftpboot
 	cp -v $(opensbi) /var/lib/tftpboot
 	test/jtag-boot.sh
 
