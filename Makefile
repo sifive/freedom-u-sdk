@@ -157,6 +157,7 @@ $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 		--with-payload=$(vmlinux_stripped) \
 		--enable-logo \
 		--with-logo=$(abspath conf/sifive_logo.txt)
+	dtc -I dts -O dtb -o $(pk_srcdir)/linux.dtb < $(pk_srcdir)/linux.dts
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
 
 $(bin): $(bbl)
