@@ -383,6 +383,7 @@ test_s: $(test_export)
 	cp -v $(test_export)/uEnv-smode.txt $(tftp)/
 	cp -v $(test_export)/uImage $(tftp)/
 	cp -v $(test_export)/fw_payload.bin $(tftp)/
+	cp -v $(test_export)/initramfs.cpio.gz $(tftp)/
 	test/jtag-boot.sh
 
 .PHONY: test_export
@@ -397,6 +398,7 @@ $(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
 	cp -v $(confdir)/uEnv-smode.txt $(test_export)/
 	cp -v $(uImage) $(test_export)/
 	cp -v $(opensbi) $(test_export)/
+	cp -v $(initramfs) $(test_export)/
 
 $(test_export_tar): $(test_export)
 	tar zcvf $(test_export_tar) -C $(wrkdir) `basename $(test_export)`
