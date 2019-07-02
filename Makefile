@@ -93,7 +93,7 @@ $(buildroot_initramfs_tar): $(buildroot_srcdir) $(buildroot_initramfs_wrkdir)/.c
 buildroot_initramfs-menuconfig: $(buildroot_initramfs_wrkdir)/.config $(buildroot_srcdir)
 	$(MAKE) -C $(dir $<) O=$(buildroot_initramfs_wrkdir) menuconfig
 	$(MAKE) -C $(dir $<) O=$(buildroot_initramfs_wrkdir) savedefconfig
-	cp $(dir $<)/defconfig conf/buildroot_initramfs_config
+	cp $(buildroot_initramfs_wrkdir)/defconfig conf/buildroot_initramfs_config
 
 $(buildroot_rootfs_wrkdir)/.config: $(buildroot_srcdir)
 	rm -rf $(dir $@)
@@ -108,7 +108,7 @@ $(buildroot_rootfs_ext): $(buildroot_srcdir) $(buildroot_rootfs_wrkdir)/.config 
 buildroot_rootfs-menuconfig: $(buildroot_rootfs_wrkdir)/.config $(buildroot_srcdir)
 	$(MAKE) -C $(dir $<) O=$(buildroot_rootfs_wrkdir) menuconfig
 	$(MAKE) -C $(dir $<) O=$(buildroot_rootfs_wrkdir) savedefconfig
-	cp $(dir $<)/defconfig conf/buildroot_rootfs_config
+	cp $(buildoort_rootfs_wrkdir)/defconfig conf/buildroot_rootfs_config
 
 $(buildroot_initramfs_sysroot_stamp): $(buildroot_initramfs_tar)
 	mkdir -p $(buildroot_initramfs_sysroot)
@@ -147,7 +147,7 @@ $(vmlinux_stripped): $(vmlinux)
 linux-menuconfig: $(linux_wrkdir)/.config
 	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv menuconfig
 	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv savedefconfig
-	cp $(dir $<)/defconfig conf/linux_defconfig
+	cp $(linux_wrkdir)/defconfig conf/linux_defconfig
 
 $(bbl): $(pk_srcdir) $(vmlinux_stripped)
 	rm -rf $(pk_wrkdir)
@@ -225,9 +225,30 @@ BBL   = 2E54B353-1271-4842-806F-E436D6AF6985
 LINUX = 0FC63DAF-8483-4772-8E79-3D69D8477DE4
 FSBL  = 5B193300-FC78-40CD-8002-E86C45580B47
 
+.PHONY: load-sd-card
+load-sd-card: 
+	@echo "Usage: sudo make load-sd-card <DEVICE=> [ROOT=] [BOOTLOADER=]"
+	@test $(DEVICE) || { echo ""DEVICE" is not specified"; exit 1; }
+	@test -b $(DEVICE) || { echo "$(DEVICE): is not a block device"; exit 1; }
+ifeq ($(BOOTLOADER),)
+	@echo ""BOOTLOADER" is not specified, $(bin) is used"
+	@test $(bin) || { echo "$(bin) does not exist, call "make" first"; exit 1; }
+	@$(eval BOOTLOADER := $(bin))
+else
+	@test -f $(BOOTLOADER) || { echo "$(BOOTLOADER): is not a regular file"; exit 1; }
+endif
+	dd conv=fdatasync,notrunc if=$(BOOTLOADER) of=$(DEVICE) bs=1M status=progress
+ifeq ($(ROOT),)
+	@echo ""ROOT" is not specified"
+else
+	@test -f $(ROOT) || { echo "$(ROOT): is not a regular file"; exit 1; }
+	dd conv=fdatasync,notrunc if=$(ROOT) of=$(DEVICE) bs=1M seek=32 status=progress
+endif
+
 .PHONY: format-boot-loader
 format-boot-loader: $(bin)
-	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
+	@test $(DISK) || { echo ""DISK" is not specified"; exit 1; }
+	@test -b $(DISK) || { echo "$(DISK): is not a block device"; exit 1; }
 	sgdisk --clear                                                               \
 		--new=1:2048:67583  --change-name=1:bootloader --typecode=1:$(BBL)   \
 		--new=2:264192:     --change-name=2:root       --typecode=2:$(LINUX) \
