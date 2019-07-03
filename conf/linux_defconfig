@@ -119,7 +119,7 @@ CONFIG_TMPFS_POSIX_ACL=y
 # CONFIG_MISC_FILESYSTEMS is not set
 # CONFIG_NETWORK_FILESYSTEMS is not set
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="earlyprintk console=tty0 console=ttySI0,115200 video=640x480 ignore_loglevel debug init=/bin/ash pci=nomsi blkdevparts=mmcblk0:32M@0M(bootloader),-@32M(root)"
+CONFIG_CMDLINE="earlyprintk console=tty0 console=ttySI0,115200 video=640x480 ignore_loglevel debug init=/bin/ash pci=nomsi"
 CONFIG_CMDLINE_OVERRIDE=y
 CONFIG_MAGIC_SYSRQ=y
 # CONFIG_RCU_TRACE is not set

@@ -6,7 +6,7 @@
 	url = https://github.com/sifive/buildroot.git
 [submodule "riscv-pk"]
 	path = riscv-pk
-	url = https://github.com/Jaxonwht/riscv-pk-pcie-rc.git
+	url = https://github.com/sifive/riscv-pk.git
 [submodule "riscv-gnu-toolchain"]
 	path = riscv-gnu-toolchain
 	url = https://github.com/riscv/riscv-gnu-toolchain.git

@@ -149,15 +149,18 @@ linux-menuconfig: $(linux_wrkdir)/.config
 	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv savedefconfig
 	cp $(linux_wrkdir)/defconfig conf/linux_defconfig
 
-$(bbl): $(pk_srcdir) $(vmlinux_stripped)
+$(bbl): $(pk_srcdir) $(vmlinux_stripped) $(pk_srcdir)/linux.dts
 	rm -rf $(pk_wrkdir)
 	mkdir -p $(pk_wrkdir)
+	dtc -I dts -O dtb -o $(pk_srcdir)/linux.dtb < $(pk_srcdir)/linux.dts
 	cd $(pk_wrkdir) && $</configure \
 		--host=$(target) \
 		--with-payload=$(vmlinux_stripped) \
 		--enable-logo \
+		--with-config-method=hifive_unleashed \
+		--enable-dtb \
+		--with-dtb-path=$(pk_srcdir)/linux.dtb \
 		--with-logo=$(abspath conf/sifive_logo.txt)
-	dtc -I dts -O dtb -o $(pk_srcdir)/linux.dtb < $(pk_srcdir)/linux.dts
 	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) -C $(pk_wrkdir)
 
 $(bin): $(bbl)
