@@ -53,6 +53,8 @@ rootfs := $(wrkdir)/rootfs.bin
 
 target := riscv64-unknown-linux-gnu
 
+OFFSET ?= 32
+
 .PHONY: all
 all: $(hex)
 	@echo
@@ -113,6 +115,10 @@ buildroot_rootfs-menuconfig: $(buildroot_rootfs_wrkdir)/.config $(buildroot_srcd
 $(buildroot_initramfs_sysroot_stamp): $(buildroot_initramfs_tar)
 	mkdir -p $(buildroot_initramfs_sysroot)
 	tar -xpf $< -C $(buildroot_initramfs_sysroot) --exclude ./dev --exclude ./usr/share/locale
+ifneq ($(DEVICE),)
+	@$(eval inittab := $(buildroot_initramfs_sysroot)/etc/inittab)
+	sed 's/^# now run any rc scripts$$/::sysinit:\/bin\/mount -o ro,loop,offset=$(OFFSET) \/dev\/$(DEVICE) \/mnt\n&/g' -i $(inittab)
+endif
 	touch $@
 
 $(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
@@ -230,9 +236,9 @@ FSBL  = 5B193300-FC78-40CD-8002-E86C45580B47
 
 .PHONY: load-sd-card
 load-sd-card: 
-	@echo "Usage: sudo make load-sd-card <DEVICE=> [ROOT=] [BOOTLOADER=]"
+	@echo "Usage: sudo make load-sd-card <DEVICE=> [ROOT=] [BOOTLOADER=] [OFFSET=]"
 	@test $(DEVICE) || { echo ""DEVICE" is not specified"; exit 1; }
-	@test -b $(DEVICE) || { echo "$(DEVICE): is not a block device"; exit 1; }
+	@test -b /dev/$(DEVICE) || { echo "/dev/$(DEVICE): is not a block device"; exit 1; }
 ifeq ($(BOOTLOADER),)
 	@echo ""BOOTLOADER" is not specified, $(bin) is used"
 	@test $(bin) || { echo "$(bin) does not exist, call "make" first"; exit 1; }
@@ -240,12 +246,12 @@ ifeq ($(BOOTLOADER),)
 else
 	@test -f $(BOOTLOADER) || { echo "$(BOOTLOADER): is not a regular file"; exit 1; }
 endif
-	dd conv=fdatasync,notrunc if=$(BOOTLOADER) of=$(DEVICE) bs=1M status=progress
+	dd conv=fdatasync,notrunc if=$(BOOTLOADER) of=/dev/$(DEVICE) bs=1M status=progress
 ifeq ($(ROOT),)
 	@echo ""ROOT" is not specified"
 else
 	@test -f $(ROOT) || { echo "$(ROOT): is not a regular file"; exit 1; }
-	dd conv=fdatasync,notrunc if=$(ROOT) of=$(DEVICE) bs=1M seek=32 status=progress
+	dd conv=fdatasync,notrunc if=$(ROOT) of=/dev/$(DEVICE) bs=1M seek=$(OFFSET) status=progress
 endif
 
 .PHONY: format-boot-loader
