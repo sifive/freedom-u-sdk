@@ -139,14 +139,19 @@ ifeq ($(ISA),$(filter rv32%,$(ISA)))
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 endif
 
-$(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp)
+$(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp) 
+	cp $(confdir)/initramfs.txt $(confdir)/initramfs
+ifneq ($(INIT),)
+	sed 's/^slink \/init.*$$/file \/init $(shell echo $(abspath $(INIT)) | sed 's/\//\\\//g') 755 0 0/' -i $(confdir)/initramfs
+endif
 	$(MAKE) -C $< O=$(linux_wrkdir) \
-		CONFIG_INITRAMFS_SOURCE="$(confdir)/initramfs.txt $(buildroot_initramfs_sysroot)" \
+		CONFIG_INITRAMFS_SOURCE="$(confdir)/initramfs $(buildroot_initramfs_sysroot)" \
 		CONFIG_INITRAMFS_ROOT_UID=$(shell id -u) \
 		CONFIG_INITRAMFS_ROOT_GID=$(shell id -g) \
 		CROSS_COMPILE=riscv64-unknown-linux-gnu- \
 		ARCH=riscv \
 		vmlinux
+	rm $(confdir)/initramfs
 
 $(vmlinux_stripped): $(vmlinux)
 	$(target)-strip -o $@ $<
@@ -230,6 +235,12 @@ qemu: $(qemu) $(bbl) $(rootfs)
 	$(qemu) -nographic -machine virt -kernel $(bbl) \
 		-drive file=$(rootfs),format=raw,id=hd0 -device virtio-blk-device,drive=hd0 \
 		-netdev user,id=net0 -device virtio-net-device,netdev=net0
+
+.PHONY: clean-initramfs
+clean-initramfs:
+	rm -rf work/.buildroot_initramfs_sysroot
+	rm -rf work/buildroot_initramfs_sysroot
+	rm -f work/bbl.*
 
 # Relevant partition type codes
 BBL   = 2E54B353-1271-4842-806F-E436D6AF6985

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# custom init script
+mount -t proc proc /proc
+mount -o remount,rw /
+mkdir -p /dev/pts
+mkdir -p /dev/shm
+mount -a
+hostname -F /etc/hostname
+
+# now run any rc scripts
+/etc/init.d/rcS
+
+# boot from the real root filesystem 
+exec switch_root /mnt /sbin/init
