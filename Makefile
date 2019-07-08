@@ -116,8 +116,10 @@ $(buildroot_initramfs_sysroot_stamp): $(buildroot_initramfs_tar)
 	mkdir -p $(buildroot_initramfs_sysroot)
 	tar -xpf $< -C $(buildroot_initramfs_sysroot) --exclude ./dev --exclude ./usr/share/locale
 ifneq ($(DEVICE),)
-	@$(eval inittab := $(buildroot_initramfs_sysroot)/etc/inittab)
-	sed 's/^# now run any rc scripts$$/::sysinit:\/bin\/mount -o ro,loop,offset=$(OFFSET) \/dev\/$(DEVICE) \/mnt\n&/g' -i $(inittab)
+	@$(eval tmp := $(buildroot_initramfs_sysroot)/etc/init.d/S60mountroot)
+	cp $(confdir)/S60mountroot $(tmp)
+	sed 's/DEVICE/$(DEVICE)/' -i $(tmp)
+	sed 's/OFFSET/$(OFFSET)/' -i $(tmp)
 endif
 	touch $@
 

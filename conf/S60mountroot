@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# mount the root filesystem with an offset
+losetup -o $(expr OFFSET \* 1048576) /dev/loop0 /dev/DEVICE
+mount -o rw,data=writeback,commit=120,noatime,async,barrier=0 -t ext4 /dev/loop0 /mnt
