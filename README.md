@@ -49,6 +49,7 @@ The default /init script of initramfs is the BusyBox implementation. The user ca
 
 * `DEVICE` is the block device under /dev that will be written to. For example, `DEVICE=sda` means the target device is `/dev/sda`.
 * `ROOT` is the path to the disk image containing the root filesystem. If unspecified, the program will not write a root filesystem to the device.
+    * If `ROOT=qemu-elf`, the build system will automatically convert the `qemu-elf` submodule to a disk image and write that to the sd card.
 * `BOOTLOADER` is the BBL that will be written to target device. If unspecified, default `BOOTLOADER` is `./work/bbl.bin`, which is the default output path of bbl.bin of `make`.
 * `OFFSET` is the number of MB's for the offset of root filesystem. 1MB is defined as 1024*1024 bytes. In unspecified, `OFFSET=32` by default.
 

@@ -19,3 +19,6 @@
 [submodule "riscv-qemu"]
 	path = riscv-qemu
 	url = git://github.com/riscv/riscv-qemu.git
+[submodule "qemu-elf"]
+	path = qemu-elf
+	url = https://github.com/sifive/qemu-elf.git

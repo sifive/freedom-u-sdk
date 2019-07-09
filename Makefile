@@ -24,12 +24,16 @@ buildroot_rootfs_wrkdir := $(wrkdir)/buildroot_rootfs
 buildroot_rootfs_ext := $(buildroot_rootfs_wrkdir)/images/rootfs.ext4
 buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 
+demo_stamp := $(wrkdir)/.demo
+
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
 linux_defconfig := $(confdir)/linux_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
+
+qemu_elf := $(srcdir)/qemu-elf
 
 pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
@@ -123,6 +127,21 @@ ifneq ($(DEVICE),)
 endif
 	touch $@
 
+$(demo_stamp): $(buildroot_initramfs_sysroot_stamp) $(confdir)/S60mountroot $(confdir)/initramfs.txt
+ifneq ($(DEVICE),)
+	@$(eval tmp := $(buildroot_initramfs_sysroot)/etc/init.d/S60mountroot)
+	cp $(confdir)/S60mountroot $(tmp)
+	sed 's/DEVICE/$(DEVICE)/' -i $(tmp)
+	sed 's/OFFSET/$(OFFSET)/' -i $(tmp)
+endif
+	cp $(confdir)/initramfs.txt $(confdir)/initramfs
+ifneq ($(INIT),)
+	sed 's/^slink \/init.*$$/file \/init $(shell echo $(abspath $(INIT)) | sed 's/\//\\\//g') 755 0 0/' -i $(confdir)/initramfs
+endif
+	# cp -r $(qemu_elf) $(buildroot_initramfs_sysroot)/root
+	touch $@
+
+
 $(linux_wrkdir)/.config: $(linux_defconfig) $(linux_srcdir)
 	mkdir -p $(dir $@)
 	cp -p $< $@
@@ -139,11 +158,7 @@ ifeq ($(ISA),$(filter rv32%,$(ISA)))
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 endif
 
-$(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp) 
-	cp $(confdir)/initramfs.txt $(confdir)/initramfs
-ifneq ($(INIT),)
-	sed 's/^slink \/init.*$$/file \/init $(shell echo $(abspath $(INIT)) | sed 's/\//\\\//g') 755 0 0/' -i $(confdir)/initramfs
-endif
+$(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(buildroot_initramfs_sysroot_stamp) $(demo_stamp)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
 		CONFIG_INITRAMFS_SOURCE="$(confdir)/initramfs $(buildroot_initramfs_sysroot)" \
 		CONFIG_INITRAMFS_ROOT_UID=$(shell id -u) \
@@ -238,9 +253,10 @@ qemu: $(qemu) $(bbl) $(rootfs)
 
 .PHONY: clean-initramfs
 clean-initramfs:
-	rm -rf work/.buildroot_initramfs_sysroot
-	rm -rf work/buildroot_initramfs_sysroot
-	rm -f work/bbl.*
+	rm -rf $(demo_stamp)
+	rm -rf $(buildroot_initramfs_sysroot_stamp)
+	rm -rf $(buildroot_initramfs_sysroot)
+	rm -f $(hex) $(bin)
 
 # Relevant partition type codes
 BBL   = 2E54B353-1271-4842-806F-E436D6AF6985
@@ -262,6 +278,18 @@ endif
 	dd conv=fdatasync,notrunc if=$(BOOTLOADER) of=/dev/$(DEVICE) bs=1M status=progress
 ifeq ($(ROOT),)
 	@echo ""ROOT" is not specified"
+else ifeq ($(ROOT),qemu-elf)
+	@echo "$(qemu_elf) will be used as the root filesystem"
+	@$(eval size := $(shell du -sh $(qemu_elf) | cut -f1 | sed -r 's/([0-9]*).$$/\1/'))
+	@$(eval new := $(shell echo $$(( 2 * $(size) ))))
+	dd if=/dev/zero of=$(wrkdir)/qemu-elf.img bs=$(new)M count=1
+	mkfs.ext4 $(wrkdir)/qemu-elf.img
+	mkdir -p $(wrkdir)/qemu-elf-mnt
+	mount -o loop -t ext4 $(wrkdir)/qemu-elf.img $(wrkdir)/qemu-elf-mnt
+	cp -r $(qemu_elf)/* $(wrkdir)/qemu-elf-mnt
+	umount $(wrkdir)/qemu-elf-mnt
+	dd conv=fdatasync,notrunc if=$(wrkdir)/qemu-elf.img of=/dev/$(DEVICE) bs=1M seek=$(OFFSET) status=progress
+	rm $(wrkdir)/qemu-elf.img
 else
 	@test -f $(ROOT) || { echo "$(ROOT): is not a regular file"; exit 1; }
 	dd conv=fdatasync,notrunc if=$(ROOT) of=/dev/$(DEVICE) bs=1M seek=$(OFFSET) status=progress
