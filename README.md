@@ -33,18 +33,25 @@ fail because certain dependencies don't have the best git hosting. The only
 solution is to wait and try again later (or ask someone for a copy of that
 source repository).
 
-Once the submodules are initialized, run `make` and the complete toolchain and
-bbl image will be built. The completed build tree will consume about 14G of
-disk space.
+Once the submodules are initialized, run `make` and the complete toolchain
+and images will be built. The completed build tree will consume about 14G of disk
+space.
+
+## Updates from previous freedom-u-sdk versions
+
+The compiler toolchain vendor string has changed to 'riscv64-sifive-linux-gnu',
+and the easiest (but slowest) way to update is remove the entire 'work/*' set
+of directories and re-run make.
 
 ## Upgrading to U-boot for booting the Freedom Unleashed dev board
 
 Once the build of the SDK is complete, there will be a new u-boot FIT image
-under 'work/image.fit'. This can be copied to the first partition of the
-MicroSD card, which should be formatted as an MSDOS partition and contain a
-file called 'uEnv.txt' which contains the default U-boot environment. This file
-can be edited to change boot behavior. See the inline comments in the file for
-further information. (The file can be found in conf/uEnv.txt as well)
+under 'work/image-(GITID).fit', where GITID is the short git has of the commit
+to freedom-u-sdk the image was build from. This can be copied to the first
+partition of the MicroSD card, which should be formatted as an MSDOS partition
+and contain a file called 'uEnv.txt' which contains the default U-boot environment.
+This file can be edited to change boot behavior. See the inline comments in the file
+for further information. (The file can be found in conf/uEnv.txt as well)
 
 To boot U-boot, the currently supported method is to set the mode select
 switches to boot from the SDcard, and have U-boot on an SDcard, which can be
