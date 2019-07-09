@@ -155,6 +155,47 @@ $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(target_gcc)
 		PATH=$(RVPATH) \
 		vmlinux
 
+kernel-modules: $(linux_srcdir) $(vmlinux)
+	sudo $(MAKE) -C $< O=$(linux_wrkdir) \
+		ARCH=riscv \
+		CROSS_COMPILE=$(CROSS_COMPILE) \
+		PATH=$(RVPATH) \
+		modules
+
+.PHONY: kernel-modules-install
+kernel-modules-install: $(linux_srcdir) kernel-modules
+		@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
+		@sleep 1
+ifeq ($(DISK)p1,$(wildcard $(DISK)p1))
+		@$(eval PART1 := $(DISK)p1)
+		@$(eval PART2 := $(DISK)p2)
+		@$(eval PART3 := $(DISK)p3)
+		@$(eval PART4 := $(DISK)p4)
+else ifeq ($(DISK)s1,$(wildcard $(DISK)s1))
+		@$(eval PART1 := $(DISK)s1)
+		@$(eval PART2 := $(DISK)s2)
+		@$(eval PART3 := $(DISK)s3)
+		@$(eval PART4 := $(DISK)s4)
+else ifeq ($(DISK)1,$(wildcard $(DISK)1))
+		@$(eval PART1 := $(DISK)1)
+		@$(eval PART2 := $(DISK)2)
+		@$(eval PART3 := $(DISK)3)
+		@$(eval PART4 := $(DISK)4)
+else
+		@echo Error: Could not find bootloader partition for $(DISK)
+		@exit 1
+endif
+		-mkdir /mnt/tmp-mnt
+		sudo mount $(PART2) /mnt/tmp-mnt
+		sudo $(MAKE) -C $< O=$(linux_wrkdir) \
+		ARCH=riscv \
+		CROSS_COMPILE=$(CROSS_COMPILE) \
+		PATH=$(RVPATH) \
+		modules_install \
+		INSTALL_MOD_PATH=/mnt/tmp-mnt/
+		sudo umount /mnt/tmp-mnt
+		rmdir /mnt/tmp-mnt
+
 .PHONY: initrd
 initrd: $(initramfs)
 
@@ -166,7 +207,7 @@ $(initramfs): $(buildroot_initramfs_sysroot) $(vmlinux)
 		$(linux_srcdir)/usr/gen_initramfs_list.sh \
 		-o $@ -u $(shell id -u) -g $(shell id -g) \
 		$(confdir)/initramfs.txt \
-		$(buildroot_initramfs_sysroot) 
+		$(buildroot_initramfs_sysroot)
 
 $(vmlinux_stripped): $(vmlinux)
 	PATH=$(RVPATH) $(target)-strip -o $@ $<
@@ -192,7 +233,7 @@ $(bbl): $(pk_srcdir)
 # Workaround for SPIKE until it can support loading bbl and
 # kernel as separate images like qemu and uboot. Unfortuately
 # at this point this means no easy way to have an initrd for spike
-$(bbl_payload): $(pk_srcdir) $(vmlinux_stripped) 
+$(bbl_payload): $(pk_srcdir) $(vmlinux_stripped)
 	rm -rf $(pk_payload_wrkdir)
 	mkdir -p $(pk_payload_wrkdir)
 	cd $(pk_payload_wrkdir) && PATH=$(RVPATH) $</configure \
@@ -373,15 +414,17 @@ endif
 DEMO_IMAGE	:= sifive-debian-demo-mar7.tar.xz
 DEMO_URL	:= https://github.com/tmagik/freedom-u-sdk/releases/download/hifiveu-2.0-alpha.1/
 
-format-demo-image: format-boot-loader
+$(DEMO_IMAGE):
+	wget $(DEMO_URL)$(DEMO_IMAGE)
+
+format-demo-image: $(DEMO_IMAGE) format-boot-loader
 	@echo "Done setting up basic initramfs boot. We will now try to install"
 	@echo "a Debian snapshot to the Linux partition, which requires sudo"
 	@echo "you can safely cancel here"
 	/sbin/mke2fs -t ext4 $(PART2)
 	-mkdir tmp-mnt
 	-sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
-		sudo wget $(DEMO_URL)$(DEMO_IMAGE) && \
-		sudo tar -Jxvf $(DEMO_IMAGE)
+		sudo tar -Jxf ../$(DEMO_IMAGE) -C .
 	sudo umount tmp-mnt
 
 -include $(initramfs).d
