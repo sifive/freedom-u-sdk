@@ -26,7 +26,6 @@ buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_419_defconfig
 linux_defconfig := $(confdir)/linux_415_nvdla_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
@@ -211,7 +210,7 @@ $(bbl_payload): $(pk_srcdir) $(vmlinux_stripped)
 $(bbl_bin): $(bbl)
 	PATH=$(RVPATH) $(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
-$(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(its_file)
+$(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(its_file) ${initramfs}
 	$(uboot_wrkdir)/tools/mkimage -f $(its_file) -A riscv -O linux -T flat_dt $@
 
 $(libfesvr): $(fesvr_srcdir)

@@ -19,6 +19,19 @@
                         };
                 };
 
+                ramdisk {
+                        description = "buildroot initramfs";
+                        data = /incbin/("../work/initramfs.cpio.gz");
+                        type = "ramdisk";
+                        arch = "riscv";
+                        os = "linux";
+                        load = <0x82000000>;
+                        compression = "gzip";
+                        hash-1 {
+                                algo = "sha256";
+                        };
+                };
+
                 fdt {
                         data = /incbin/("../work/HiFive_U-Boot/arch/riscv/dts/hifive_u540_nvdla_iofpga.dtb");
                         type = "flat_dt";
@@ -38,6 +51,7 @@
                         description = "HiFive Unleashed with BBL";
                         kernel = "bbl";
                         fdt = "fdt";
+                        loadables = "ramdisk";
                 };
         };
 };
