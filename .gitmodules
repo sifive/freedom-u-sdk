@@ -29,3 +29,6 @@
 [submodule "opensbi"]
 	path = opensbi
 	url = https://github.com/riscv/opensbi
+[submodule "u-boot-m"]
+	path = u-boot-m
+	url = git://github.com/sifive/u-boot

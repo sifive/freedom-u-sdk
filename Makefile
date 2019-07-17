@@ -72,8 +72,8 @@ qemu_srcdir := $(srcdir)/riscv-qemu
 qemu_wrkdir := $(wrkdir)/riscv-qemu
 qemu := $(qemu_wrkdir)/prefix/bin/qemu-system-riscv64
 
-uboot_srcdir := $(srcdir)/HiFive_U-Boot
-uboot_wrkdir := $(wrkdir)/HiFive_U-Boot
+uboot_srcdir := $(srcdir)/u-boot-m
+uboot_wrkdir := $(wrkdir)/u-boot-m
 uboot := $(uboot_wrkdir)/u-boot.bin
 
 uboot_s_srcdir := $(srcdir)/u-boot
@@ -287,8 +287,9 @@ $(uboot): $(uboot_srcdir) $(target_gcc)
 	rm -rf $(uboot_wrkdir)
 	mkdir -p $(uboot_wrkdir)
 	mkdir -p $(dir $@)
-	cp $(confdir)/uboot-fsbl-citest_defconfig $(uboot_wrkdir)/.config
-	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) olddefconfig
+	#cp $(confdir)/uboot-fsbl-citest_defconfig $(uboot_wrkdir)/.config
+	#$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) olddefconfig
+	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) sifive_fu540_fsbl_defconfig
 	$(MAKE) -C $(uboot_srcdir) O=$(uboot_wrkdir) CROSS_COMPILE=$(CROSS_COMPILE)
 
 $(openocd): $(openocd_srcdir)
@@ -374,7 +375,7 @@ test: $(test_export)
 	# this does way more than it needs to right now
 	cp -v $(test_export)/uEnv-net.txt $(tftp)/uEnv.txt
 	cp -v $(test_export)/hifiveu.fit $(tftp)/
-	test/jtag-boot.sh
+	test/jtag-boot.sh $(test_export)/u-boot.bin
 
 .PHONY: test_s
 test_s: $(test_export)
@@ -383,7 +384,7 @@ test_s: $(test_export)
 	cp -v $(test_export)/uEnv-smode.txt $(tftp)/
 	cp -v $(test_export)/uImage $(tftp)/
 	cp -v $(test_export)/fw_payload.bin $(tftp)/
-	test/jtag-boot.sh
+	test/jtag-boot.sh $(test_export)/u-boot.bin
 
 .PHONY: test_export
 test_export: $(test_export_tar)
@@ -396,6 +397,7 @@ $(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
 	cp -v $(confdir)/uEnv-osbi.txt $(test_export)/
 	cp -v $(confdir)/uEnv-smode.txt $(test_export)/
 	cp -v $(uImage) $(test_export)/
+	cp -v $(uboot) $(test_export)/
 	cp -v $(opensbi) $(test_export)/
 
 $(test_export_tar): $(test_export)
@@ -416,11 +418,11 @@ flash.gpt: $(flash_image)
 VFAT_START=2048
 VFAT_END=65502
 VFAT_SIZE=63454
-UBOOT_START=1100
-UBOOT_END=2020
-UBOOT_SIZE=950
-UENV_START=1024
-UENV_END=1099
+UBOOT_START=1024
+UBOOT_END=2047
+UBOOT_SIZE=1023
+UENV_START=900
+UENV_END=1000
 
 $(vfat_image): $(fit) $(confdir)/uEnv.txt
 	@if [ `du --apparent-size --block-size=512 $(uboot) | cut -f 1` -ge $(UBOOT_SIZE) ]; then \
