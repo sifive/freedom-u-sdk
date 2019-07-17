@@ -22,6 +22,10 @@ target := riscv64-sifive-linux-gnu
 
 CROSS_COMPILE := $(RISCV)/bin/$(target)-
 
+tftp := /var/lib/tftpboot
+test_export := $(wrkdir)/hifive-test-$(GITID)
+test_export_tar := $(wrkdir)/hifive-test-$(GITID).tar.gz
+
 buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
 buildroot_initramfs_sysroot_stamp := $(wrkdir)/.buildroot_initramfs_sysroot
@@ -33,11 +37,12 @@ buildroot_ltp_ramfs_sysroot := $(wrkdir)/buildroot_ltp_ramfs_sysroot
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
-linux_defconfig := $(confdir)/linux_419_defconfig
+linux_defconfig := $(confdir)/linux_52_defconfig
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
+uImage := $(wrkdir)/uImage
 
 flash_image := $(wrkdir)/hifive-unleashed-$(GITID).gpt
 vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
@@ -89,7 +94,7 @@ target_gcc := $(CROSS_COMPILE)gcc
 target_gdb := $(CROSS_COMPILE)gdb
 
 .PHONY: all
-all: $(fit) $(flash_image)
+all: $(fit) $(flash_image) $(test_export_tar)
 	@echo
 	@echo "GPT (for SPI flash or SDcard) and U-boot Image files have"
 	@echo "been generated for an ISA of $(ISA) and an ABI of $(ABI)"
@@ -202,6 +207,9 @@ $(vmlinux_stripped): $(vmlinux)
 
 $(vmlinux_bin): $(vmlinux)
 	PATH=$(RVPATH) $(target)-objcopy -O binary $< $@
+
+$(uImage): $(vmlinux_bin)
+	$(uboot_wrkdir)/tools/mkimage -A riscv -O linux -T kernel -C "none" -a 80200000 -e 80200000 -d $< $@
 
 .PHONY: linux-menuconfig
 linux-menuconfig: $(linux_wrkdir)/.config
@@ -360,23 +368,38 @@ qemu-ltp: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot) $(uboot_s)
 
+
 .PHONY: test
-test: $(uboot) $(fit)
+test: $(test_export)
 	# this does way more than it needs to right now
-	cp -v $(confdir)/uEnv-net.txt /var/lib/tftpboot/uEnv.txt
-	cp -v $(fit) /var/lib/tftpboot/hifiveu.fit
+	cp -v $(test_export)/uEnv-net.txt $(tftp)/uEnv.txt
+	cp -v $(test_export)/hifiveu.fit $(tftp)/
 	test/jtag-boot.sh
 
 .PHONY: test_s
-test_s: $(uboot) $(uboot_s) $(opensbi) $(vmlinux_bin) $(initramfs)
+test_s: $(test_export)
 	# this does way more than it needs to right now
-	cp -v $(confdir)/uEnv-osbi.txt /var/lib/tftpboot/uEnv.txt
-	cp -v $(confdir)/uEnv-smode.txt /var/lib/tftpboot
-	cp -v $(vmlinux_bin) /var/lib/tftpboot
-	cp -v $(initramfs) /var/lib/tftpboot
-	cp -v $(opensbi) /var/lib/tftpboot
+	cp -v $(test_export)/uEnv-osbi.txt $(tftp)/uEnv.txt
+	cp -v $(test_export)/uEnv-smode.txt $(tftp)/
+	cp -v $(test_export)/uImage $(tftp)/
+	cp -v $(test_export)/fw_payload.bin $(tftp)/
 	test/jtag-boot.sh
 
+.PHONY: test_export
+test_export: $(test_export_tar)
+
+$(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
+	rm -rf $(test_export)
+	mkdir $(test_export)
+	cp -v $(confdir)/uEnv-net.txt $(test_export)/
+	cp -v $(fit) $(test_export)/hifiveu.fit
+	cp -v $(confdir)/uEnv-osbi.txt $(test_export)/
+	cp -v $(confdir)/uEnv-smode.txt $(test_export)/
+	cp -v $(uImage) $(test_export)/
+	cp -v $(opensbi) $(test_export)/
+
+$(test_export_tar): $(test_export)
+	tar zcvf $(test_export_tar) -C $(wrkdir) `basename $(test_export)`
 
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
