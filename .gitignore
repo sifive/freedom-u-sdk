@@ -1,3 +1,4 @@
 linux-*.tar.xz
 work/
 toolchain
+oe/build/

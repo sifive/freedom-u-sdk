@@ -32,3 +32,21 @@
 [submodule "u-boot-m"]
 	path = u-boot-m
 	url = git://github.com/sifive/u-boot
+[submodule "oe/meta-sifive-dev"]
+	path = oe/meta-sifive-dev
+	url = https://github.com/tmagik/meta-sifive-dev
+[submodule "oe/meta-riscv"]
+	path = oe/meta-riscv
+	url = https://github.com/tmagik/meta-riscv
+[submodule "oe/meta-games"]
+	path = oe/meta-games
+	url = https://github.com/tmagik/meta-games
+[submodule "oe/meta-openembedded"]
+	path = oe/meta-openembedded
+	url = https://github.com/openembedded/meta-openembedded
+[submodule "oe/openembedded-core"]
+	path = oe/openembedded-core
+	url = https://github.com/openembedded/openembedded-core
+[submodule "oe/bitbake"]
+	path = oe/bitbake
+	url = https://github.com/openembedded/bitbake

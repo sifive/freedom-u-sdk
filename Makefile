@@ -369,6 +369,11 @@ qemu-ltp: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot) $(uboot_s)
 
+.PHONY: oe
+oe:
+	# rather ugly wrapper for openembedded
+	ln -fs ../oe/build $(wrkdir)/oe
+	cd oe/ && . meta-sifive-dev/setup.sh && bitbake demo-testing
 
 .PHONY: test
 test: $(test_export)
