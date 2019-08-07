@@ -369,11 +369,20 @@ qemu-ltp: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot) $(uboot_s)
 
-.PHONY: oe
-oe:
+#hardcoded path hacks here
+work/oe/build:
+	mkdir -p work/oe
+	cd work/oe && ln -s ../../oe/* . && . meta-sifive-dev/setup.sh
+
+$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(wrkdir)/oe/build
 	# rather ugly wrapper for openembedded
-	ln -fs ../oe/build $(wrkdir)/oe
-	cd oe/ && . meta-sifive-dev/setup.sh && bitbake demo-testing
+	cd work/oe/ && . openembedded-core/oe-init-build-env && bitbake demo-testing
+
+.PHONY: oe
+oe: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+
+oe_export: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+	cp -v $@ $(test_export)/
 
 .PHONY: test
 test: $(test_export)
