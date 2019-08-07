@@ -325,6 +325,12 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot)
 
+.PHONY: oe
+oe:
+	# rather ugly wrapper for openembedded
+	ln -fs ../oe/build $(wrkdir)/oe
+	cd oe/ && . meta-sifive-dev/setup.sh && bitbake demo-testing
+
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
 VFAT            = EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
