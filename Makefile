@@ -345,6 +345,7 @@ UBOOT_END=2020
 UBOOT_SIZE=950
 UENV_START=1024
 UENV_END=1099
+RESERVED_SIZE=2000
 
 $(vfat_image): $(fit) $(confdir)/uEnv.txt
 	@if [ `du --apparent-size --block-size=512 $(uboot) | cut -f 1` -ge $(UBOOT_SIZE) ]; then \
@@ -381,9 +382,12 @@ DEMO_END=11718750
 .PHONY: format-boot-loader
 format-boot-loader: $(bbl_bin) $(uboot) $(fit) $(vfat_image)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
+	$(eval DEVICE_NAME := $(shell basename $(DISK)))
+	$(eval SD_SIZE := $(shell cat /sys/block/$(DEVICE_NAME)/size))
+	$(eval ROOT_SIZE := $(shell expr $(SD_SIZE) \- $(RESERVED_SIZE)))
 	/sbin/sgdisk --clear  \
 		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
-		--new=2:264192:$(DEMO_END) --change-name=2:root	--typecode=2:$(LINUX) \
+		--new=2:264192:$(ROOT_SIZE) --change-name=2:root	--typecode=2:$(LINUX) \
 		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
 		--new=4:$(UENV_START):$(UENV_END)  --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
