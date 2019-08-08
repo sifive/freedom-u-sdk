@@ -415,7 +415,7 @@ test: $(test_export)
 	# this does way more than it needs to right now
 	cp -v $(test_export)/uEnv-net.txt $(tftp)/uEnv.txt
 	cp -v $(test_export)/hifiveu.fit $(tftp)/
-	test/jtag-boot.sh
+	test/jtag-boot.sh $(test_export)/u-boot.bin
 
 .PHONY: test_s
 test_s: $(test_export)
@@ -425,19 +425,22 @@ test_s: $(test_export)
 	cp -v $(test_export)/uImage $(tftp)/
 	cp -v $(test_export)/fw_payload.bin $(tftp)/
 	cp -v $(test_export)/initramfs.cpio.gz $(tftp)/
-	test/jtag-boot.sh
+	test/jtag-boot.sh $(test_export)/u-boot.bin
 
 .PHONY: test_export
 test_export: $(test_export_tar)
 
-$(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
+$(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs) Makefile
 	rm -rf $(test_export)
 	mkdir $(test_export)
 	cp -v $(confdir)/uEnv-net.txt $(test_export)/
 	cp -v $(fit) $(test_export)/hifiveu.fit
 	cp -v $(confdir)/uEnv-osbi.txt $(test_export)/
 	cp -v $(confdir)/uEnv-smode.txt $(test_export)/
+	cp -v $(vmlinux_bin) $(test_export)/
 	cp -v $(uImage) $(test_export)/
+	cp -v $(uboot) $(test_export)/
+	cp -v $(uboot_s) $(test_export)/u-boot_s.bin
 	cp -v $(opensbi) $(test_export)/
 	cp -v $(initramfs) $(test_export)/
 
@@ -459,11 +462,12 @@ flash.gpt: $(flash_image)
 VFAT_START=2048
 VFAT_END=65502
 VFAT_SIZE=63454
-UBOOT_START=1100
-UBOOT_END=2020
-UBOOT_SIZE=950
-UENV_START=1024
-UENV_END=1099
+UBOOT_START=1024
+UBOOT_END=2047
+UBOOT_SIZE=1023
+UENV_START=900
+UENV_END=1000
+RESERVED_SIZE=2000
 
 $(vfat_image): $(fit) $(confdir)/uEnv.txt
 	@if [ `du --apparent-size --block-size=512 $(uboot) | cut -f 1` -ge $(UBOOT_SIZE) ]; then \
@@ -500,9 +504,12 @@ DEMO_END=11718750
 .PHONY: format-boot-loader
 format-boot-loader: $(bbl_bin) $(uboot) $(fit) $(vfat_image)
 	@test -b $(DISK) || (echo "$(DISK): is not a block device"; exit 1)
+	$(eval DEVICE_NAME := $(shell basename $(DISK)))
+	$(eval SD_SIZE := $(shell cat /sys/block/$(DEVICE_NAME)/size))
+	$(eval ROOT_SIZE := $(shell expr $(SD_SIZE) \- $(RESERVED_SIZE)))
 	/sbin/sgdisk --clear  \
 		--new=1:$(VFAT_START):$(VFAT_END)  --change-name=1:"Vfat Boot"	--typecode=1:$(VFAT)   \
-		--new=2:264192:$(DEMO_END) --change-name=2:root	--typecode=2:$(LINUX) \
+		--new=2:264192:$(ROOT_SIZE) --change-name=2:root	--typecode=2:$(LINUX) \
 		--new=3:$(UBOOT_START):$(UBOOT_END)   --change-name=3:uboot	--typecode=3:$(UBOOT) \
 		--new=4:$(UENV_START):$(UENV_END)  --change-name=4:uboot-env	--typecode=4:$(UBOOTENV) \
 		$(DISK)
@@ -535,6 +542,13 @@ DEMO_URL	:= https://github.com/tmagik/freedom-u-sdk/releases/download/hifiveu-2.
 
 $(DEMO_IMAGE):
 	wget $(DEMO_URL)$(DEMO_IMAGE)
+
+format-buildroot-image: format-boot-loader
+	/sbin/mke2fs -t ext4 $(PART2)
+	-mkdir tmp-mnt
+	sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
+		gunzip -c $(initramfs) | sudo cpio -i
+	sudo umount tmp-mnt
 
 format-demo-image: $(DEMO_IMAGE) format-boot-loader
 	@echo "Done setting up basic initramfs boot. We will now try to install"

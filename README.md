@@ -35,18 +35,25 @@ fail because certain dependencies don't have the best git hosting. The only
 solution is to wait and try again later (or ask someone for a copy of that
 source repository).
 
-Once the submodules are initialized, run `make` and the complete toolchain and
-bbl image will be built. The completed build tree will consume about 14G of
-disk space.
+Once the submodules are initialized, run `make` and the complete toolchain
+and images will be built. The completed build tree will consume about 14G of disk
+space.
+
+## Updates from previous freedom-u-sdk versions
+
+The compiler toolchain vendor string has changed to 'riscv64-sifive-linux-gnu',
+and the easiest (but slowest) way to update is remove the entire 'work/*' set
+of directories and re-run make.
 
 ## Upgrading to U-boot for booting the Freedom Unleashed dev board
 
 Once the build of the SDK is complete, there will be a new u-boot FIT image
-under 'work/image.fit'. This can be copied to the first partition of the
-MicroSD card, which should be formatted as an MSDOS partition and contain a
-file called 'uEnv.txt' which contains the default U-boot environment. This file
-can be edited to change boot behavior. See the inline comments in the file for
-further information. (The file can be found in conf/uEnv.txt as well)
+under 'work/image-(GITID).fit', where GITID is the short git has of the commit
+to freedom-u-sdk the image was build from. This can be copied to the first
+partition of the MicroSD card, which should be formatted as an MSDOS partition
+and contain a file called 'uEnv.txt' which contains the default U-boot environment.
+This file can be edited to change boot behavior. See the inline comments in the file
+for further information. (The file can be found in conf/uEnv.txt as well)
 
 To boot U-boot, the currently supported method is to set the mode select
 switches to boot from the SDcard, and have U-boot on an SDcard, which can be
@@ -105,3 +112,24 @@ index cd87340..87b480f 100644
  # CONFIG_HW_RANDOM is not set
  CONFIG_I2C=y
 ```
+
+## Test automation hooks
+
+There are several 'make test*' targets which load the boot loader via OpenOCD
+(using the test/jtag-boot.sh script), and copy files from work/hifive-test-*/
+to /var/lib/tftp to boot.
+
+TFTP setup is beyond the scope of this readme, although examples like 
+https://linuxhint.com/install_tftp_server_ubuntu/ may be helpful. The TFTP
+'filename' should be set to 'uEnv.txt', as show here:
+
+```
+host hifive-233 {
+	hardware ethernet 70:b3:d5:92:f0:e9;
+	fixed-address 10.16.2.128;
+	filename "uEnv.txt";
+}
+```
+
+Currently only 'make test_s' works, which uses the S-mode u-boot to load a
+uImage. Other targets are still in development.
