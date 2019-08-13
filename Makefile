@@ -326,13 +326,19 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 uboot: $(uboot)
 
 #hardcoded path hacks here
-work/oe/build:
+$(wrkdir)/oe/build:
 	mkdir -p work/oe
 	cd work/oe && ln -s ../../oe/* . && . meta-sifive-dev/setup.sh
 
 $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(wrkdir)/oe/build
 	# rather ugly wrapper for openembedded
-	cd work/oe/ && . openembedded-core/oe-init-build-env && bitbake demo-testing
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake demo-testing
+
+.PHONY: sdk oe-sdk
+oe-sdk sdk: oe
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake demo-testing -c populate_sdk
 
 .PHONY: oe
 oe: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
