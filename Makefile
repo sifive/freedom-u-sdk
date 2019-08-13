@@ -325,6 +325,27 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot)
 
+#hardcoded path hacks here
+$(wrkdir)/oe/build:
+	mkdir -p work/oe
+	cd work/oe && ln -s ../../oe/* . && . meta-sifive-dev/setup.sh
+
+$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(wrkdir)/oe/build
+	# rather ugly wrapper for openembedded
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake demo-testing
+
+.PHONY: sdk oe-sdk
+oe-sdk sdk: oe
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake demo-testing -c populate_sdk
+
+.PHONY: oe
+oe: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+
+oe_export: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+	cp -v $@ $(test_export)/
+
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
 VFAT            = EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
