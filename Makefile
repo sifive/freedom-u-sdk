@@ -376,7 +376,13 @@ work/oe/build:
 
 $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(wrkdir)/oe/build
 	# rather ugly wrapper for openembedded
-	cd work/oe/ && . openembedded-core/oe-init-build-env && bitbake demo-testing
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake demo-testing
+
+.PHONY: sdk oe-sdk
+oe-sdk sdk: oe
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake demo-testing -c populate_sdk
 
 .PHONY: oe
 oe: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
