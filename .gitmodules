@@ -1,22 +1,12 @@
-[submodule "linux"]
-	path = linux
-	url = https://github.com/sifive/riscv-linux.git
-[submodule "buildroot"]
-	path = buildroot
-	url = https://github.com/sifive/buildroot.git
-[submodule "riscv-pk"]
-	path = riscv-pk
-	url = https://github.com/riscv/riscv-pk.git
-[submodule "riscv-isa-sim"]
-	path = riscv-isa-sim
-	url = https://github.com/riscv/riscv-isa-sim.git
-[submodule "riscv-fesvr"]
-	path = riscv-fesvr
-	url = https://github.com/riscv/riscv-fesvr.git
-[submodule "riscv-qemu"]
-	path = riscv-qemu
-	url = git://github.com/sifive/riscv-qemu.git
-[submodule "HiFive_U-Boot"]
-	path = HiFive_U-Boot
-	url = https://github.com/sifive/HiFive_U-Boot
-	branch = regression
+[submodule "openembedded-core"]
+	path = openembedded-core
+	url = git://github.com/openembedded/openembedded-core.git
+[submodule "meta-openembedded"]
+	path = meta-openembedded
+	url = git://github.com/openembedded/meta-openembedded.git
+[submodule "meta-riscv"]
+	path = meta-riscv
+	url = git://github.com/riscv/meta-riscv.git
+[submodule "bitbake"]
+	path = bitbake
+	url = git://github.com/openembedded/bitbake.git
