@@ -1,13 +1,13 @@
 # This is the sample uEnv.txt file for HiFive Unleashed U-boot
 
-bootargs=debug console=tty0 console=ttySIF0 
+bootargs=console=tty0 console=ttySIF0 
 
 # to boot an initramfs (buildroot or debian/etc) use this
 setupchosen=run setupvml; run setupird
 
 
-vmlfile=uImage
-irdfile=initramfs.cpio.gz
+vmlfile=fitImg
+irdfile=oerootfs.cpio.gz
 
 # The rest of this is mostly of interest to u-boot developers
 # below much match what's in FIT (ugha)
@@ -15,7 +15,7 @@ fdtaddr=81f00000
 vmladdr=84000000
 irdaddr=82000000
 # oh the hack.. use a large size.. ugh
-irdsize=01000000
+irdsize=02000000
 vmlsize=00800000
 newfdt=f0000000
 # Use the FDT in the FIT image..
