@@ -69,6 +69,8 @@ mkdir -p "${BUILD}"
     # Configures bitbake, which for us is just setting the target.
     cat >conf/auto.conf <<EOF
 MACHINE = "${MACHINE}"
+DISTRO_FEATURES_append = " systemd "
+VIRTUAL-RUNTIME_init_manager = "systemd"
 EOF
 
     # Builds the requested image.
