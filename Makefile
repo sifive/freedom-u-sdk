@@ -325,25 +325,31 @@ qemu-rootfs: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot)
 
+SDK=$(wrkdir)/oe/build/tmp-glibc/deploy/sdk/oecore-x86_64-riscv64-toolchain-nodistro.0.sh
+OEBUILD=$(wrkdir)/oe/build
+OEIMG=$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+
 #hardcoded path hacks here
-$(wrkdir)/oe/build:
+$(OEBUILD):
 	mkdir -p work/oe
 	cd work/oe && ln -s ../../oe/* . && . meta-sifive-dev/setup.sh
 
-$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(wrkdir)/oe/build
+$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(OEBUILD)
 	# rather ugly wrapper for openembedded
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-testing
 
 .PHONY: sdk oe-sdk
-oe-sdk sdk: oe
+oe-sdk sdk: $(SDK)
+
+$(SDK): $(OEBUILD)
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-testing -c populate_sdk
 
 .PHONY: oe
-oe: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+oe: $(OEIMG)
 
-oe_export: $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
+oe_export: $(OEIMG)
 	cp -v $@ $(test_export)/
 
 # Relevant partition type codes
