@@ -53,6 +53,7 @@ ltp_ramfs := $(wrkdir)/ltp_ramfs.cpio.gz
 
 pk_srcdir := $(srcdir)/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
+
 pk_payload_wrkdir := $(wrkdir)/riscv-payload-pk
 bbl := $(pk_wrkdir)/bbl
 bbl_payload :=$(pk_payload_wrkdir)/bbl
@@ -109,13 +110,12 @@ all: $(fit) $(flash_image) $(test_export_tar)
 	@echo "  This can be done manually if needed"
 	@echo
 
-# TODO: depracated for now
-#ifneq ($(RISCV),$(buildroot_initramfs_wrkdir)/host)
-#$(target_gcc):
-#	$(error The RISCV environment variable was set, but is not pointing at a toolchain install tree)
-#else
-#$(target_gcc): $(buildroot_initramfs_tar)
-#endif
+ifneq ($(RISCV),$(buildroot_initramfs_wrkdir)/host)
+$(target_gcc):
+	$(error The RISCV environment variable was set, but is not pointing at a toolchain install tree)
+else
+$(target_gcc): $(buildroot_initramfs_tar)
+endif
 
 $(buildroot_initramfs_wrkdir)/.config: $(buildroot_srcdir)
 	rm -rf $(dir $@)
@@ -226,9 +226,6 @@ endif
 .PHONY: initrd
 initrd: $(initramfs)
 
-$(initramfs).d: $(buildroot_initramfs_sysroot)
-	$(linux_srcdir)/usr/gen_initramfs_list.sh -l $(confdir)/initramfs.txt $(buildroot_initramfs_sysroot) > $@
-
 $(initramfs): $(buildroot_initramfs_sysroot) $(vmlinux)
 	cd $(linux_wrkdir) && \
 		$(linux_srcdir)/usr/gen_initramfs_list.sh \
@@ -258,7 +255,7 @@ linux-menuconfig: $(linux_wrkdir)/.config
 	$(MAKE) -C $(linux_srcdir) O=$(dir $<) ARCH=riscv savedefconfig
 	cp $(dir $<)/defconfig conf/linux_defconfig
 
-$(bbl): $(pk_srcdir)
+$(bbl): $(pk_srcdir) $(target_gcc)
 	rm -rf $(pk_wrkdir)
 	mkdir -p $(pk_wrkdir)
 	cd $(pk_wrkdir) && PATH=$(RVPATH) $</configure \
@@ -468,12 +465,11 @@ SDK=$(wrkdir)/oe/build/tmp-glibc/deploy/sdk/oecore-x86_64-riscv64-toolchain-nodi
 OEBUILD=$(wrkdir)/oe/build
 OEIMG=$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz
 
-#hardcoded path hacks here
 $(OEBUILD):
 	mkdir -p work/oe
 	cd work/oe && ln -s ../../oe/* . && . meta-sifive-dev/setup.sh
 
-$(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(OEBUILD)
+$(OEIMG): $(OEBUILD)
 	# rather ugly wrapper for openembedded
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-testing
@@ -481,7 +477,7 @@ $(wrkdir)/oe/build/demo-testing-freedom-u540.wic.gz: $(OEBUILD)
 .PHONY: sdk oe-sdk
 oe-sdk sdk: $(SDK)
 
-$(SDK): $(OEBUILD)
+$(SDK): $(OEIMG)
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-testing -c populate_sdk
 
@@ -592,5 +588,3 @@ format-demo-image: $(DEMO_IMAGE) format-boot-loader
 	-sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
 		sudo tar -Jxf ../$(DEMO_IMAGE) -C .
 	sudo umount tmp-mnt
-
--include $(initramfs).d

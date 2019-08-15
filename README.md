@@ -1,3 +1,8 @@
+# OE/Buildroot example sandbox. Work-in-progress.
+
+the 'Make SDK' target builds an openembedded SDK that can be installed.
+This takes ~60GB and a few hours on a multicore machine.
+
 # U-boot development sandbox. Work-in-progress
 
 # SiFive Freedom Unleashed SDK
@@ -36,8 +41,8 @@ solution is to wait and try again later (or ask someone for a copy of that
 source repository).
 
 Once the submodules are initialized, run `make` and the complete toolchain and
-bbl image will be built. The completed build tree will consume about 14G of
-disk space.
+bbl image will be built. The completed build tree will consume about 80G of
+disk space with both buildroot and an OE SDK.
 
 ## Upgrading to U-boot for booting the Freedom Unleashed dev board
 
