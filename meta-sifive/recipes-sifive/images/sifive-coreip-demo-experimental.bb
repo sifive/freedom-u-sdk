@@ -40,7 +40,6 @@ IMAGE_INSTALL = "\
     networkmanager \
     networkmanager-nmtui \
     networkmanager-nmtui-doc \
-    haveged \
     e2fsprogs-resize2fs \
     e2fsprogs-e2fsck \
     e2fsprogs-mke2fs \
