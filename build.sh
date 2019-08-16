@@ -13,8 +13,10 @@ unset IMAGE
 while [[ "$1" != "" ]]
 do
     case "$1" in
-    --machine)    MACHINE="$2";  shift 2;;
-    --image)      IMAGE="$2";    shift 2;;
+    --machine)    MACHINE="$2";                             shift 2;;
+    --machine=*)  MACHINE="$(echo "$1" | cut -d= -f2-)";    shift 1;;
+    --image)      IMAGE="$2";                               shift 2;;
+    --image=*)    IMAGE="$(echo "$1" | cut -d= -f2-)";      shift 1;;
     *) echo "$0: unknown argument $1" >&2; exit 1;;
     esac
 done
