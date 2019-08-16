@@ -2,7 +2,7 @@
 
 TOP="$(readlink -f .)"
 
-find "${TOP}" -name "*.bb" | grep recipes-sifive/images | while read bb
+find "${TOP}"/meta-sifive -name "*.bb" | grep recipes-sifive/images | while read bb
 do
     name="$(basename "${bb}" .bb)"
     desc="$(cat "${bb}" | grep ^DESCRIPTION | cut -d'"' -f2)"
