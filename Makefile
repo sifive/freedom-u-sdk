@@ -51,13 +51,19 @@ vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
 initramfs := $(wrkdir)/initramfs.cpio.gz
 ltp_ramfs := $(wrkdir)/ltp_ramfs.cpio.gz
 
-pk_srcdir := $(srcdir)/riscv-pk
+fsbl_srcdir := $(srcdir)/fw/freedom-u540-c000-bootloader
+fsbl_wrkdir := $(wrkdir)/freedom-u540-c000-bootloader
+
+pk_srcdir := $(srcdir)/sbi/riscv-pk
 pk_wrkdir := $(wrkdir)/riscv-pk
 
 pk_payload_wrkdir := $(wrkdir)/riscv-payload-pk
 bbl := $(pk_wrkdir)/bbl
-bbl_payload :=$(pk_payload_wrkdir)/bbl
 bbl_bin := $(wrkdir)/bbl.bin
+bbl_payload :=$(pk_payload_wrkdir)/bbl
+bbl_payload_bin := $(wrkdir)/bbl_payload.bin
+
+
 fit := $(wrkdir)/image-$(GITID).fit
 ltp_fit := $(wrkdir)/image-ltp-$(GITID).fit
 
@@ -73,11 +79,11 @@ qemu_srcdir := $(srcdir)/riscv-qemu
 qemu_wrkdir := $(wrkdir)/riscv-qemu
 qemu := $(qemu_wrkdir)/prefix/bin/qemu-system-riscv64
 
-uboot_srcdir := $(srcdir)/u-boot-m
+uboot_srcdir := $(srcdir)/fw/u-boot-m
 uboot_wrkdir := $(wrkdir)/u-boot-m
 uboot := $(uboot_wrkdir)/u-boot.bin
 
-uboot_s_srcdir := $(srcdir)/u-boot
+uboot_s_srcdir := $(srcdir)/fw/u-boot
 uboot_s_wrkdir := $(wrkdir)/u-boot-smode
 uboot_s := $(uboot_s_wrkdir)/u-boot.bin
 
@@ -281,6 +287,9 @@ $(bbl_payload): $(pk_srcdir) $(vmlinux_stripped)
 $(bbl_bin): $(bbl)
 	PATH=$(RVPATH) $(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 
+$(bbl_payload_bin): $(bbl_payload)
+	PATH=$(RVPATH) $(target)-objcopy -S -O binary --change-addresses -0x80000000 $< $@
+
 $(fit): $(bbl_bin) $(vmlinux_bin) $(uboot) $(initramfs) $(confdir)/uboot-fit-image.its
 	$(uboot_wrkdir)/tools/mkimage -f $(confdir)/uboot-fit-image.its -A riscv -O linux -T flat_dt $@
 
@@ -358,10 +367,11 @@ $(ltp): $(buildroot_ltp_ext)
 
 $(buildroot_initramfs_sysroot): $(buildroot_initramfs_sysroot_stamp)
 
-.PHONY: buildroot_initramfs_sysroot vmlinux bbl fit
+.PHONY: buildroot_initramfs_sysroot vmlinux bbl bbl_payload fit
 buildroot_initramfs_sysroot: $(buildroot_initramfs_sysroot)
 vmlinux: $(vmlinux)
 bbl: $(bbl)
+bbl_payload: $(bbl_payload)
 fit: $(fit)
 
 .PHONY: openocd

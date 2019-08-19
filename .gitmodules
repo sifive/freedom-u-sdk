@@ -5,7 +5,7 @@
 	path = buildroot
 	url = https://github.com/sifive/buildroot.git
 [submodule "riscv-pk"]
-	path = riscv-pk
+	path = sbi/riscv-pk
 	url = https://github.com/sifive/riscv-pk.git
 [submodule "riscv-isa-sim"]
 	path = riscv-isa-sim
@@ -17,20 +17,20 @@
 	path = riscv-qemu
 	url = git://github.com/sifive/riscv-qemu.git
 [submodule "HiFive_U-Boot"]
-	path = HiFive_U-Boot
+	path = fw/HiFive_U-Boot
 	url = https://github.com/sifive/HiFive_U-Boot
 	branch = regression
 [submodule "u-boot"]
-	path = u-boot
+	path = fw/u-boot
 	url = git://github.com/sifive/u-boot
 [submodule "riscv-openocd"]
 	path = riscv-openocd
 	url = https://github.com/sifive/riscv-openocd
 [submodule "opensbi"]
-	path = opensbi
+	path = sbi/opensbi
 	url = https://github.com/riscv/opensbi
 [submodule "u-boot-m"]
-	path = u-boot-m
+	path = fw/u-boot-m
 	url = git://github.com/sifive/u-boot
 [submodule "oe/meta-sifive-dev"]
 	path = oe/meta-sifive-dev
@@ -50,3 +50,6 @@
 [submodule "oe/bitbake"]
 	path = oe/bitbake
 	url = https://github.com/openembedded/bitbake
+[submodule "fw/freedom-u540-c000-bootloader"]
+	path = fw/freedom-u540-c000-bootloader
+	url = https://github.com/sifive/freedom-u540-c000-bootloader
