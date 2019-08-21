@@ -87,7 +87,7 @@ uboot_s_srcdir := $(srcdir)/fw/u-boot
 uboot_s_wrkdir := $(wrkdir)/u-boot-smode
 uboot_s := $(uboot_s_wrkdir)/u-boot.bin
 
-opensbi_srcdir := $(srcdir)/opensbi
+opensbi_srcdir := $(srcdir)/sbi/opensbi
 opensbi_wrkdir := $(wrkdir)/opensbi
 opensbi := $(opensbi_wrkdir)/platform/sifive/fu540/firmware/fw_payload.bin
 
