@@ -268,7 +268,7 @@ $(bbl): $(pk_srcdir) $(target_gcc)
 		--host=$(target) \
 		--enable-logo \
 		--with-logo=$(abspath conf/sifive_logo.txt)
-	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) PATH=$(RVPATH) -C $(pk_wrkdir)
+	CFLAGS="-mabi=$(ABI) -march=$(ISA) -ggdb" $(MAKE) PATH=$(RVPATH) -C $(pk_wrkdir)
 
 # Workaround for SPIKE until it can support loading bbl and
 # kernel as separate images like qemu and uboot. Unfortuately
@@ -281,7 +281,7 @@ $(bbl_payload): $(pk_srcdir) $(vmlinux_stripped)
 		--enable-logo \
 		--with-payload=$(vmlinux_stripped) \
 		--with-logo=$(abspath conf/sifive_logo.txt)
-	CFLAGS="-mabi=$(ABI) -march=$(ISA)" $(MAKE) PATH=$(RVPATH) -C $(pk_payload_wrkdir)
+	CFLAGS="-mabi=$(ABI) -march=$(ISA) -ggdb" $(MAKE) PATH=$(RVPATH) -C $(pk_payload_wrkdir)
 
 
 $(bbl_bin): $(bbl)
