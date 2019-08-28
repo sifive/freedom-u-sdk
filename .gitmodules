@@ -32,9 +32,6 @@
 [submodule "u-boot-m"]
 	path = fw/u-boot-m
 	url = git://github.com/sifive/u-boot
-[submodule "oe/meta-sifive-dev"]
-	path = oe/meta-sifive-dev
-	url = https://github.com/tmagik/meta-sifive-dev
 [submodule "oe/meta-riscv"]
 	path = oe/meta-riscv
 	url = https://github.com/tmagik/meta-riscv
@@ -53,3 +50,6 @@
 [submodule "fw/freedom-u540-c000-bootloader"]
 	path = fw/freedom-u540-c000-bootloader
 	url = https://github.com/sifive/freedom-u540-c000-bootloader
+[submodule "oe/meta-sifive"]
+	path = oe/meta-sifive
+	url = https://github.com/tmagik/meta-sifive
