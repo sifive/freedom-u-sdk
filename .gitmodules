@@ -53,3 +53,9 @@
 [submodule "oe/meta-sifive"]
 	path = oe/meta-sifive
 	url = https://github.com/tmagik/meta-sifive
+[submodule "oe/meta-rust"]
+	path = oe/meta-rust
+	url = https://github.com/meta-rust/meta-rust
+[submodule "fw/oreboot"]
+	path = fw/oreboot
+	url = https://github.com/oreboot/oreboot

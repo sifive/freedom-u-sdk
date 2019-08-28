@@ -438,6 +438,11 @@ oe: $(wrkdir)/oe/build/sifive-test-freedom-u540.wic.gz
 oe_export: $(wrkdir)/oe/build/sifive-test-freedom-u540.wic.gz
 	cp -v $@ $(test_export)/
 
+.PHONY: rust
+rust: $(wrkdir)/oe/build
+	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+		bitbake rust-cross-riscv64
+
 .PHONY: test
 test: $(test_export)
 	# this does way more than it needs to right now
