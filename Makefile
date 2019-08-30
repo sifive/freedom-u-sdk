@@ -37,9 +37,13 @@ buildroot_ltp_ramfs_sysroot := $(wrkdir)/buildroot_ltp_ramfs_sysroot
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
+linux_nommu_wrkdir := $(wrkdir)/linux_nommu
 linux_defconfig := $(confdir)/linux_52_defconfig
+linux_nommu_defconfig := $(confdir)/linux_nommu_defconfig
+
 
 vmlinux := $(linux_wrkdir)/vmlinux
+vmlinux_nommu := $(linux_nommu_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
 uImage := $(wrkdir)/uImage
@@ -181,8 +185,20 @@ ifeq ($(ISA),$(filter rv32%,$(ISA)))
 	$(MAKE) -C $(linux_srcdir) O=$(linux_wrkdir) ARCH=riscv olddefconfig
 endif
 
+$(linux_nommu_wrkdir)/.config: $(linux_nommu_defconfig) $(linux_srcdir)
+	mkdir -p $(dir $@)
+	cp -p $< $@
+	$(MAKE) -C $(linux_srcdir) O=$(linux_nommu_wrkdir) ARCH=riscv olddefconfig
+
 $(vmlinux): $(linux_srcdir) $(linux_wrkdir)/.config $(target_gcc)
 	$(MAKE) -C $< O=$(linux_wrkdir) \
+		ARCH=riscv \
+		CROSS_COMPILE=$(CROSS_COMPILE) \
+		PATH=$(RVPATH) \
+		vmlinux
+
+$(vmlinux_nommu): $(linux_srcdir) $(linux_nommu_wrkdir)/.config $(target_gcc)
+	$(MAKE) -C $< O=$(linux_nommu_wrkdir) \
 		ARCH=riscv \
 		CROSS_COMPILE=$(CROSS_COMPILE) \
 		PATH=$(RVPATH) \
@@ -367,9 +383,10 @@ $(ltp): $(buildroot_ltp_ext)
 
 $(buildroot_initramfs_sysroot): $(buildroot_initramfs_sysroot_stamp)
 
-.PHONY: buildroot_initramfs_sysroot vmlinux bbl bbl_payload fit
+.PHONY: buildroot_initramfs_sysroot vmlinux vmlinux_nommu bbl bbl_payload fit
 buildroot_initramfs_sysroot: $(buildroot_initramfs_sysroot)
 vmlinux: $(vmlinux)
+vmlinux_nommu: $(vmlinux_nommu)
 bbl: $(bbl)
 bbl_payload: $(bbl_payload)
 fit: $(fit)
