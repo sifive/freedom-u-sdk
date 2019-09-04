@@ -7,5 +7,5 @@ do
     name="$(basename "${cf}" .conf)"
     desc="$(cat "${cf}" | grep "^#@DESCRIPTION" | cut -d' ' -f2-)"
 
-    echo -e "${name}\t${desc}"
+    printf "%-30s %s\n" "${name}" "${desc}"
 done

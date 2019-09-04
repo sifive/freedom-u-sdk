@@ -10,3 +10,6 @@
 [submodule "bitbake"]
 	path = bitbake
 	url = git://github.com/openembedded/bitbake.git
+[submodule "meta-sifive"]
+	path = meta-sifive
+	url = git://github.com/sifive/meta-sifive.git

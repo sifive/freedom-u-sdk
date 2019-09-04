@@ -10,6 +10,11 @@ TOP="$(readlink -f .)"
 unset MACHINE
 unset IMAGE
 
+if test ! -e "${TOP}"/openembedded-core/bitbake
+then
+    ln -s ../bitbake "${TOP}"/openembedded-core/bitbake
+fi
+
 while [[ "$1" != "" ]]
 do
     case "$1" in
@@ -39,17 +44,11 @@ BUILD="${BUILD}/${MACHINE}-${IMAGE}"
 
 # Check to make sure the environment isn't too screwed up, as otherwise we'll
 # get some ugly error messages.
-if test -d "${BUILD}"
-then
-    echo "$0: ${BUILD}/enter.sh doesn't exist, have you run ./build?"
-    exit 1
-fi
-
-if test ! -e "${TOP}"/meta-riscv/setup.sh
-then
-    echo "$0: ${TOP}/meta-riscv/setup.sh doesn't exist, did you forget to run 'git submodule update --init --recursive'?" >&2
-    exit 1
-fi
+#if test -d "${BUILD}"
+#then
+#    echo "$0: ${BUILD}/enter.sh doesn't exist, have you run ./build?"
+#    exit 1
+#fi
 
 mkdir -p "${BUILD}"
 
@@ -65,14 +64,36 @@ mkdir -p "${BUILD}"
     bitbake-layers add-layer "${TOP}"/meta-openembedded/meta-python
     bitbake-layers add-layer "${TOP}"/meta-openembedded/meta-multimedia
     bitbake-layers add-layer "${TOP}"/meta-openembedded/meta-networking
+    bitbake-layers add-layer "${TOP}"/meta-openembedded/meta-gnome
+    bitbake-layers add-layer "${TOP}"/meta-openembedded/meta-xfce
     bitbake-layers add-layer "${TOP}"/meta-riscv
     bitbake-layers add-layer "${TOP}"/meta-sifive
     
     # Configures bitbake, which for us is just setting the target.
     cat >conf/auto.conf <<EOF
-MACHINE = "${MACHINE}"
-DISTRO_FEATURES_append = " systemd "
+MACHINE ?= "${MACHINE}"
+EXTRA_IMAGE_FEATURES_append = " package-management"
+PACKAGECONFIG_append_pn-qemu-native = " sdl"
+PACKAGECONFIG_append_pn-nativesdk-qemu = " sdl"
+USER_CLASSES ?= "buildstats buildhistory buildstats-summary image-mklibs image-prelink"
+require conf/distro/include/no-static-libs.inc
+require conf/distro/include/yocto-uninative.inc
+require conf/distro/include/security_flags.inc
+INHERIT += "uninative"
+DISTRO_FEATURES_append = " largefile opengl ptest multiarch wayland pam  systemd "
+DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
+HOSTTOOLS_NONFATAL_append = " ssh"
+# We use NetworkManager instead
+PACKAGECONFIG_remove_pn-systemd = "networkd"
+# Disable security flags for bootloaders
+# Security flags incl. smatch protector which is not supported in these packages
+SECURITY_CFLAGS_pn-freedom-u540-c000-bootloader = ""
+SECURITY_LDFLAGS_pn-freedom-u540-c000-bootloader = ""
+SECURITY_CFLAGS_pn-opensbi = ""
+SECURITY_LDFLAGS_pn-opensbi = ""
+# Add r600 drivers for AMD GPU
+PACKAGECONFIG_append_pn-mesa = " r600"
 EOF
 
     # Builds the requested image.
