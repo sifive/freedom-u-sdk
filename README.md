@@ -76,7 +76,7 @@ There are two machine targets currently tested:
 
 - `freedom-u540` - SiFive HiFive Unleashed development board with or without HiFive Unleashed Expansion Board from Microsemi.
 
-> It's not possible to use disk images built for `freedom-u540` with QEMU 4.1 and instructions provided below.
+> It's not possible to use disk images built for `freedom-u540` with QEMU 4.0 and instructions provided below.
 > 
 > Building disk images is CPU intensive, requires <10GB of sources downloaded over the Internet and <110GB of local storage.
 
