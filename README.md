@@ -14,6 +14,8 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). I
 
 For more information on particular release see `ReleaseNotes` directory in [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repository on GitHub.
 
+The old SDK based on Buildroot is archived in [`archive/buildroot`](https://github.com/sifive/freedom-u-sdk/tree/archive/buildroot) branch.
+
 For advanced OE usage we advice to look into the following third-party manuals:
 
 - [BitBake User Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/bitbake-user-manual/bitbake-user-manual.html)
