@@ -42,7 +42,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b master -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b v201908-branch -m tools/manifests/sifive.xml
 repo sync
 ```
 
