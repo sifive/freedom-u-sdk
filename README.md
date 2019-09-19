@@ -10,7 +10,7 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). I
 - build Linux kernel images;
 - easily modify disk partition layout.
 
-> [Berkeley Boot Loader (BBL)](https://github.com/riscv/riscv-pk) is replaced by [OpenSBI](https://github.com/riscv/opensbi) and uSD disk images now also incl. [FSBL](https://github.com/sifive/freedom-u540-c000-bootloader). ZSBL is also built, but it's not possible to use it as it resides in ROM.
+> [Berkeley Boot Loader (BBL)](https://github.com/riscv/riscv-pk) is replaced by [OpenSBI](https://github.com/riscv/opensbi) and uSD (microSD) disk images now also incl. [FSBL](https://github.com/sifive/freedom-u540-c000-bootloader). ZSBL is also built, but it's not possible to use it as it resides in ROM.
 
 For more information on particular release see `ReleaseNotes` directory in [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repository on GitHub.
 
@@ -18,7 +18,7 @@ For advanced OE usage we advice to look into the following third-party manuals:
 
 - [BitBake User Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/bitbake-user-manual/bitbake-user-manual.html)
 
-- [Yocto Project Reference Maual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/ref-manual/ref-manual.html)
+- [Yocto Project Reference Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/ref-manual/ref-manual.html)
 
 - [Yocto Project Complete Documentation \(MegaManual\) Set 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/mega-manual/mega-manual.html)
 
@@ -26,7 +26,13 @@ For advanced OE usage we advice to look into the following third-party manuals:
 
 ## Quick Start
 
-You will need to install `repo` command from Google if not available on your system. Please follow [the official instructions](https://source.android.com/setup/downloading#installing-repo) by Google.
+Install `repo` command from Google if not available on your host system. Please follow [the official instructions](https://source.android.com/setup/downloading#installing-repo) by Google.
+
+Then install a number of packages for BitBake (OE build tool) to work properly on your host system. BitBake itself depends on Python 3. Once you have Python 3 installed BitBake should be able to tell you most of the missing packages.
+
+> For Ubuntu 18.04 (or newer) install python3-distutils package.
+
+Detailed instructions for various distributions can be found in "[Required Packages for the Build Host](https://www.yoctoproject.org/docs/2.7.1/ref-manual/ref-manual.html#required-packages-for-the-build-host)" section in Yocto Project Reference Manual.
 
 ### Creating Workspace
 
@@ -106,7 +112,9 @@ Disk images files use `<image>-<machine>.<output_format>` format, for example,
 
 > Be very careful while picking /dev/sdX device! Look at dmesg, lsblk, blkid, GNOME Disks, etc. before and after plugging in your uSD card to find a proper device. Double check it to avoid overwriting any of system disks/partitions!
 > 
-> We advice to use 16GB or 32GB uSD cards.
+> Unmount any mounted partitions from uSD card before writing!
+> 
+> We advice to use 16GB or 32GB uSD cards. 8GB cards (shipped with HiFive Unleashed) can still be used with `demo-coreip-cli` CLI images.
 
 Finally write uSD card:
 
@@ -126,6 +134,8 @@ You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloader
  |        RTCSEL-----/ 0 1 2 3 <--MSEL                     |
  |                                                         |
 ```
+
+You can login with `root` account. There is no password set for `root` account thus you should set one before continuing.  SSH daemon is started automatically.
 
 ## Contributions & Feedback
 
