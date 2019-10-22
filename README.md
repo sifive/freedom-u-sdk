@@ -37,6 +37,13 @@ make -j4
 
 ### Building for vc707 dev board
 
+Changing the branch for using buildroot on vc707.
+
+```sh
+$ git checkout linux_u500vc707devkit_config
+$ git submodule update --init --recursive
+```
+
 ```sh
 make -j4 BOARD=vc707devkit
 ```
