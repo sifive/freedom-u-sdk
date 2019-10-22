@@ -26,7 +26,13 @@ buildroot_rootfs_config := $(confdir)/buildroot_rootfs_config
 
 linux_srcdir := $(srcdir)/linux
 linux_wrkdir := $(wrkdir)/linux
+linux_defconfig := $(confdir)/linux_defconfig
+ifeq ($(BOARD),$(filter vc707devkit,$(BOARD)))
 linux_defconfig := $(confdir)/linux_u500vc707devkit_defconfig
+endif
+ifeq ($(BOARD),$(filter vc707devkit_nopci,$(BOARD)))
+linux_defconfig := $(confdir)/linux_u500vc707devkit_nopci_defconfig
+endif
 
 vmlinux := $(linux_wrkdir)/vmlinux
 vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
@@ -206,7 +212,23 @@ bbl: $(bbl)
 
 .PHONY: clean
 clean:
-	rm -rf -- $(wrkdir) $(toolchain_dest)
+	rm -rf -- $(wrkdir)
+
+.PHONY: clean-toolchain
+clean-toolchain:
+	rm -rf -- $(toolchain_dest)
+
+.PHONY: clean-kernel
+clean-kernel:
+	rm -rf -- $(linux_wrkdir)
+
+.PHONY: clean-pk
+clean-pk:
+	rm -rf -- $(pk_wrkdir)
+
+.PHONY: clean-buildroot
+clean-buildroot:
+	rm -rf -- $(buildroot_initramfs_sysroot) $(buildroot_initramfs_wrkdir)
 
 .PHONY: sim
 sim: $(spike) $(bbl)
@@ -246,3 +268,7 @@ else
 endif
 	dd if=$< of=$(PART1) bs=4096
 	mke2fs -t ext3 $(PART2)
+
+.PHONY: vc707-sd-write
+vc707-sd-write: $(bin)
+	sudo dd if=$< of=$(DISK) bs=4096 conv=fsync
