@@ -432,7 +432,7 @@ format-demo-image: $(DEMO_IMAGE) format-boot-loader
 	@echo "Done setting up basic initramfs boot. We will now try to install"
 	@echo "a Debian snapshot to the Linux partition, which requires sudo"
 	@echo "you can safely cancel here"
-	/sbin/mke2fs -t ext4 $(PART2)
+	/sbin/mke2fs -L ROOTFS -t ext4 $(PART2)
 	-mkdir tmp-mnt
 	-sudo mount $(PART2) tmp-mnt && cd tmp-mnt && \
 		sudo tar -Jxf ../$(DEMO_IMAGE) -C .
