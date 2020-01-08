@@ -439,20 +439,20 @@ work/oe/build:
 	mkdir -p work/oe
 	cd work/oe && ln -s ../../oe/* . && . meta-sifive/setup.sh
 
-$(wrkdir)/oe/build/sifive-test-freedom-u540.wic.gz: $(wrkdir)/oe/build
+$(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz: $(wrkdir)/oe/build
 	# rather ugly wrapper for openembedded
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
-		bitbake sifive-test
+		bitbake demo-coreip-cli
 
 .PHONY: sdk oe-sdk
 oe-sdk sdk: oe
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
-		bitbake sifive-test -c populate_sdk
+		bitbake demo-coreip-cli -c populate_sdk
 
 .PHONY: oe
-oe: $(wrkdir)/oe/build/sifive-test-freedom-u540.wic.gz
+oe: $(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
 
-oe_export: $(wrkdir)/oe/build/sifive-test-freedom-u540.wic.gz
+oe_export: $(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
 	cp -v $@ $(test_export)/
 
 .PHONY: rust
@@ -495,7 +495,7 @@ $(test_export_tar): $(test_export)
 
 SDK=$(wrkdir)/oe/build/tmp-glibc/deploy/sdk/oecore-x86_64-riscv64-toolchain-nodistro.0.sh
 OEBUILD=$(wrkdir)/oe/build
-OEIMG=$(wrkdir)/oe/build/sifive-test-freedom-u540.wic.gz
+OEIMG=$(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
 
 $(OEBUILD):
 	mkdir -p work/oe
@@ -504,14 +504,14 @@ $(OEBUILD):
 $(OEIMG): $(OEBUILD)
 	# rather ugly wrapper for openembedded
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
-		bitbake sifive-test
+		bitbake demo-coreip-cli
 
 .PHONY: sdk oe-sdk
 oe-sdk sdk: $(SDK)
 
 $(SDK): $(OEIMG)
 	cd work/oe/ && . openembedded-core/oe-init-build-env && \
-		bitbake sifive-test -c populate_sdk
+		bitbake demo-coreip-cli -c populate_sdk
 
 .PHONY: oe
 oe: $(OEIMG)
