@@ -11,9 +11,8 @@ Unleashed development board.
 
 - Status: Working
 - Build dependencies: `build-essential git autotools texinfo bison flex
-  libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev`
+  libgmp-dev libmpfr-dev libmpc-dev gawk libz-dev libssl-dev device-tree-compiler`
 - Additional build deps for QEMU: `libglib2.0-dev libpixman-1-dev`
-- Additional build deps for Spike: `device-tree-compiler`
 - tools require for 'format-boot-loader' target: mtools
 
 ### Debian Linux (sid) RiscV Host
