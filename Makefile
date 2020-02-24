@@ -434,25 +434,36 @@ qemu-ltp: $(qemu) $(bbl) $(vmlinux) $(initramfs) $(rootfs)
 .PHONY: uboot
 uboot: $(uboot) $(uboot_s)
 
-#hardcoded path hacks here
-work/oe/build:
-	mkdir -p work/oe
-	cd work/oe && ln -s ../../oe/* . && . meta-sifive/setup.sh
+SDK=$(wrkdir)/oe/build/tmp-glibc/deploy/sdk/oecore-x86_64-riscv64-toolchain-nodistro.0.sh
+OEBUILD=$(wrkdir)/oe/build
+OEIMG=$(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
 
-$(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz: $(wrkdir)/oe/build
+.PHONY: oe
+oe: $(OEIMG)
+
+# the symlink trick keeps a 'standard' oe layout, there is probably
+# a much cleaner way to do this.
+$(OEBUILD):
+	mkdir -p work/oe
+	cd $(srcdir) && git submodule update --init oe
+	cd $(wrkdir)/oe && ln -s $(srcdir)/oe/* . && . meta-sifive/setup.sh
+
+$(OEIMG): $(OEBUILD)
 	# rather ugly wrapper for openembedded
-	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+	cd $(wrkdir)/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-coreip-cli
 
 .PHONY: sdk oe-sdk
-oe-sdk sdk: oe
-	cd work/oe/ && . openembedded-core/oe-init-build-env && \
+# do this every time so bitbake does it's own dependency check
+sdk oe-sdk: $(OEIMG) # OE dependency is needed if called with make -j
+	cd $(srcdir) && git submodule update --init oe
+	cd $(wrkdir)/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-coreip-cli -c populate_sdk
 
-.PHONY: oe
-oe: $(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
+.PHONY: oe 
+oe: $(OEIMG)
 
-oe_export: $(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
+oe_export: $(OEIMG)
 	cp -v $@ $(test_export)/
 
 .PHONY: rust
@@ -492,32 +503,6 @@ $(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
 
 $(test_export_tar): $(test_export)
 	tar zcvf $(test_export_tar) -C $(wrkdir) `basename $(test_export)`
-
-SDK=$(wrkdir)/oe/build/tmp-glibc/deploy/sdk/oecore-x86_64-riscv64-toolchain-nodistro.0.sh
-OEBUILD=$(wrkdir)/oe/build
-OEIMG=$(wrkdir)/oe/build/demo-coreip-cli-freedom-u540.wic.gz
-
-$(OEBUILD):
-	mkdir -p work/oe
-	cd work/oe && ln -s ../../oe/* . && . meta-sifive/setup.sh
-
-$(OEIMG): $(OEBUILD)
-	# rather ugly wrapper for openembedded
-	cd work/oe/ && . openembedded-core/oe-init-build-env && \
-		bitbake demo-coreip-cli
-
-.PHONY: sdk oe-sdk
-oe-sdk sdk: $(SDK)
-
-$(SDK): $(OEIMG)
-	cd work/oe/ && . openembedded-core/oe-init-build-env && \
-		bitbake demo-coreip-cli -c populate_sdk
-
-.PHONY: oe
-oe: $(OEIMG)
-
-oe_export: $(OEIMG)
-	cp -v $@ $(test_export)/
 
 # Relevant partition type codes
 BBL		= 2E54B353-1271-4842-806F-E436D6AF6985
