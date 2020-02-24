@@ -23,8 +23,9 @@ target := riscv64-sifive-linux-gnu
 CROSS_COMPILE := $(RISCV)/bin/$(target)-
 
 tftp := /var/lib/tftpboot
-test_export := $(wrkdir)/hifive-test-$(GITID)
-test_export_tar := $(wrkdir)/hifive-test-$(GITID).tar.gz
+test_export := $(wrkdir)/freedom-test-$(GITID)
+test_export_tar := $(wrkdir)/freedom-test-$(GITID).tar.gz
+test_export_sdk := $(wrkdir)/freedom-sdk-oe-$(GITID).sh
 
 buildroot_initramfs_tar := $(buildroot_initramfs_wrkdir)/images/rootfs.tar
 buildroot_initramfs_config := $(confdir)/buildroot_initramfs_config
@@ -48,8 +49,8 @@ vmlinux_stripped := $(linux_wrkdir)/vmlinux-stripped
 vmlinux_bin := $(wrkdir)/vmlinux.bin
 uImage := $(wrkdir)/uImage
 
-flash_image := $(wrkdir)/hifive-unleashed-$(GITID).gpt
-vfat_image := $(wrkdir)/hifive-unleashed-vfat.part
+flash_image := $(wrkdir)/freedom-unleashed-$(GITID).gpt
+vfat_image := $(wrkdir)/freedom-unleashed-vfat.part
 #ext_image := $(wrkdir)  # TODO
 
 initramfs := $(wrkdir)/initramfs.cpio.gz
@@ -448,23 +449,38 @@ $(OEBUILD):
 	cd $(srcdir) && git submodule update --init oe
 	cd $(wrkdir)/oe && ln -s $(srcdir)/oe/* . && . meta-sifive/setup.sh
 
-$(OEIMG): $(OEBUILD)
+$(OEIMG): $(SDK) # serialize on building SDK first if make -j
 	# rather ugly wrapper for openembedded
 	cd $(wrkdir)/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-coreip-cli
 
 .PHONY: sdk oe-sdk
 # do this every time so bitbake does it's own dependency check
-sdk oe-sdk: $(OEIMG) # OE dependency is needed if called with make -j
-	cd $(srcdir) && git submodule update --init oe
+sdk oe-sdk: $(OEBUILD)
+	cd $(srcdir) && git submodule update --init oe \
+		>> $(wrkdir)/oe/build/buildhistory/sdk/git-update.log
+	git submodule foreach git describe --always --dirty \
+		>> $(wrkdir)/oe/build/buildhistory/sdk/git-update.log
 	cd $(wrkdir)/oe/ && . openembedded-core/oe-init-build-env && \
 		bitbake demo-coreip-cli -c populate_sdk
+	@tar zcvf $(wrkdir)/sdk_build-$(GITID).tar.gz $(wrkdir)/oe/build/buildhistory/sdk
+	@echo
+	@echo "===> OpenEmbedded SDK build complete."
+	@echo "===> GIT id $(GITID)"
+	@ls -l $(SDK)
 
 .PHONY: oe 
 oe: $(OEIMG)
 
 oe_export: $(OEIMG)
-	cp -v $@ $(test_export)/
+	@cp -v $@ $(test_export)/
+
+.PHONY: sdk_x sdk_export
+sdk_x sdk_export: $(test_export_sdk)
+
+#call the phony target to ensure bitbake dependency check
+$(test_export_sdk): sdk
+	cp -v $(SDK) $(test_export_sdk)
 
 .PHONY: rust
 rust: $(wrkdir)/oe/build
@@ -475,7 +491,7 @@ rust: $(wrkdir)/oe/build
 test: $(test_export)
 	# this does way more than it needs to right now
 	cp -v $(test_export)/uEnv-net.txt $(tftp)/uEnv.txt
-	cp -v $(test_export)/hifiveu.fit $(tftp)/
+	cp -v $(test_export)/freedomu.fit $(tftp)/
 	test/jtag-boot.sh $(test_export)/u-boot.bin
 
 .PHONY: test_s
@@ -494,7 +510,7 @@ $(test_export): $(fit) $(uboot) $(uboot_s) $(opensbi) $(uImage) $(initramfs)
 	rm -rf $(test_export)
 	mkdir $(test_export)
 	cp -v $(confdir)/uEnv-net.txt $(test_export)/
-	cp -v $(fit) $(test_export)/hifiveu.fit
+	cp -v $(fit) $(test_export)/freedomu.fit
 	cp -v $(confdir)/uEnv-osbi.txt $(test_export)/
 	cp -v $(confdir)/uEnv-smode.txt $(test_export)/
 	cp -v $(uImage) $(test_export)/
@@ -531,7 +547,7 @@ $(vfat_image): $(fit) $(confdir)/uEnv.txt
 		rm $(flash_image); exit 1; fi
 	dd if=/dev/zero of=$(vfat_image) bs=512 count=$(VFAT_SIZE)
 	/sbin/mkfs.vfat $(vfat_image)
-	PATH=$(RVPATH) MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(fit) ::hifiveu.fit
+	PATH=$(RVPATH) MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(fit) ::freedomu.fit
 	PATH=$(RVPATH) MTOOLS_SKIP_CHECK=1 mcopy -i $(vfat_image) $(confdir)/uEnv.txt ::uEnv.txt
 
 $(flash_image): $(uboot) $(fit) $(vfat_image)
