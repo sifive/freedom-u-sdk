@@ -42,7 +42,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b master -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2020.03 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -76,7 +76,7 @@ There are two disk image targets added by meta-sifive layer:
 
 - `demo-coreip-cli` - basic command line image (**recommended**);
 
-- `demo-coreip-xfce4` - basic graphical disk image with [Xfce 4](https://www.xfce.org/) desktop environment (requires HiFive Unleashed Expansion Board with supported GPUs, for example, Radeon HD 6450 or Radeon HD 5450).
+- `demo-coreip-xfce4` - basic graphical disk image with [Xfce 4](https://www.xfce.org/) desktop environment (requires HiFive Unleashed Expansion Board with supported GPUs, for example, **Radeon HD 6450** or Radeon HD 5450).
 
 There are two machine targets currently tested:
 
@@ -124,7 +124,7 @@ Finally write uSD card:
 zcat demo-coreip-cli-freedom-u540.wic.gz | sudo dd of=/dev/sdX bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
 ```
 
-You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloaders from uSD card instead of SPI NAND chip:
+You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloaders from uSD card instead of SPI-NOR Flash chip:
 
 ```
       USB   LED    Mode Select                  Ethernet
@@ -137,10 +137,44 @@ You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloader
  |                                                         |
 ```
 
-You can login with `root` account. There is no password set for `root` account thus you should set one before continuing.  SSH daemon is started automatically.
+You can login with `root` account. The password is `sifive`.
+
+### Connecting using serial console
+
+Connect your HiFive Unleashed to your PC using microUSB-USB cable to access serial console.
+
+For macOS, run: `screen -L /dev/tty.usbserial-*01 115200`
+
+For Linux, run: `screen -L /dev/serial/by-id/usb-FTDI_Dual_RS232-HS-if01-port0 115200`
+
+The above commands might vary depending on your exact setup.
+
+`-L` command will log all output to `screenlog.0` in your current working directory.
+
+To quit screen, hit `Ctrl - A` followed by `\` symbol. Finally agree to terminate all windows by typing `y`.
+
+### Connecting using SSH
+
+SSH daemon is started automatically.
+
+The boards behaves like any other network capable device (such as PC, laptop, and Single Board Computers like Raspberry Pi). Connect your HiFive Unleashed to your network (e.g. a router) and it will acquire IPv4 + DNS configuration using DHCP protocol. You can use your router management panel to get assigned IPv4 address or use the serial console to acquire it directly from the HiFive Unleashed (use `ip addr` command to print active network information). Finally you can SSH to the machine:
+
+```
+ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o "UserKnownHostsFile /dev/null" root@<IPv4>
+```
+
+### Supported GPUs
+
+Currently on CAICOS family of GPUs from AMD are supported. In particular **Radeon HD 6450** is the most widely used and is highly recommended today. Other GPUs from the same family might also work. That could be: HD64xxM, HD7450, HD8450, R5 230, R5 235, R5 235X
 
 ## Contributions & Feedback
 
 If you want to file issues, send patches and make feature/enhancement requests use [meta-sifive](https://github.com/sifive/meta-sifive) or [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repositories on GitHub.
 
 You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) there we have [HiFive Unleashed](https://forums.sifive.com/c/hifive-unleashed) category for discussions.
+
+## Known Issues
+
+1. Avoid overclocking SOC using CPUFreq if you are using HiFive Unleashed Expansion Board from Microsemi as this will hang the board. Hard reset will be required.
+
+2. You might notice sluggish Xfce4 performance on the first boot if you are using HiFive Unleashed Expansion Board from Microsemi with GPU. Rebooting seems to resolve the issue.
