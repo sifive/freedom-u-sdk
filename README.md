@@ -70,6 +70,16 @@ repo rebase
 . ./meta-sifive/setup.sh
 ```
 
+### Configuring BitBake Parallel Number of Tasks/Jobs
+
+There are 3 variables that control the number of parallel tasks/jobs BitBake will use: `BB_NUMBER_PARSE_THREADS`, `BB_NUMBER_THREADS` and `PARALLEL_MAKE`. The last two are the most important, and both are set to number of cores available on the system. You can set them in your `$BUILDDIR/conf/local.conf` or in your shell environment similar to how `MACHINE` is used (see next section). Example:
+
+```bash
+PARALLEL_MAKE="-j 4" BB_NUMBER_THREADS=4 MACHINE=freedom-u540 bitbake demo-coreip-cli
+```
+
+Leaving defaults could cause high load averages, high memory usage, high IO wait and could make your system unresponsive due to resources overuse. The defaults should be changed based on your system configuration.
+
 ### Building Disk Images
 
 There are two disk image targets added by meta-sifive layer:
@@ -88,7 +98,7 @@ There are two machine targets currently tested:
 > 
 > Building disk images is CPU intensive, requires <10GB of sources downloaded over the Internet and <110GB of local storage.
 
-Building disk image takes a single command which my take anything from 30 minutes to several hours depending on your hardware. Examples:
+Building disk image takes a single command which may take anything from 30 minutes to several hours depending on your hardware. Examples:
 
 ```bash
 MACHINE=qemuriscv64 bitbake demo-coreip-cli
@@ -139,7 +149,7 @@ You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloader
 
 You can login with `root` account. The password is `sifive`.
 
-### Connecting using serial console
+### Connecting Using Serial Console
 
 Connect your HiFive Unleashed to your PC using microUSB-USB cable to access serial console.
 
@@ -153,11 +163,11 @@ The above commands might vary depending on your exact setup.
 
 To quit screen, hit `Ctrl - A` followed by `\` symbol. Finally agree to terminate all windows by typing `y`.
 
-### Connecting using SSH
+### Connecting Using SSH
 
 SSH daemon is started automatically.
 
-The boards behaves like any other network capable device (such as PC, laptop, and Single Board Computers like Raspberry Pi). Connect your HiFive Unleashed to your network (e.g. a router) and it will acquire IPv4 + DNS configuration using DHCP protocol. You can use your router management panel to get assigned IPv4 address or use the serial console to acquire it directly from the HiFive Unleashed (use `ip addr` command to print active network information). Finally you can SSH to the machine:
+The HiFive Unleashed behaves like any other network capable device (such as PC, laptop, and Single Board Computers like Raspberry Pi). Connect your HiFive Unleashed to your network (e.g. a router) and it will acquire IPv4 + DNS configuration using DHCP protocol. You can use your router management panel to get assigned IPv4 address or use the serial console to acquire it directly from the HiFive Unleashed (use `ip addr` command to print active network information). Finally you can SSH to the machine:
 
 ```
 ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o "UserKnownHostsFile /dev/null" root@<IPv4>
@@ -166,6 +176,18 @@ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHos
 ### Supported GPUs
 
 Currently on CAICOS family of GPUs from AMD are supported. In particular **Radeon HD 6450** is the most widely used and is highly recommended today. Other GPUs from the same family might also work. That could be: HD64xxM, HD7450, HD8450, R5 230, R5 235, R5 235X
+
+### Online Resizing of rootfs (Root File Partition)
+
+It is highly advised to resize partitions offline (i.e. before booting the system). If you already booted the system and cannot do offline resizing then the following instructions should resize rootfs (root file partition) to full uSD capacity:
+
+```bash
+sgdisk -v /dev/mmcblk0
+sgdisk -e /dev/mmcblk0
+parted /dev/mmcblk0 resizepart 4 100%
+resize2fs /dev/mmcblk0p4
+sync
+```
 
 ## Contributions & Feedback
 
@@ -177,4 +199,19 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) there 
 
 1. Avoid overclocking SOC using CPUFreq if you are using HiFive Unleashed Expansion Board from Microsemi as this will hang the board. Hard reset will be required.
 
-2. You might notice sluggish Xfce4 performance on the first boot if you are using HiFive Unleashed Expansion Board from Microsemi with GPU. Rebooting seems to resolve the issue.
+2. If Xfce4 desktop disk image is used with HiFive Unleashed Expansion Board and GPU then rebooting is required after the 1st boot.
+
+3. OpenEmbedded Core (and thus meta-sifive) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
+
+4. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
+   
+   ```bash
+   apt update
+   apt install locales
+   locale-gen en_US.UTF-8
+   update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+   export LANG="en_US.UTF-8"
+   locale
+   ```
+   
+   You can change system default locale with `dpkg-reconfigure locales` command.
