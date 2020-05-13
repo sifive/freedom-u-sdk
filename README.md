@@ -18,11 +18,11 @@ The old SDK based on Buildroot is archived in [`archive/buildroot`](https://gith
 
 For advanced OE usage we advice to look into the following third-party manuals:
 
-- [BitBake User Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/bitbake-user-manual/bitbake-user-manual.html)
+- [BitBake User Manual 3.1 by Yocto](https://www.yoctoproject.org/docs/3.1/bitbake-user-manual/bitbake-user-manual.html)
 
-- [Yocto Project Reference Manual 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/ref-manual/ref-manual.html)
+- [Yocto Project Reference Manual 3.1 by Yocto](https://www.yoctoproject.org/docs/3.1/ref-manual/ref-manual.html)
 
-- [Yocto Project Complete Documentation \(MegaManual\) Set 2.7.1 by Yocto](https://www.yoctoproject.org/docs/2.7.1/mega-manual/mega-manual.html)
+- [Yocto Project Complete Documentation \(MegaManual\) Set 3.1 by Yocto](https://www.yoctoproject.org/docs/3.1/mega-manual/mega-manual.html)
 
 - [A practical guide to BitBake by Harald Achitz](https://a4z.bitbucket.io/docs/BitBake/guide.html)
 
@@ -42,7 +42,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2020.04 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2020.05 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -62,6 +62,22 @@ If you want to pull in the latest changes in all layers.
 cd riscv-sifive
 repo sync
 repo rebase
+```
+
+### Installing Build Tools
+
+OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Your host system might have an older version of GCC if you use LTS (Long Term Support) Linux distribution (e.g. Ubuntu 16.04.6 has GCC 5.4.0). You could solve this issue by installing build tools (pokysdk). This requires less than 400MB of disk space.
+
+```bash
+./openembedded-core/scripts/install-buildtools
+```
+
+The SDK will be installed under `./openembedded-core/buildtools` prefix.
+
+Finally you should be able to use build tools.
+
+```bash
+. ./openembedded-core/buildtools/environment-setup-x86_64-pokysdk-linux
 ```
 
 ### Setting up Build Environment
