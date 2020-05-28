@@ -64,26 +64,54 @@ repo sync
 repo rebase
 ```
 
-### Installing Build Tools
-
-OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Your host system might have an older version of GCC if you use LTS (Long Term Support) Linux distribution (e.g. Ubuntu 16.04.6 has GCC 5.4.0). You could solve this issue by installing build tools (pokysdk). This requires less than 400MB of disk space.
-
-```bash
-./openembedded-core/scripts/install-buildtools
-```
-
-The SDK will be installed under `./openembedded-core/buildtools` prefix.
-
-Finally you should be able to use build tools.
-
-```bash
-. ./openembedded-core/buildtools/environment-setup-x86_64-pokysdk-linux
-```
-
 ### Setting up Build Environment
 
 ```bash
 . ./meta-sifive/setup.sh
+```
+
+### Getting Build Tools (optional)
+
+OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Your host system might have an older version of GCC if you use LTS (Long Term Support) Linux distribution (e.g. Ubuntu 16.04.6 has GCC 5.4.0). You could solve this issue by installing build tools. This requires less than 400MB of disk space. You can download pre-built one or build your own build tools.
+
+#### Option 1: Installing OpenEmbedded-Core Build Tools (Pre-Built)
+
+```bash
+$BUILDDIR/../openembedded-core/scripts/install-buildtools
+```
+
+The native SDK will be installed under `$BUILDDIR/../openembedded-core/buildtools` prefix.
+
+Finally you should be able to use build tools:
+
+```bash
+. $BUILDDIR/../openembedded-core/buildtools/environment-setup-x86_64-pokysdk-linux
+```
+
+#### Option 2: Building Your Own Build Tools
+
+> Your host needs to have GCC 6 (or newer) or build tools installed from Option 1.
+
+> You can find pre-built tools from the same release source in GitHub release assets.
+
+To build your own build tools execute the command below:
+
+```bash
+bitbake buildtools-extended-tarball
+```
+
+You can find the native SDK under `$BUILDDIR/tmp-glibc/deploy/sdk/` directory.
+
+Now you can install build tools:
+
+```bash
+$BUILDDIR/tmp-glibc/deploy/sdk/x86_64-buildtools-extended-nativesdk-standalone-nodistro.0.sh -d $BUILDDIR/../openembedded-core/buildtools -y
+```
+
+Finally you should be able to use your build tools:
+
+```bash
+. $BUILDDIR/../openembedded-core/buildtools/environment-setup-x86_64-oesdk-linux
 ```
 
 ### Configuring BitBake Parallel Number of Tasks/Jobs
