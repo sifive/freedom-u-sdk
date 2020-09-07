@@ -42,7 +42,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2020.08 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2020.09 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -166,7 +166,7 @@ You will find all available build fragments (incl. disk images) in `$BUILDDIR/tm
 
 Disk images files use `<image>-<machine>.<output_format>` format, for example,
 
-`demo-coreip-cli-freedom-u540.wic.gz`. We are interested in `.wic.gz` disk images for writing to uSD card.
+`demo-coreip-cli-freedom-u540.wic.xz`. We are interested in `.wic.xz` disk images for writing to uSD card.
 
 > Be very careful while picking /dev/sdX device! Look at dmesg, lsblk, blkid, GNOME Disks, etc. before and after plugging in your uSD card to find a proper device. Double check it to avoid overwriting any of system disks/partitions!
 > 
@@ -177,7 +177,7 @@ Disk images files use `<image>-<machine>.<output_format>` format, for example,
 Finally write uSD card:
 
 ```bash
-zcat demo-coreip-cli-freedom-u540.wic.gz | sudo dd of=/dev/sdX bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
+xzcat demo-coreip-cli-freedom-u540.wic.xz | sudo dd of=/dev/sdX bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
 ```
 
 You will need to modify MSEL to allow using FSBL and OpenSBI + U-Boot bootloaders from uSD card instead of SPI-NOR Flash chip:
