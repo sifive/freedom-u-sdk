@@ -5,12 +5,12 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). I
 - build predefined disk images for QEMU and [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board (incl. [HiFive Unleashed Expansion Board](https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board) from Microsemi);
 - build custom disk images with additional software packages from various third-party OE layers;
 - quickly launch QEMU VM instance with your built disk image;
-- build bootloader binaries (ZSBL, FSBL, OpenSBI, U-Boot);
+- build bootloader binaries (OpenSBI, U-Boot, U-Boot SPL);
 - build Device Tree Binary (DTB);
 - build Linux kernel images;
 - easily modify disk partition layout.
 
-> [Berkeley Boot Loader (BBL)](https://github.com/riscv/riscv-pk) is replaced by [OpenSBI](https://github.com/riscv/opensbi) and uSD (microSD) disk images now also incl. [FSBL](https://github.com/sifive/freedom-u540-c000-bootloader). ZSBL is also built, but it's not possible to use it as it resides in ROM.
+> [Berkeley Boot Loader (BBL)](https://github.com/riscv/riscv-pk) is replaced by [OpenSBI](https://github.com/riscv/opensbi) and uSD (microSD) disk images now also incl. FSBL (U-Boot SPL).
 
 For more information on particular release see `ReleaseNotes` directory in [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repository on GitHub.
 
@@ -28,7 +28,7 @@ For advanced OE usage we advice to look into the following third-party manuals:
 
 ## Quick Start
 
-Install `repo` command from Google if not available on your host system. Please follow [the official instructions](https://source.android.com/setup/downloading#installing-repo) by Google.
+Install `repo` command from Google if not available on your host system. Please follow [the official instructions](https://source.android.com/setup/develop#installing-repo) by Google.
 
 Then install a number of packages for BitBake (OE build tool) to work properly on your host system. BitBake itself depends on Python 3. Once you have Python 3 installed BitBake should be able to tell you most of the missing packages.
 
@@ -62,12 +62,6 @@ If you want to pull in the latest changes in all layers.
 cd riscv-sifive
 repo sync
 repo rebase
-```
-
-### Setting up Build Environment
-
-```bash
-. ./meta-sifive/setup.sh
 ```
 
 ### Getting Build Tools (optional)
@@ -113,6 +107,16 @@ Finally you should be able to use your build tools:
 ```bash
 . $BUILDDIR/../openembedded-core/buildtools/environment-setup-x86_64-oesdk-linux
 ```
+
+### Setting up Build Environment
+
+This step has to be done after you modify your environment with toolchain you want to use otherwise wrong host tools might be available in the package build environment. For example, `gcc` from host system will be used for building `*-native` packages.
+
+```bash
+. ./meta-sifive/setup.sh
+```
+
+> You can verify and fix your host tools by checking symlinks in `$BUILDDIR/tmp-glibc/hosttools` directory.
 
 ### Configuring BitBake Parallel Number of Tasks/Jobs
 
