@@ -42,7 +42,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2020.09 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2020.10 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -71,7 +71,7 @@ OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Yo
 #### Option 1: Installing OpenEmbedded-Core Build Tools (Pre-Built)
 
 ```bash
-$BUILDDIR/../openembedded-core/scripts/install-buildtools
+./openembedded-core/scripts/install-buildtools
 ```
 
 The native SDK will be installed under `$BUILDDIR/../openembedded-core/buildtools` prefix.
@@ -79,7 +79,7 @@ The native SDK will be installed under `$BUILDDIR/../openembedded-core/buildtool
 Finally you should be able to use build tools:
 
 ```bash
-. $BUILDDIR/../openembedded-core/buildtools/environment-setup-x86_64-pokysdk-linux
+. ./openembedded-core/buildtools/environment-setup-x86_64-pokysdk-linux
 ```
 
 #### Option 2: Building Your Own Build Tools
