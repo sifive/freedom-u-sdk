@@ -42,7 +42,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2020.11 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2020.12 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -54,16 +54,6 @@ If you want to make modifications to existing layers then creating working branc
 repo start work --all
 ```
 
-### Updating Existing Workspace
-
-If you want to pull in the latest changes in all layers.
-
-```bash
-cd riscv-sifive
-repo sync
-repo rebase
-```
-
 ### Getting Build Tools (optional)
 
 OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Your host system might have an older version of GCC if you use LTS (Long Term Support) Linux distribution (e.g. Ubuntu 16.04.6 has GCC 5.4.0). You could solve this issue by installing build tools. This requires less than 400MB of disk space. You can download pre-built one or build your own build tools.
@@ -71,7 +61,7 @@ OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Yo
 #### Option 1: Installing OpenEmbedded-Core Build Tools (Pre-Built)
 
 ```bash
-./openembedded-core/scripts/install-buildtools
+./openembedded-core/scripts/install-buildtools -r yocto-3.2_M2 -t 20200729
 ```
 
 The native SDK will be installed under `$BUILDDIR/../openembedded-core/buildtools` prefix.
