@@ -4,6 +4,7 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). I
 
 - build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board (incl. [HiFive Unleashed Expansion Board](https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board) from Microsemi) and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
 	+ __Note__: We are deprecating support for HiFive Unleashed Expansion board from Microsemi, and future releases will remove support for it from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
+	+ __Note:__  2021.02.00 release introduces the support for the SiFive HiFive Unmatched board __(pre-production 8GB variant)__. Contact your SiFive representative before using disk images built for `unmatched` machine on your particular board. If you received the final board (16GB) via Mouser or CrowdSupply you should skip 2021.02.00 release.
 - build custom disk images with additional software packages from various third-party OE layers;
 - quickly launch QEMU VM instance with your built disk image;
 - build bootloader binaries (OpenSBI, U-Boot, U-Boot SPL);
@@ -125,7 +126,7 @@ There are two machine targets currently tested:
 
 - `freedom-u540` - SiFive HiFive Unleashed development board with or without HiFive Unleashed Expansion Board from Microsemi.
 
-- `unmatched` - SiFive HiFive Unmatched development board
+- `unmatched` - SiFive HiFive Unmatched development board (__Only for pre-production 8GB variant__. Contact your SiFive representative before using disk images built for `unmatched` machine.)
 
 > It's not possible to use disk images built for `freedom-u540` with QEMU 4.0 and instructions provided below.
 > 
@@ -150,7 +151,7 @@ MACHINE=qemuriscv64 runqemu nographic slirp
 
 ### Running on Hardware
 
-You will find all available build fragments (incl. disk images) in `$BUILDDIR/tmp-glibc/deploy/images/$MACHINE` where `MACHINE` is `freedom-u540` for this particular case.
+You will find all available build fragments (incl. disk images) in `$BUILDDIR/tmp-glibc/deploy/images/$MACHINE` where `MACHINE` is `freedom-u540` or `unmatched`.
 
 Disk images files use `<image>-<machine>.<output_format>` format, for example,
 
@@ -265,11 +266,13 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) where 
 
 1. Avoid overclocking SOC using CPUFreq if you are using HiFive Unleashed Expansion Board from Microsemi as this will hang the board. Hard reset will be required.
 
-2. If Xfce4 desktop disk image is used with HiFive Unleashed Expansion Board and GPU then rebooting is required after the 1st boot.
+2. There is no CPUFreq support enabled on HiFive Unmatched.
 
-3. OpenEmbedded Core (and thus meta-sifive) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
+3. If Xfce4 desktop disk image is used with HiFive Unleashed Expansion Board and GPU then rebooting is required after the 1st boot.
 
-4. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
+4. OpenEmbedded Core (and thus meta-sifive) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
+
+5. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
    
    ```bash
    apt update
