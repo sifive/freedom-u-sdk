@@ -4,7 +4,7 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). I
 
 - build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board (incl. [HiFive Unleashed Expansion Board](https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board) from Microsemi) and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
 	+ __Note__: We are deprecating support for HiFive Unleashed Expansion board from Microsemi, and future releases will remove support for it from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
-	+ __Note:__  2021.02.00 release introduces the support for the SiFive HiFive Unmatched board __(pre-production 8GB variant)__. Contact your SiFive representative before using disk images built for `unmatched` machine on your particular board. If you received the final board (16GB) via Mouser or CrowdSupply you should skip 2021.02.00 release.
+	+ __Note:__  2021.02.00 release introduces the support for the SiFive HiFive Unmatched board __(pre-production 8GB variant)__. Contact your SiFive representative before using disk images built for `unmatched` machine on your particular board. If you received the __final board (16GB) variant__ via Mouser or CrowdSupply you should skip 2021.02.00 release and use 2021.03.00 (or newer).
 - build custom disk images with additional software packages from various third-party OE layers;
 - quickly launch QEMU VM instance with your built disk image;
 - build bootloader binaries (OpenSBI, U-Boot, U-Boot SPL);
@@ -34,7 +34,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2021.02 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2021.03 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -122,11 +122,11 @@ By default disk images do not include debug packages. If you want to produce dis
 
 There are two machine targets currently tested:
 
-- `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine;
+- `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine.
 
 - `freedom-u540` - SiFive HiFive Unleashed development board with or without HiFive Unleashed Expansion Board from Microsemi.
 
-- `unmatched` - SiFive HiFive Unmatched development board (__Only for pre-production 8GB variant__. Contact your SiFive representative before using disk images built for `unmatched` machine.)
+- `unmatched` - SiFive HiFive Unmatched development board.
 
 > It's not possible to use disk images built for `freedom-u540` with QEMU 4.0 and instructions provided below.
 > 
