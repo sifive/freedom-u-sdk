@@ -2,8 +2,8 @@
 
 The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). It's a minimal [meta-sifive](https://github.com/sifive/meta-sifive) layer on top of [meta-riscv](https://github.com/riscv/meta-riscv) to provide additional modifications and new disk image targets. Using OE you will be able to:
 
-- build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board (incl. [HiFive Unleashed Expansion Board](https://www.crowdsupply.com/microsemi/hifive-unleashed-expansion-board) from Microsemi) and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
-	+ __Note__: We are deprecating support for HiFive Unleashed Expansion board from Microsemi, and future releases will remove support for it from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
+- build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
+	+ __Note__: The support for HiFive Unleashed Expansion board from Microsemi is now removed from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
 	+ __Note:__  2021.02.00 release introduces the support for the SiFive HiFive Unmatched board __(pre-production 8GB variant)__. Contact your SiFive representative before using disk images built for `unmatched` machine on your particular board. If you received the __final board (16GB) variant__ via Mouser or CrowdSupply you should skip 2021.02.00 release and use 2021.03.00 (or newer).
 - build custom disk images with additional software packages from various third-party OE layers;
 - quickly launch QEMU VM instance with your built disk image;
@@ -124,7 +124,7 @@ There are two machine targets currently tested:
 
 - `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine.
 
-- `freedom-u540` - SiFive HiFive Unleashed development board with or without HiFive Unleashed Expansion Board from Microsemi.
+- `freedom-u540` - SiFive HiFive Unleashed development board.
 
 - `unmatched` - SiFive HiFive Unmatched development board.
 
@@ -242,7 +242,6 @@ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHos
 
 Various GPUs from AMD were successfully tested with the boards. In particular **Radeon HD 6450** is the most widely used. Other GPUs from the same family might also work, for instance, THD64xxM, HD7450, HD8450, R5 230, R5 235, R5 235X. The newest tested GPUs from AMD are RX 550, RX 570, RX 580 with no issues.
 
-For HiFive Unleashed with HiFive Expansion Board from Microsemi we advice to use Radeon HD 6450 or RX 550. These cards were tested with power supply (12V 5A) which came with the expansion board.
 
 ### Online Resizing of rootfs (Root File Partition)
 
@@ -264,15 +263,11 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) where 
 
 ## Known Issues
 
-1. Avoid overclocking SOC using CPUFreq if you are using HiFive Unleashed Expansion Board from Microsemi as this will hang the board. Hard reset will be required.
+1. There is no CPUFreq support enabled on HiFive Unmatched.
 
-2. There is no CPUFreq support enabled on HiFive Unmatched.
+2. OpenEmbedded Core (and thus meta-sifive) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
 
-3. If Xfce4 desktop disk image is used with HiFive Unleashed Expansion Board and GPU then rebooting is required after the 1st boot.
-
-4. OpenEmbedded Core (and thus meta-sifive) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
-
-5. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
+3. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
    
    ```bash
    apt update
