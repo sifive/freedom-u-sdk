@@ -34,7 +34,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2021.05 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2021.06 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -120,15 +120,17 @@ There are two disk image targets added by meta-sifive layer:
 
 By default disk images do not include debug packages. If you want to produce disk images with debug packages append `-debug` (e.g. `demo-coreip-cli-debug`) to the disk image target.
 
-There are two machine targets currently tested:
+There are several machine targets defined:
 
-- `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine.
-
+- `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine (**recommended for QEMU target**).
+- `qemuriscv64_b`- RISCV-V 64-bit (RV64GC) with B extension (not ratified yet) for QEMU virt machine.
+- `qemuriscv64_b_zfh` - RISC-V-64-bit (RV64GC) with B and Zfh extensions (both not ratified yet) for QEMU virt machine.
+- `qemuriscv64_v` - RISC-V 64-bit (RV64GC) with V extension (not ratified yet) for QEMU virt machine.
 - `freedom-u540` - SiFive HiFive Unleashed development board.
-
 - `unmatched` - SiFive HiFive Unmatched development board.
 
-> It's not possible to use disk images built for `freedom-u540` with QEMU 4.0 and instructions provided below.
+The QEMU machines with the additional extensions (i.e. beyond RV64GC) do not affect how packages or/and disk images are built. This means the toolchain might not provide support for the new extensions. By default packages are not built with the new instructions enabled.
+
 > 
 > Building disk images is CPU intensive, could require <10GB of sources downloaded over the Internet and <200GB of local storage.
 
@@ -253,6 +255,15 @@ sgdisk -e /dev/mmcblk0
 parted /dev/mmcblk0 resizepart 4 100%
 resize2fs /dev/mmcblk0p4
 sync
+```
+
+### Support TensorFlow Lite tflite_runtime Python library
+
+You can deploy your TensorFlow lite model by importing the Tensorflow Lite interpreter. There is a sample code `mnist.py` avaliable to demostrate how to deploy model and test MNIST hadwritten digits.
+
+```bash
+cd /usr/share/doc/python3-tensorflow-lite-demo/example
+python3 mnist.py
 ```
 
 ## Contributions & Feedback
