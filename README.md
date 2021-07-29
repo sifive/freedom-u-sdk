@@ -34,7 +34,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2021.06 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b 2021.07 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -139,7 +139,6 @@ Building disk image takes a single command which may take anything from 30 minut
 ```bash
 MACHINE=qemuriscv64 bitbake demo-coreip-cli
 MACHINE=freedom-u540 bitbake demo-coreip-cli
-MACHINE=freedom-u540 bitbake demo-coreip-xfce4
 MACHINE=unmatched bitbake demo-coreip-xfce4
 ```
 
