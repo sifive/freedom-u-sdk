@@ -111,8 +111,7 @@ ansiColor('xterm') {
           }
 
           //Modify/Add/Commands to Run
-          echo $HOSTNAME
-
+          sh returnStdout: true, script: 'echo $HOSTNAME'
           echo "hello WORLD!!"
 
 
