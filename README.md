@@ -1,6 +1,6 @@
-# SiFive OpenEmbedded Layer
+# SiFive Freedom Unleashed SDK
 
-It's a minimal [meta-sifive](https://github.com/sifive/meta-sifive) layer on top of [meta-riscv](https://github.com/riscv/meta-riscv) to provide additional modifications and new disk image targets. Using OE you will be able to:
+The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). Using OE you will be able to:
 
 - build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
 	+ __Note__: The support for HiFive Unleashed Expansion board from Microsemi is now removed from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
@@ -33,7 +33,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b master -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/freedom-u-sdk -b master -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -94,7 +94,7 @@ Finally you should be able to use your build tools:
 This step has to be done after you modify your environment with toolchain you want to use otherwise wrong host tools might be available in the package build environment. For example, `gcc` from host system will be used for building `*-native` packages.
 
 ```bash
-. ./meta-sifive/setup.sh
+. ./freedom-u-sdk/setup.sh
 ```
 
 > You can verify and fix your host tools by checking symlinks in `$BUILDDIR/tmp-glibc/hosttools` directory.
@@ -111,7 +111,7 @@ Leaving defaults could cause high load averages, high memory usage, high IO wait
 
 ### Building Disk Images
 
-There are two disk image targets added by meta-sifive layer:
+There are two disk image targets added by FUSDK:
 
 - `demo-coreip-cli` - basic command line image (**recommended**);
 
@@ -269,7 +269,7 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) where 
 
 1. There is no CPUFreq support enabled on HiFive Unmatched.
 
-2. OpenEmbedded Core (and thus meta-sifive) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
+2. OpenEmbedded Core (and thus FUSDK) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
 
 3. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
    
