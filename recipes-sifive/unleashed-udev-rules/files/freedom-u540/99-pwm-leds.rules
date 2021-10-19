@@ -1,0 +1,12 @@
+# D1 LED: heartbeat
+SUBSYSTEM=="leds", KERNEL=="green:d1", ACTION=="add", ATTR{trigger}="heartbeat"
+
+# D2 LED: mtd
+SUBSYSTEM=="leds", KERNEL=="green:d2", ACTION=="add", ATTR{trigger}="mtd"
+
+# D3 LED: netdev (link, rx, tx enabled for eth0)
+SUBSYSTEM=="leds", KERNEL=="green:d3", ACTION=="add", ATTR{trigger}="netdev"
+SUBSYSTEM=="leds", KERNEL=="green:d3", ACTION=="change", ATTR{link}="1", ATTR{tx}="1", ATTR{rx}="1", ATTR{device_name}="eth0"
+
+# D4 LED: mmc0
+SUBSYSTEM=="leds", KERNEL=="green:d4", ACTION=="add", ATTR{trigger}="mmc0"

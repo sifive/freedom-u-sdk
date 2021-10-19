@@ -1,0 +1,17 @@
+diff --git a/Makefile b/Makefile
+index d34e54bd..45b9f478 100755
+--- a/Makefile
++++ b/Makefile
+@@ -180,12 +180,6 @@ CFLAGS += -ffloat-store
+ endif
+ endif
+ 
+-# Force SSE math on x86_64. All sane compilers should do this
+-# anyway, just to protect us from broken Linux distros.
+-ifeq ($(YQ2_ARCH), x86_64)
+-CFLAGS += -mfpmath=sse
+-endif
+-
+ # ----------
+ 
+ # Systemwide installation.

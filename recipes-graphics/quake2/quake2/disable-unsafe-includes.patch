@@ -1,0 +1,22 @@
+diff --git a/Makefile b/Makefile
+index 45b9f478..1d7841a4 100755
+--- a/Makefile
++++ b/Makefile
+@@ -219,17 +219,6 @@ SDLCFLAGS := $(shell sdl2-config --cflags)
+ 
+ # ----------
+ 
+-# Base include path.
+-ifeq ($(YQ2_OSTYPE),Linux)
+-INCLUDE := -I/usr/include
+-else ifeq ($(YQ2_OSTYPE),FreeBSD)
+-INCLUDE := -I/usr/local/include
+-else ifeq ($(YQ2_OSTYPE),OpenBSD)
+-INCLUDE := -I/usr/local/include
+-else ifeq ($(YQ2_OSTYPE),Windows)
+-INCLUDE := -I/usr/include
+-endif
+-
+ # ----------
+ 
+ # Local includes for GLAD.

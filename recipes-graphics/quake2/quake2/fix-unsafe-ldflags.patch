@@ -1,0 +1,22 @@
+diff --git a/Makefile b/Makefile
+index 1d7841a4..0aac1056 100755
+--- a/Makefile
++++ b/Makefile
+@@ -136,7 +136,7 @@ CFLAGS := -O2 -fno-strict-aliasing -fomit-frame-pointer \
+ 		  -Wall -pipe -g -fwrapv
+ CFLAGS += $(OSX_ARCH)
+ else
+-CFLAGS := -std=gnu99 -O2 -fno-strict-aliasing \
++CFLAGS := $(CFLAGS) -std=gnu99 -O2 -fno-strict-aliasing \
+ 		  -Wall -pipe -g -ggdb -MMD -fwrapv
+ endif
+ 
+@@ -228,7 +228,7 @@ GLAD_INCLUDE = -Isrc/client/refresh/gl3/glad/include
+ 
+ # Base LDFLAGS.
+ ifeq ($(YQ2_OSTYPE),Linux)
+-LDFLAGS := -L/usr/lib -lm -ldl -rdynamic
++LDFLAGS := $(LDFLAGS) -lm -ldl -rdynamic
+ else ifeq ($(YQ2_OSTYPE),FreeBSD)
+ LDFLAGS := -L/usr/local/lib -lm
+ else ifeq ($(YQ2_OSTYPE),OpenBSD)

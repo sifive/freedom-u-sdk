@@ -1,6 +1,6 @@
-# SiFive Freedom Unleashed SDK
+# SiFive OpenEmbedded Layer
 
-The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). It's a minimal [meta-sifive](https://github.com/sifive/meta-sifive) layer on top of [meta-riscv](https://github.com/riscv/meta-riscv) to provide additional modifications and new disk image targets. Using OE you will be able to:
+It's a minimal [meta-sifive](https://github.com/sifive/meta-sifive) layer on top of [meta-riscv](https://github.com/riscv/meta-riscv) to provide additional modifications and new disk image targets. Using OE you will be able to:
 
 - build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
 	+ __Note__: The support for HiFive Unleashed Expansion board from Microsemi is now removed from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
@@ -14,9 +14,8 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). I
 
 For more information on particular release see `ReleaseNotes` directory in [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repository on GitHub.
 
-The old SDK based on Buildroot is archived in [`archive/buildroot`](https://github.com/sifive/freedom-u-sdk/tree/archive/buildroot) branch.
-
 For advanced OE usage we advice to look into [Yocto Project Documentation](http://docs.yoctoproject.org/) and [A practical guide to BitBake](https://a4z.gitlab.io/docs/BitBake/guide.html).
+
 
 ## Quick Start
 
@@ -34,7 +33,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/meta-sifive -b 2021.09 -m tools/manifests/sifive.xml
+repo init -u git://github.com/sifive/meta-sifive -b master -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -118,14 +117,9 @@ There are two disk image targets added by meta-sifive layer:
 
 - `demo-coreip-xfce4` - basic graphical disk image with [Xfce 4](https://www.xfce.org/) desktop environment.
 
-By default disk images do not include debug packages. If you want to produce disk images with debug packages append `-debug` (e.g. `demo-coreip-cli-debug`) to the disk image target.
-
 There are several machine targets defined:
 
 - `qemuriscv64` - RISC-V 64-bit (RV64GC) for QEMU virt machine (**recommended for QEMU target**).
-- `qemuriscv64_b`- RISCV-V 64-bit (RV64GC) with B extension (not ratified yet) for QEMU virt machine.
-- `qemuriscv64_b_zfh` - RISC-V-64-bit (RV64GC) with B and Zfh extensions (both not ratified yet) for QEMU virt machine.
-- `qemuriscv64_v` - RISC-V 64-bit (RV64GC) with V extension (not ratified yet) for QEMU virt machine.
 - `freedom-u540` - SiFive HiFive Unleashed development board.
 - `unmatched` - SiFive HiFive Unmatched development board.
 

@@ -1,0 +1,22 @@
+diff --git a/Makefile b/Makefile
+index 0aac105..a66d227 100755
+--- a/Makefile
++++ b/Makefile
+@@ -215,7 +215,7 @@ ZIPCFLAGS += -DNOUNCRYPT
+ # ----------
+ 
+ # Extra CFLAGS for SDL.
+-SDLCFLAGS := $(shell sdl2-config --cflags)
++SDLCFLAGS := $(shell pkg-config --cflags sdl2)
+ 
+ # ----------
+ 
+@@ -256,7 +256,7 @@ endif
+ ifeq ($(YQ2_OSTYPE), Darwin)
+ SDLLDFLAGS := -lSDL2
+ else # not Darwin
+-SDLLDFLAGS := $(shell sdl2-config --libs)
++SDLLDFLAGS := $(shell pkg-config --libs sdl2)
+ endif # Darwin
+ 
+ # The renderer libs don't need libSDL2main, libmingw32 or -mwindows.

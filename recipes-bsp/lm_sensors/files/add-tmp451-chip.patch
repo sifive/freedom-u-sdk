@@ -1,0 +1,13 @@
+diff --git a/etc/sensors.conf.default b/etc/sensors.conf.default
+index 693a66b4..05ab6307 100644
+--- a/etc/sensors.conf.default
++++ b/etc/sensors.conf.default
+@@ -534,3 +534,8 @@ chip "adt7476-*" "adt7490-*"
+ #    set in4_max 12.0 * 1.10
+ 
+     label temp2 "M/B Temp"
++
++chip "tmp451-*"
++
++    label temp1 "M/B Temp"
++    label temp2 "CPU Temp"
