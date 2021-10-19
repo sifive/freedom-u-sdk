@@ -156,9 +156,6 @@ echo "---------------------------------------------------"
 echo "* unmatched         : The SiFive HiFive Unmatched board"
 echo "* freedom-u540      : The SiFive HiFive Unleashed board"
 echo "* qemuriscv64       : The 64-bit RISC-V machine"
-echo "* qemuriscv64_b     : The 64-bit RISC-V machine with B-ext"
-echo "* qemuriscv64_b_zfh : The 64-bit RISC-V machine with B and Zfh-ext"
-echo "* qemuriscv64_v     : The 64-bit RISC-V machine with V-ext"
 echo "---------------------------------------------------"
 
 # start build
