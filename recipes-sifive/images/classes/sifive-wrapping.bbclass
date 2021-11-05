@@ -192,28 +192,15 @@ do_sifive_wrapping() {
     rm -rf bin games libriscv64-oe-linux sbin src
     cd ..
 
-    # This is needed in order to work on case insensitive file systems (windows and mac)
-    # Cleaning up files/directories with same name but different case
-    rm -rf usr/share/man/man2/_Exit.2
-    rm -rf usr/share/man/man3/DB.3
-    rm -rf usr/share/man/man3/Errno.3
-    rm -rf usr/share/man/man3/NAN.3
-    rm -rf usr/share/terminfo
-    rm -rf lib/modules
-    rm -rf usr/include/linux/netfilter
-    rm -rf usr/include/linux/netfilter_arp
-    rm -rf usr/include/linux/netfilter_bridge
-    rm -rf usr/include/linux/netfilter_ipv4
-    rm -rf usr/include/linux/netfilter_ipv6
-    rm -rf usr/lib/xtables
-
     # Cleaning up broken links
     find . -xtype l -delete
 
-    # Check that we actually handled all files with different casing
+    # This is needed in order to work on case insensitive file systems (windows and mac)
+    # Cleaning up files/directories with same name but different case
     for dupl in $(find . | sort -f | uniq -i -d)
     do
-        bberror "Duplicate sysroot file with same name but different casing: ${dupl}"
+        bbnote "Removing duplicate sysroot file with same name but different casing: ${dupl}"
+        rm -rf ${dupl}
     done
 
     # Wrap up the sysroot tarball
@@ -314,7 +301,7 @@ do_sifive_wrapping() {
                 (*)
                 esac
             done < ./qemuboot.conf
-            FK_DEVICE=smp${smp}
+            FK_DEVICE=${eng}_${smp}
 
             for qemu in ${BASE_WORKDIR}/x86_64-linux/qemu-helper-native/*/recipe-sysroot-native/usr/bin/qemu-system-riscv64
             do
