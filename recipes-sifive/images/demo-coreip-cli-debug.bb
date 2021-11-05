@@ -195,6 +195,6 @@ IMAGE_INSTALL:append:unmatched = " \
     unmatched-systemd-units \
     "
 
-inherit core-image extrausers
+inherit core-image extrausers sifive-wrapping
 
 EXTRA_USERS_PARAMS = "usermod -p '\$6\$PWVNV6MfuO4pMdqO\$54BibXcgV/nXMrgbaMBioGHNDv1uGVFarQN9QnqM8IMOI/nEwnpB5noxJozigw0lObahcmc3lqTMPvLoSpXnP1' root;"

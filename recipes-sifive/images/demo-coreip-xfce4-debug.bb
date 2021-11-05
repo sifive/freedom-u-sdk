@@ -239,7 +239,7 @@ IMAGE_INSTALL:append:unmatched = " \
     unmatched-systemd-units \
     "
 
-inherit core-image features_check extrausers
+inherit core-image features_check extrausers sifive-wrapping
 
 REQUIRED_DISTRO_FEATURES = "\
     x11 \
