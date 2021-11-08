@@ -203,6 +203,9 @@ do_sifive_wrapping() {
         rm -rf ${dupl}
     done
 
+    # Cleaning up broken links
+    find . -xtype l -delete
+
     # Wrap up the sysroot tarball
     cd ..
     FK_SYSROOT_TAR=${FK_SYSROOT}.tar
