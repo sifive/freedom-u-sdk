@@ -1,3 +1,5 @@
+DEPENDS += "coreutils-native xz-native dtc-native"
+
 generate_machine_settings() {
     # Setup defaults
     arch=rv64i
