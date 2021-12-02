@@ -104,6 +104,8 @@ VIRTUAL-RUNTIME_vim = "vim"
 
 # We use NetworkManager instead
 PACKAGECONFIG:remove:pn-systemd = "networkd"
+PACKAGECONFIG:remove:pn-systemd = "resolved"
+PACKAGECONFIG:remove:pn-systemd = "nss-resolve"
 
 SECURITY_CFLAGS:pn-opensbi = ""
 SECURITY_LDFLAGS:pn-opensbi = ""
