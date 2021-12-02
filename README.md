@@ -259,6 +259,40 @@ cd /usr/share/doc/python3-tensorflow-lite-demo/example
 python3 mnist.py
 ```
 
+### NBD (Network Block Device) rootfs
+
+This is an experimantal feature currently only available on SiFive HiFive Unmatched board. This allow sharing a block device over the network. This is not an extensive guide into NBD, but a quick start.
+
+If you want to use this feature open `extlinux.conf` in `/boot` partition and modify the `append` line to:  
+
+```
+append ip=dhcp root=/dev/nbd0 rw nbdroot=<server_ip_address>:<export_name> nbdport=10809 console=ttySIF0,115200 earlycon
+```
+
+If you are booting directly from U-Boot prompt, you would need to set `bootargs` variable instead.
+
+Note that `<export_name>` value might be ignored by the NBD server (depends on the implementation and configuration).
+
+`nbdkit` is a recommended NBD server for it's flexibility.
+
+Here is an example command for `nbdkit`:
+```
+sudo nbdkit -f --verbose --threads 128 --filter=cow --filter=partition --filter=xz file demo-coreip-xfce4-unmatched-<..>.rootfs.wic.xz partition=4
+```
+This would expose the ext4 filesystem on the 4th partition from XZ compressed disk image. By default it's read-only thus we also add a COW (Copy-on-Write) layer. Note that COW layer is not saved by default and will be lost if `nbdkit` process is terminated. See [nbdkit-cow-filter](https://libguestfs.org/nbdkit-cow-filter.1.html) NOTES on how to save disk image with all the modifications for further use.
+
+Using XZ compressed disk image is convenient, but doesn't deliver high performance. For higher performance uncompress disk image before sharing it via NBD.
+
+Here is another example:
+```
+sudo mkdir rootfs
+sudo tar -xJ --numeric-owner -C rootfs -f demo-coreip-xfce4-unmatched-<..>.rootfs.tar.xz
+sudo nbdkit -f --verbose --threads 128 --filter=partition --filter=cow linuxdisk $PWD/rootfs size=+2G partition=1
+```
+In this particular case we uncompress rootfs into a directory. We ask `nbdkit` to take the directory, generate linux disk image from it, add some additional free space, add a COW layer to make it writable and send "naked" filesystem (i.e. no partition table) as before.
+
+`nbdkit` has a number of plugins and filters allowing various ways how to share disk images over the network.
+
 ## Contributions & Feedback
 
 If you want to file issues, send patches and make feature/enhancement requests use [meta-sifive](https://github.com/sifive/meta-sifive) or [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repositories on GitHub.
