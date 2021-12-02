@@ -1,0 +1,56 @@
+#!/bin/sh
+
+nbdrootfs_enabled() {
+	if [ ${bootparam_root} != "/dev/nbd0" ] || [ -z ${bootparam_nbdroot} ]; then
+		return 1
+	fi
+	return 0
+}
+
+nbdrootfs_run() {
+	local nbd_opts
+	local location
+	local server_ip
+	local iptype
+
+#	Example kernel bootargs (e.g. in extlinux.conf):
+#       append ip=dhcp root=/dev/nbd0 rw nbdroot=10.0.2.2:foo nbdport=10809 console=ttySIF0,115200 earlycon=sbi
+
+#	Set for debugging reasons only:
+#	bootparam_nbdroot="10.0.2.2:foo"
+#	bootparam_nbdport="10809"
+#	bootparam_root="/dev/nbd0"
+#	bootparam_ip="dhcp"
+#	ROOTFS_DIR="/rootfs"
+
+	nbd_opts=""
+	if [ "${bootparam_nbdroot#*,}" != "${bootparam_nbdroot}" ]; then
+		nbd_opts="-o ${bootparam_nbdroot#*,}"
+	fi
+
+	location="${bootparam_nbdroot%%,*}"
+
+	if [ "${location#*:}" = "${location}" ]; then
+		# Server-ip not given. Get server ip from ip option
+		if [ -z "$server_ip" ]; then
+			fatal "Server IP is not set. Update ip or nbdroot options."
+		fi
+	else
+		server_ip="${location%%:*}"
+		location="${location#*:}"
+	fi
+
+	msg "NBD configuration:"
+	msg "  nbdroot=${bootparam_nbdroot}"
+	msg "  ip=${bootparam_ip}"
+	msg "  nbdport=${bootparam_nbdport}"
+	msg "  location=${location}"
+	msg "  server_ip=${server_ip}"
+
+	msg "Connecting and mounting NBD drive.."
+	msg "> nbd-client -persist -systemd-mark -name ${location} ${server_ip} ${bootparam_nbdport} ${bootparam_root}"
+	nbd-client -persist -systemd-mark -name ${location} ${server_ip} ${bootparam_nbdport} ${bootparam_root}
+
+	msg "> mount ${bootparam_root} ${ROOTFS_DIR}"
+	mount ${bootparam_root} ${ROOTFS_DIR}
+}
