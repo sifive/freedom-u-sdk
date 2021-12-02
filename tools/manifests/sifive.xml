@@ -9,8 +9,8 @@
   <remote name="davidlt" fetch="git://github.com/davidlt/" />
   <default remote="openembedded" revision="master" />
 
-  <project name="freedom-u-sdk" remote="sifive" path="freedom-u-sdk" revision="master" />
-  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="master" />
+  <project name="freedom-u-sdk" remote="sifive" path="freedom-u-sdk" revision="2021.11" />
+  <project name="meta-sifive" remote="sifive" path="meta-sifive" revision="2021.11" />
   <project name="meta-riscv" remote="riscv" path="meta-riscv" revision="a0d27eca2482f0b8822c5c780ce9fe0cba0e3867" />
   <project name="openembedded-core" remote="openembedded" path="openembedded-core" revision="3770d539d83b589b3f8bde21fcf896bb046611d4" />
   <project name="bitbake" remote="openembedded" path="openembedded-core/bitbake" revision="7e1ca7ab50e3c6b642c3c11504c7c8f52cfa4528" />
