@@ -13,6 +13,7 @@ inherit features_check
 REQUIRED_DISTRO_FEATURES += "opengl"
 
 SRC_URI:append = " file://f223035f4ffcff2a9296d1e907a5193f8e8845a3.patch \
+                   file://8da3e4561ef82bb78c9a17b8cd8bf139b9cfd680.patch \
                    "
 
 SRC_URI[md5sum] = "6e49d3c2839582af415ceded76e626e6"
