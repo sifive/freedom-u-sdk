@@ -17,7 +17,6 @@ IMAGE_INSTALL = "\
     packagegroup-core-boot \
     packagegroup-core-full-cmdline \
     kernel-modules \
-    kernel-devsrc \
     kernel-dev \
     sysstat \
     dhrystone \
@@ -33,6 +32,7 @@ IMAGE_INSTALL = "\
     nano \
     mc \
     chrony \
+    chronyc \
     curl \
     wget \
     git \
@@ -175,7 +175,6 @@ IMAGE_INSTALL = "\
     gcc-dev \
     cpp-symlinks \
     curl-staticdev \
-    dtc-staticdev \
     boost-staticdev \
     libarchive-staticdev \
     bzip2-staticdev \
