@@ -181,6 +181,7 @@ IMAGE_INSTALL = "\
     python3-tensorflow-lite \
     python3-tensorflow-lite-demo-doc \
     perf-python \
+    vmtouch \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
