@@ -5,12 +5,11 @@ HOMEPAGE = "https://kernel.ubuntu.com/~cking/stress-ng/"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-SRCREV = "V0.13.07"
+SRCREV = "V0.13.08"
 S = "${WORKDIR}/git"
 PV .= "+git${SRCPV}"
 
 SRC_URI = "git://github.com/ColinIanKing/stress-ng;protocol=https;branch=master \
-           file://0001-Do-not-preserve-ownership-when-installing-example-jo.patch \
            "
 
 DEPENDS = "coreutils-native zlib libaio libbsd attr libcap libgcrypt keyutils lksctp-tools"
