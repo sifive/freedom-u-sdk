@@ -144,8 +144,8 @@ FORTRAN:forcevariable = ",fortran"
 BBMASK += "openembedded-core/meta/recipes-bsp/opensbi/opensbi_0.9.bb"
 
 DISTRO_NAME = "FreedomUSDK"
-DISTRO_VERSION = "2021.12.00"
-DISTRO_CODENAME = "2021December"
+DISTRO_VERSION = "2022.01.00"
+DISTRO_CODENAME = "2022January"
 EOF
 fi
 
