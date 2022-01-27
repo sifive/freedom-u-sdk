@@ -52,7 +52,7 @@ OpenEmbedded-Core requires GCC 6 or newer to be available on the host system. Yo
 #### Option 1: Installing OpenEmbedded-Core Build Tools (Pre-Built)
 
 ```bash
-./openembedded-core/scripts/install-buildtools -r yocto-3.2_M2 -t 20200729
+./openembedded-core/scripts/install-buildtools -r yocto-3.2_M2 -V '3.1+snapshot' -t 20200729
 ```
 
 The native SDK will be installed under `$BUILDDIR/../openembedded-core/buildtools` prefix.
