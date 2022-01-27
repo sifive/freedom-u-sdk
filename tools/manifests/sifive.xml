@@ -10,5 +10,5 @@
   <project name="openembedded/bitbake" path="openembedded-core/bitbake" revision="9f272ad7f76c1559e745e9af686d0a529f917659" />
   <project name="openembedded/meta-openembedded" path="meta-openembedded" revision="2156c4416a711c42a9eda106ae228b53bd130ab7" />
   <project name="kraj/meta-clang" path="meta-clang" revision="fd587eaf0340faba2f85cf7b2e254a290500c48c" />
-  <project name="davidlt/meta-tensorflow-lite" path="meta-tensorflow-lite" revision="1135f8bb469f1b7e36390c338dea9e62592daa49" />
+  <project name="davidlt/meta-tensorflow-lite" path="meta-tensorflow-lite" revision="f3abfdf6b3e62b4b3050c54b4981879fda227277" />
 </manifest>
