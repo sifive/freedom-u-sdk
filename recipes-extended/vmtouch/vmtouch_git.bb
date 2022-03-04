@@ -1,7 +1,7 @@
 SUMMARY = "the Virtual Memory Toucher"
 DESCRIPTION = "vmtouch is a tool for learning about and controlling the file system cache of unix and unix-like systems. It is BSD licensed so you can basically do whatever you want with it."
 HOMEPAGE = "https://hoytech.com/vmtouch/"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 SECTION = "console/utils"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ea4594d5258fd05f3b214aa3cea63837"
