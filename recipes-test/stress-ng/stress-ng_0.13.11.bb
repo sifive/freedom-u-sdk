@@ -5,8 +5,8 @@ HOMEPAGE = "https://kernel.ubuntu.com/~cking/stress-ng/"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-# Tag: V0.13.10
-SRCREV = "b81116cb69a97aa671ab207a7f600aaacca091d1"
+# Tag: V0.13.11
+SRCREV = "48be8ff4ffc4a04a0e3b5f2feaf63cce0cbd4f2b"
 S = "${WORKDIR}/git"
 PV .= "+git${SRCPV}"
 
