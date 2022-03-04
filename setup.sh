@@ -79,7 +79,7 @@ MACHINE ?= "${MACHINE}"
 EXTRA_IMAGE_FEATURES:append = " package-management"
 PACKAGECONFIG:append:pn-qemu-native = " sdl"
 PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
-USER_CLASSES ?= "buildstats buildhistory buildstats-summary image-prelink"
+USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 
 require conf/distro/include/yocto-uninative.inc
 require conf/distro/include/security_flags.inc
@@ -144,8 +144,8 @@ FORTRAN:forcevariable = ",fortran"
 BBMASK += "openembedded-core/meta/recipes-bsp/opensbi/opensbi_0.9.bb"
 
 DISTRO_NAME = "FreedomUSDK"
-DISTRO_VERSION = "2022.01.00"
-DISTRO_CODENAME = "2022January"
+DISTRO_VERSION = "2022.02.00"
+DISTRO_CODENAME = "2022February"
 EOF
 fi
 
