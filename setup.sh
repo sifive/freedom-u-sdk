@@ -58,7 +58,6 @@ bitbake-layers add-layer ../meta-openembedded/meta-xfce
 bitbake-layers add-layer ../meta-riscv
 bitbake-layers add-layer ../meta-clang
 bitbake-layers add-layer ../meta-sifive
-bitbake-layers add-layer ../meta-tensorflow-lite/
 bitbake-layers add-layer ../freedom-u-sdk
 
 # fix the configuration

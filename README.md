@@ -250,15 +250,6 @@ resize2fs /dev/mmcblk0p4
 sync
 ```
 
-### Support TensorFlow Lite tflite_runtime Python library
-
-You can deploy your TensorFlow lite model by importing the Tensorflow Lite interpreter. There is a sample code `mnist.py` avaliable to demostrate how to deploy model and test MNIST hadwritten digits.
-
-```bash
-cd /usr/share/doc/python3-tensorflow-lite-demo/example
-python3 mnist.py
-```
-
 ### NBD (Network Block Device) rootfs
 
 This is an experimantal feature currently only available on SiFive HiFive Unmatched board. This allow sharing a block device over the network. This is not an extensive guide into NBD, but a quick start.
