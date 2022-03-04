@@ -138,7 +138,6 @@ IMAGE_INSTALL = "\
     clang-dev \
     clang-libllvm \
     clang-staticdev \
-    libclang \
     compiler-rt \
     compiler-rt-dev \
     compiler-rt-staticdev \
