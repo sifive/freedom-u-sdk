@@ -48,9 +48,7 @@ IMAGE_INSTALL = "\
     spitools \
     networkmanager \
     networkmanager-nmcli \
-    networkmanager-nmcli-doc \
     networkmanager-nmtui \
-    networkmanager-nmtui-doc \
     network-manager-applet \
     haveged \
     e2fsprogs-resize2fs \
