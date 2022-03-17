@@ -1,5 +1,5 @@
 SUMMARY = "systemd utils for SiFive HiFive Unmatched"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 SRC_URI:unmatched = "file://LICENSE.GPL2 \
 		     file://led-bootstate-green.timer \
 		     file://led-bootstate-green.service"
