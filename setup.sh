@@ -113,7 +113,6 @@ SECURITY_LDFLAGS:pn-opensbi = ""
 PACKAGECONFIG:append:pn-mesa = " r600"
 
 # Add support for modern AMD GPU (e.g. RX550 / POLARIS)
-PACKAGECONFIG:append:pn-mesa = " radeonsi"
 PACKAGECONFIG:append:pn-mesa = " gallium-llvm"
 PACKAGECONFIG:append:pn-mesa = " vdpau"
 
