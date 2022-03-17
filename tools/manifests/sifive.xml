@@ -5,9 +5,9 @@
 
   <project name="sifive/freedom-u-sdk" path="freedom-u-sdk" revision="master" />
   <project name="sifive/meta-sifive" path="meta-sifive" revision="master" />
-  <project name="riscv/meta-riscv" path="meta-riscv" revision="b3550462b3e827259efbc8872ead6ecc0e30c7fb" />
-  <project name="openembedded/openembedded-core" path="openembedded-core" revision="b1bb4e2d73985c6e8cf03b0fea94e8b739648cf7" />
-  <project name="openembedded/bitbake" path="openembedded-core/bitbake" revision="f0fc0fe94161d4dd4f34df8426222ac590ef6736" />
-  <project name="openembedded/meta-openembedded" path="meta-openembedded" revision="cf0ed4239196a76800f8c2facb5a285409b8147a" />
-  <project name="kraj/meta-clang" path="meta-clang" revision="6d4ebdff6099f80716acc99efc3e49b8e9ea9a39" />
+  <project name="riscv/meta-riscv" path="meta-riscv" revision="b81bc2eb724bf1bc9e4d8be28d737628d7ea21ef" />
+  <project name="openembedded/openembedded-core" path="openembedded-core" revision="f529401cd8d2c45273f706636e5ed89123238200" />
+  <project name="openembedded/bitbake" path="openembedded-core/bitbake" revision="f89a35155e3b8d12ac609a165c63ed206751b8da" />
+  <project name="openembedded/meta-openembedded" path="meta-openembedded" revision="268e844999c417010baecdf5b42c7b32e2f4b658" />
+  <project name="kraj/meta-clang" path="meta-clang" revision="44fde2691af65fb4431200898f98c16bec81f1da" />
 </manifest>
