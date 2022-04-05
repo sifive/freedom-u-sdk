@@ -18,6 +18,7 @@ IMAGE_INSTALL = "\
     packagegroup-core-full-cmdline \
     kernel-modules \
     kernel-dev \
+    kernel-devsrc \
     sysstat \
     dhrystone \
     whetstone \
