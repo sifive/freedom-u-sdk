@@ -22,6 +22,7 @@ IMAGE_INSTALL = "\
     sysstat \
     dhrystone \
     whetstone \
+    wpa-supplicant \
     iperf3 \
     iperf2 \
     fio \

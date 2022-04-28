@@ -85,7 +85,7 @@ require conf/distro/include/security_flags.inc
 
 INHERIT += "uninative"
 
-DISTRO_FEATURES:append = " largefile opengl ptest multiarch pam systemd vulkan "
+DISTRO_FEATURES:append = " largefile opengl ptest multiarch pam systemd vulkan wifi "
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 VIRTUAL-RUNTIME_initscripts = ""
