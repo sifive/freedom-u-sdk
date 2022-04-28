@@ -3,8 +3,8 @@
 
   <default remote="github" revision="master" />
 
-  <project name="sifive/freedom-u-sdk" path="freedom-u-sdk" revision="master" />
-  <project name="sifive/meta-sifive" path="meta-sifive" revision="master" />
+  <project name="sifive/freedom-u-sdk" path="freedom-u-sdk" revision="2022.04" />
+  <project name="sifive/meta-sifive" path="meta-sifive" revision="2022.04" />
   <project name="riscv/meta-riscv" path="meta-riscv" revision="96b34d09763126b337df363e091d364ebb140bef" />
   <project name="openembedded/openembedded-core" path="openembedded-core" revision="b3114d5d438b7a63a276b4e825b62f3b1ebceed6" />
   <project name="openembedded/bitbake" path="openembedded-core/bitbake" revision="41eeb4f34fb2306303f7688ec5e0ae965a573aa4" />
