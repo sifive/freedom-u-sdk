@@ -4,7 +4,7 @@ The new experimental Freedom Unleashed (FU) SDK is based on OpenEmbedded (OE). U
 
 - build predefined disk images for QEMU, [SiFive HiFive Unleashed](https://www.sifive.com/boards/hifive-unleashed) development board and [SiFive HiFive Unmatched](https://www.sifive.com/boards/hifive-unmatched);
 	+ __Note__: The support for HiFive Unleashed Expansion board from Microsemi is now removed from SiFive OpenEmbedded layer (i.e. [meta-sifive](https://github.com/sifive/meta-sifive)). If you have the expansion board we advice you to switch to [Microchip PolarFire SoC Yocto BSP](https://github.com/polarfire-soc/meta-polarfire-soc-yocto-bsp/) which includes support for MPFS-DEV-KIT (HiFive Unleashed Expansion Board) directly from the manufacturer. You are also welcome to use older releases (2021.02.00 or older) from SiFive OpenEmbedded layer.
-	+ __Note:__  2021.02.00 release introduces the support for the SiFive HiFive Unmatched board __(pre-production 8GB variant)__. Contact your SiFive representative before using disk images built for `unmatched` machine on your particular board. If you received the __final board (16GB) variant__ via Mouser or CrowdSupply you should skip 2021.02.00 release and use 2021.03.00 (or newer).
+	+ __Note:__  2021.02.00 release introduces the support for the SiFive HiFive Unmatched board __(pre-production 8GB variant)__. Contact your SiFive representative before using disk images built for `unmatched` machine on your particular board. If you received the __final board (16GB) variant__ via Mouser or CrowdSupply you should skip 2021.02.00 release and use 2021.04.00 (or newer).
 - build custom disk images with additional software packages from various third-party OE layers;
 - quickly launch QEMU VM instance with your built disk image;
 - build bootloader binaries (OpenSBI, U-Boot, U-Boot SPL);
@@ -33,7 +33,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u https://github.com/sifive/freedom-u-sdk -b master -m tools/manifests/sifive.xml
+repo init -u https://github.com/sifive/freedom-u-sdk -b 2022.04 -m tools/manifests/sifive.xml
 repo sync
 ```
 
