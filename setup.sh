@@ -83,6 +83,9 @@ USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 require conf/distro/include/yocto-uninative.inc
 require conf/distro/include/security_flags.inc
 
+INHERIT += "rm_work"
+RM_OLD_IMAGE = "1"
+
 INHERIT += "uninative"
 
 DISTRO_FEATURES:append = " largefile opengl ptest multiarch pam systemd vulkan wifi "
@@ -161,4 +164,3 @@ echo "---------------------------------------------------"
 # start build
 #echo "Starting build"
 #bitbake $BITBAKEIMAGE
-
