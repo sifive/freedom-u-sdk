@@ -1,0 +1,55 @@
+header:
+  version: 11
+
+build_system: oe
+
+repos:
+
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    refspec: 4d671504a25863018ac51c21c005cef0a4d8f05c
+    layers:
+      .: excluded
+
+  freedom-u-sdk:
+
+  openembedded-core:
+    url: https://git.openembedded.org/openembedded-core
+    refspec: 9015dec93233c7d45fd0c9885ff5d4ec23ad377d
+    layers:
+      meta:
+
+  meta-clang:
+    url: https://github.com/kraj/meta-clang.git
+    refspec: 85d956d95401479ca666139e31f662f60c156d5f
+    layers:
+      .:
+
+  meta-sifive:
+    url: https://github.com/sifive/meta-sifive.git
+    refspec: 6749d34da64efce616516d296f888f773a63e64d
+    layers:
+      .:
+
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    refspec: 643bad4d31188fa78c8cee406da397af6bcbe7c9
+    layers:
+      meta-filesystems:
+      meta-gnome:
+      meta-multimedia:
+      meta-networking:
+      meta-python:
+      meta-oe:
+      meta-xfce:
+
+distro: freedom-u-sdk
+
+env:
+    TEMPLATECONF: freedom-u-sdk/conf
+
+local_conf_header:
+  freedom-u-sdk: |
+    USER_CLASSES:append = " buildhistory buildstats buildstats-summary"
+    INHERIT:append = " rm_work"
+    RM_OLD_IMAGE = "1"
