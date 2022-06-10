@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+umask 022
+
+BDIR=${BDIR:-build}
+export BDIR=${BDIR}
+
+DISTRO=${DISTRO:-nodistro}
+export DISTRO=${DISTRO}
+
+TEMPLATECONF=${TEMPLATECONF:-freedom-u-sdk/conf}
+export TEMPLATECONF=${TEMPLATECONF}
+
+PATH="$(pwd)/freedom-u-sdk/scripts:${PATH}"
+
+export PATH=${PATH}
+
+source ./layers/oe-init-build-env $@
