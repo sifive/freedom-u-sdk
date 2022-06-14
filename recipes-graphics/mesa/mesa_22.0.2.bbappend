@@ -1,1 +1,7 @@
-FILES:mesa-megadriver = "${libdir}/dri/* ${datadir}/drirc.d"
+VULKAN_DRIVERS:append:riscv64:class-target = ",amd"
+
+# Add r600 drivers for AMD GPU
+PACKAGECONFIG:append:pn-mesa = " r600"
+
+# Add support for modern AMD GPU (e.g. RX550 / POLARIS)
+PACKAGECONFIG:append:riscv64:class-target = " gallium-llvm vdpau"
