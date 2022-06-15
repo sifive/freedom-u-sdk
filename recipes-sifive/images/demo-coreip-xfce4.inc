@@ -19,7 +19,6 @@ IMAGE_INSTALL += "\
     vulkan-tools \
     vulkan-loader \
     vulkan-headers \
-    vulkan-samples \
     xserver-xorg-utils \
     xserver-xorg-xvfb \
     xserver-xorg-extension-dbe \
@@ -54,4 +53,3 @@ IMAGE_INSTALL += "\
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "x11 systemd"
-
