@@ -108,12 +108,8 @@ IMAGE_INSTALL += "\
     clang-libllvm \
     clang-staticdev \
     compiler-rt \
-    compiler-rt-dev \
-    compiler-rt-staticdev \
     ldd \
     libcxx \
-    libcxx-dev \
-    libcxx-staticdev \
     openmp \
     wireless-regdb \
     info \
@@ -133,7 +129,6 @@ IMAGE_INSTALL += "\
     gfortran \
     libgfortran \
     libgfortran-dev \
-    libgfortran-staticdev \
     gcov \
     gcov-symlinks \
     gcc-symlinks \
@@ -142,19 +137,12 @@ IMAGE_INSTALL += "\
     gcc-plugins \
     gcc-dev \
     cpp-symlinks \
-    curl-staticdev \
     boost-staticdev \
-    libarchive-staticdev \
-    bzip2-staticdev \
-    lzo-staticdev \
     zlib-staticdev \
-    xz-staticdev \
     binutils-staticdev \
-    gmp-staticdev \
     libaio-staticdev \
     libatomic-ops-staticdev \
     libbsd-staticdev \
-    mpfr-staticdev \
     openmp-staticdev \
     patchelf \
     python3-pip \
