@@ -7,7 +7,7 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: 4d671504a25863018ac51c21c005cef0a4d8f05c
+    refspec: 35167536c163eb6b7653cbcaad9f65b834d3e2f8
     layers:
       .: excluded
 
@@ -15,25 +15,25 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: 9015dec93233c7d45fd0c9885ff5d4ec23ad377d
+    refspec: dd39446dff75c6e48f4aa44ec90087f172d717d4
     layers:
       meta:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 85d956d95401479ca666139e31f662f60c156d5f
+    refspec: 8995a0d05fc6ac0afba71d484f0efb71639d9843
     layers:
       .:
 
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: 6749d34da64efce616516d296f888f773a63e64d
+    refspec: 6d1a522b9b6e0705a9aa89f83975172f147b14fe
     layers:
       .:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: 643bad4d31188fa78c8cee406da397af6bcbe7c9
+    refspec: 11df15765c1c16572dfbbbe2831de6ad39f0ed63
     layers:
       meta-filesystems:
       meta-gnome:
