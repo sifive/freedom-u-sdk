@@ -167,6 +167,11 @@ IMAGE_INSTALL += "\
     btrfs-tools \
     perf-python \
     vmtouch \
+    libtensorflow-lite \
+    python3-tensorflow-lite \
+    python3-tensorflow-lite-example \
+    tensorflow-lite-label-image \
+    tensorflow-lite-minimal \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
