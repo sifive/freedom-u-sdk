@@ -43,6 +43,12 @@ repos:
       meta-oe:
       meta-xfce:
 
+  meta-tensorflow-lite:
+    url: https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
+    refspec: a58e5f1efbf5de17580e1f9f65f70d76715003b2
+    layers:
+      .:
+
 distro: freedom-u-sdk
 
 env:
