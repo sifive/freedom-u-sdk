@@ -80,10 +80,15 @@ Disk images files use `<image>-<machine>.<output_format>` format, for example,
 >
 > We advice to use 32GB uSD cards. 8GB cards (shipped with HiFive Unleashed) can still be used with `demo-coreip-cli` CLI images.
 
-Finally write uSD card:
+Finally write uSD card, you can either use dd:
 
 ```bash
 xzcat demo-coreip-cli-freedom-u540.wic.xz | sudo dd of=/dev/sdX bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
+```
+
+or bmaptool (much faster):
+```bash
+bmaptool copy demo-coreip-cli-freedom-u540.wic.xz /dev/sdX
 ```
 
 #### MSEL for Unleashed
