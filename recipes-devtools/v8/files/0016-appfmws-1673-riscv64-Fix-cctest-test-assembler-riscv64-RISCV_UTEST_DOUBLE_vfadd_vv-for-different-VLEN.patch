@@ -1,0 +1,55 @@
+From 1766bfb37cfdb288ede3b5657cb98482b1ae224d Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Tue, 31 May 2022 19:16:58 +0800
+Subject: [PATCH] [riscv64] Fix
+ cctest/test-assembler-riscv64/RISCV_UTEST_DOUBLE_vfadd_vv for different VLEN.
+
+---
+ test/cctest/test-assembler-riscv64.cc | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/test/cctest/test-assembler-riscv64.cc b/test/cctest/test-assembler-riscv64.cc
+index 963745ef53..7e1d969f54 100644
+--- a/test/cctest/test-assembler-riscv64.cc
++++ b/test/cctest/test-assembler-riscv64.cc
+@@ -2188,7 +2188,8 @@ UTEST_RVV_VI_VX_FORM_WITH_FN(vminu_vx, 32, ARRAY_INT32, std::min<uint32_t>)
+   TEST(RISCV_UTEST_FLOAT_##instr_name) {                                   \
+     if (!CpuFeatures::IsSupported(RISCV_SIMD)) return;                     \
+     CcTest::InitializeVM();                                                \
+-    float result[4] = {0.0};                                               \
++    constexpr size_t n = kRvvVLEN / 32;                                    \
++    float result[n] = {0.0};                                               \
+     auto fn = [&result](MacroAssembler& assm) {                            \
+       __ VU.set(t0, VSew::E32, Vlmul::m1);                                 \
+       __ vfmv_vf(v0, fa0);                                                 \
+@@ -2201,7 +2202,7 @@ UTEST_RVV_VI_VX_FORM_WITH_FN(vminu_vx, 32, ARRAY_INT32, std::min<uint32_t>)
+     for (float rs1_fval : compiler::ValueHelper::GetVector<float>()) {     \
+       for (float rs2_fval : compiler::ValueHelper::GetVector<float>()) {   \
+         GenAndRunTest<float, float>(rs1_fval, rs2_fval, fn);               \
+-        for (int i = 0; i < 4; i++) {                                      \
++        for (size_t i = 0; i < n; i++) {                                   \
+           CHECK_FLOAT_EQ(UseCanonicalNan<float>(expect_res), result[i]);   \
+           result[i] = 0.0;                                                 \
+         }                                                                  \
+@@ -2211,7 +2212,8 @@ UTEST_RVV_VI_VX_FORM_WITH_FN(vminu_vx, 32, ARRAY_INT32, std::min<uint32_t>)
+   TEST(RISCV_UTEST_DOUBLE_##instr_name) {                                  \
+     if (!CpuFeatures::IsSupported(RISCV_SIMD)) return;                     \
+     CcTest::InitializeVM();                                                \
+-    double result[2] = {0.0};                                              \
++    constexpr size_t n = kRvvVLEN / 64;                                    \
++    double result[kRvvVLEN / 64] = {0.0};                                  \
+     auto fn = [&result](MacroAssembler& assm) {                            \
+       __ VU.set(t0, VSew::E64, Vlmul::m1);                                 \
+       __ vfmv_vf(v0, fa0);                                                 \
+@@ -2224,7 +2226,7 @@ UTEST_RVV_VI_VX_FORM_WITH_FN(vminu_vx, 32, ARRAY_INT32, std::min<uint32_t>)
+     for (double rs1_fval : compiler::ValueHelper::GetVector<double>()) {   \
+       for (double rs2_fval : compiler::ValueHelper::GetVector<double>()) { \
+         GenAndRunTest<double, double>(rs1_fval, rs2_fval, fn);             \
+-        for (int i = 0; i < 2; i++) {                                      \
++        for (size_t i = 0; i < n; i++) {                                   \
+           CHECK_DOUBLE_EQ(UseCanonicalNan<double>(expect_res), result[i]); \
+           result[i] = 0.0;                                                 \
+         }                                                                  \
+-- 
+2.25.1
+

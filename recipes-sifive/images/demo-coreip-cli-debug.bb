@@ -180,6 +180,7 @@ IMAGE_INSTALL = "\
     btrfs-tools \
     perf-python \
     vmtouch \
+    v8 \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 

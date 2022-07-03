@@ -1,0 +1,55 @@
+From 1610476864b9ced6c548e0d0df003dd36a8ba48c Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Tue, 10 May 2022 13:25:38 +0800
+Subject: [PATCH] [riscv64] Fix cctest
+ test-assembler-riscv64/RISCV_UTEST_swlwu.
+
+32-bit values are held in a sign-extended format in 64-bit registers. Which
+0x856AF894 will become 0xFFFFFFFF856AF894 and failed equality comparison with
+0x856AF894. XOR 0x856AF894 with 0xFFFFFFFF00000000 before comparion can also
+test whether lwu zero-extends.
+---
+ test/cctest/test-helper-riscv64.h | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/test/cctest/test-helper-riscv64.h b/test/cctest/test-helper-riscv64.h
+index 79a6dca989..2e6891dd07 100644
+--- a/test/cctest/test-helper-riscv64.h
++++ b/test/cctest/test-helper-riscv64.h
+@@ -178,6 +178,10 @@ template <typename T>
+ void GenAndRunTestForLoadStore(T value, Func test_generator) {
+   DCHECK(sizeof(T) == 4 || sizeof(T) == 8);
+ 
++  using INT_T = typename std::conditional<
++      std::is_integral<T>::value, T,
++      typename std::conditional<sizeof(T) == 4, int32_t, int64_t>::type>::type;
++
+   Isolate* isolate = CcTest::i_isolate();
+   HandleScope scope(isolate);
+ 
+@@ -195,6 +199,11 @@ void GenAndRunTestForLoadStore(T value, Func test_generator) {
+     assm.fmv_x_w(a0, fa0);
+   } else if (std::is_same<double, T>::value) {
+     assm.fmv_x_d(a0, fa0);
++  } else if (std::is_same<uint32_t, T>::value) {
++    if (bit_cast<INT_T>(value) & 0x80000000) {
++      assm.RV_li(t5, 0xffffffff00000000);
++      assm.xor_(a0, a0, t5);
++    }
+   }
+   assm.jr(ra);
+ 
+@@ -203,10 +212,6 @@ void GenAndRunTestForLoadStore(T value, Func test_generator) {
+   Handle<Code> code =
+       Factory::CodeBuilder(isolate, desc, CodeKind::FOR_TESTING).Build();
+ 
+-  using INT_T = typename std::conditional<
+-      std::is_integral<T>::value, T,
+-      typename std::conditional<sizeof(T) == 4, int32_t, int64_t>::type>::type;
+-
+   auto f = GeneratedCode<INT_T(void* base, INT_T val)>::FromCode(*code);
+ 
+   int64_t tmp = 0;
+-- 
+2.25.1
+

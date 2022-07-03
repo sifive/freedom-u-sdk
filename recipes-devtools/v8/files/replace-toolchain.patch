@@ -1,0 +1,56 @@
+diff --git a/build/config/posix/BUILD.gn b/build/config/posix/BUILD.gn
+index 5d1516387..6cba2776e 100644
+--- a/build/config/posix/BUILD.gn
++++ b/build/config/posix/BUILD.gn
+@@ -28,7 +28,7 @@ config("runtime_library") {
+   if (!is_apple && sysroot != "" && current_os != "zos") {
+     # Pass the sysroot to all C compiler variants, the assembler, and linker.
+     sysroot_flags = [ "--sysroot=" + rebase_path(sysroot, root_build_dir) ]
+-    if (is_linux || is_chromeos) {
++    if (target_sysroot == "" && (is_linux || is_chromeos)) {
+       # This is here so that all files get recompiled after a sysroot roll and
+       # when turning the sysroot on or off. (defines are passed via the command
+       # line, and build system rebuilds things when their commandline
+diff --git a/build/toolchain/linux/BUILD.gn b/build/toolchain/linux/BUILD.gn
+index 64face8ef..29c00b908 100644
+--- a/build/toolchain/linux/BUILD.gn
++++ b/build/toolchain/linux/BUILD.gn
+@@ -164,10 +164,20 @@ clang_v8_toolchain("clang_x64_v8_mips64") {
+   }
+ }
+ 
+-clang_v8_toolchain("clang_x64_v8_riscv64") {
++gcc_toolchain("clang_x64_v8_riscv64") {
++  prefix = rebase_path("$clang_base_path/bin", root_build_dir)
++  cc = "${prefix}/clang"
++  cxx = "${prefix}/clang++"
++  ld = cxx
++  readelf = "${prefix}/llvm-readelf"
++  ar = "${prefix}/llvm-ar"
++  nm = "${prefix}/llvm-nm"
++  extra_ldflags = "-Wl,-rpath=" + rebase_path("$clang_base_path/lib", root_build_dir)
+   toolchain_args = {
+     current_cpu = "x64"
+     v8_current_cpu = "riscv64"
++    current_os = "linux"
++    is_clang = true
+   }
+ }
+ 
+@@ -290,8 +300,14 @@ gcc_toolchain("mips64el") {
+   }
+ }
+ 
+-clang_toolchain("clang_riscv64") {
+-  enable_linker_map = true
++gcc_toolchain("clang_riscv64") {
++  toolprefix = "riscv64-oe-linux-"
++  cc = "${toolprefix}clang"
++  cxx = "${toolprefix}clang++"
++  ld = cxx
++  readelf = "${toolprefix}llvm-readelf"
++  ar = "${toolprefix}llvm-ar"
++  nm = "${toolprefix}llvm-nm"
+   toolchain_args = {
+     current_cpu = "riscv64"
+     current_os = "linux"

@@ -1,0 +1,52 @@
+diff --git a/src/base/cpu.cc b/src/base/cpu.cc
+index 571a1b6a2c..0a72a2f93f 100644
+--- a/src/base/cpu.cc
++++ b/src/base/cpu.cc
+@@ -873,13 +873,25 @@ CPU::CPU()
+ #elif V8_HOST_ARCH_RISCV64
+   CPUInfo cpu_info;
+   char* features = cpu_info.ExtractField("isa");
++  char* base = strtok(features, "_");
++  int i = 0;
++  char c;
+ 
+-  if (HasListItem(features, "rv64imafdc")) {
+-    has_fpu_ = true;
++  while ((c = base[i])) {
++    if (isupper(c)) {
++      base[i] = tolower(c);
++    }
++    ++i;
+   }
+-  if (HasListItem(features, "rv64imafdcv")) {
+-    has_fpu_ = true;
+-    has_rvv_ = true;
++
++  if (!strncmp(base, "rv64", 4)) {
++    base += 4;
++    if (strchr(base, 'd')) {
++      has_fpu_ = true;
++    }
++    if (strchr(base, 'v')) {
++      has_rvv_ = true;
++    }
+   }
+ #endif  // V8_HOST_ARCH_RISCV64
+ }
+diff --git a/src/codegen/riscv64/assembler-riscv64.cc b/src/codegen/riscv64/assembler-riscv64.cc
+index c24fb31a7b..9d4dc58185 100644
+--- a/src/codegen/riscv64/assembler-riscv64.cc
++++ b/src/codegen/riscv64/assembler-riscv64.cc
+@@ -81,7 +81,11 @@ void CpuFeatures::ProbeImpl(bool cross_compile) {
+ }
+ 
+ void CpuFeatures::PrintTarget() {}
+-void CpuFeatures::PrintFeatures() {}
++void CpuFeatures::PrintFeatures() {
++  printf("FPU=%d RVV=%d\n",
++         CpuFeatures::IsSupported(FPU), CpuFeatures::IsSupported(RISCV_SIMD));
++}
++
+ int ToNumber(Register reg) {
+   DCHECK(reg.is_valid());
+   const int kNumbers[] = {

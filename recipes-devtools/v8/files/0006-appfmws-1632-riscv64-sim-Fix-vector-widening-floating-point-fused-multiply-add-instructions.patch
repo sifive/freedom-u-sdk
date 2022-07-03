@@ -1,0 +1,85 @@
+From dae548a4fca6f74f88e9b1b0b9eebca7110cfcd2 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Thu, 5 May 2022 11:49:47 +0800
+Subject: [PATCH 2/2] [riscv64][sim] Fix vector widening floating-point fused
+ multiply-add instructions.
+
+According to spec the addend and destinatoipon is 2*SEW not SEW bits wide. Fix
+corresponding std::fma() invocations with proper addend.
+---
+ src/execution/riscv64/simulator-riscv64.cc | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/execution/riscv64/simulator-riscv64.cc b/src/execution/riscv64/simulator-riscv64.cc
+index f4159dae0d..c54893eca2 100644
+--- a/src/execution/riscv64/simulator-riscv64.cc
++++ b/src/execution/riscv64/simulator-riscv64.cc
+@@ -859,7 +859,7 @@ struct type_sew_t<128> {
+       double vs2 = vs2_is_widen                                                \
+                        ? Rvvelt<double>(rvv_vs2_reg(), i)                      \
+                        : static_cast<double>(Rvvelt<float>(rvv_vs2_reg(), i)); \
+-      double vs3 = static_cast<double>(Rvvelt<float>(rvv_vd_reg(), i));        \
++      double vs3 = Rvvelt<double>(rvv_vd_reg(), i);                            \
+       BODY32;                                                                  \
+       break;                                                                   \
+     }                                                                          \
+@@ -884,7 +884,7 @@ struct type_sew_t<128> {
+                        ? static_cast<double>(Rvvelt<double>(rvv_vs2_reg(), i)) \
+                        : static_cast<double>(Rvvelt<float>(rvv_vs2_reg(), i)); \
+       double vs1 = static_cast<double>(Rvvelt<float>(rvv_vs1_reg(), i));       \
+-      double vs3 = static_cast<double>(Rvvelt<float>(rvv_vd_reg(), i));        \
++      double vs3 = Rvvelt<double>(rvv_vd_reg(), i);                            \
+       BODY32;                                                                  \
+       break;                                                                   \
+     }                                                                          \
+@@ -6608,19 +6608,19 @@ void Simulator::DecodeRvvFVV() {
+       break;
+     case RO_V_VFWMACC_VV:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(float, vs2, vs1, vs3)}, false)
++      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(double, vs2, vs1, vs3)}, false)
+       break;
+     case RO_V_VFWNMACC_VV:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(float, -vs2, vs1, -vs3)}, false)
++      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(double, -vs2, vs1, -vs3)}, false)
+       break;
+     case RO_V_VFWMSAC_VV:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(float, vs2, vs1, -vs3)}, false)
++      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(double, vs2, vs1, -vs3)}, false)
+       break;
+     case RO_V_VFWNMSAC_VV:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(float, -vs2, vs1, +vs3)}, false)
++      RVV_VI_VFP_VV_LOOP_WIDEN({RVV_VI_VFP_FMA(double, -vs2, vs1, +vs3)}, false)
+       break;
+     case RO_V_VFMV_FS:
+       switch (rvv_vsew()) {
+@@ -6758,19 +6758,19 @@ void Simulator::DecodeRvvFVF() {
+       break;
+     case RO_V_VFWMACC_VF:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(float, vs2, fs1, vs3)}, false)
++      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(double, vs2, fs1, vs3)}, false)
+       break;
+     case RO_V_VFWNMACC_VF:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(float, -vs2, fs1, -vs3)}, false)
++      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(double, -vs2, fs1, -vs3)}, false)
+       break;
+     case RO_V_VFWMSAC_VF:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(float, vs2, fs1, -vs3)}, false)
++      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(double, vs2, fs1, -vs3)}, false)
+       break;
+     case RO_V_VFWNMSAC_VF:
+       RVV_VI_CHECK_DSS(true);
+-      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(float, -vs2, fs1, vs3)}, false)
++      RVV_VI_VFP_VF_LOOP_WIDEN({RVV_VI_VFP_FMA(double, -vs2, fs1, vs3)}, false)
+       break;
+     default:
+       UNSUPPORTED_RISCV();
+-- 
+2.25.1
+

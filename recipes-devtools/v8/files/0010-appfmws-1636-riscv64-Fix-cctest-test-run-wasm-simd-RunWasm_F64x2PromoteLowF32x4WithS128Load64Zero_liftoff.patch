@@ -1,0 +1,29 @@
+From 6958f8ad2426fd40e8154926165bf7d82de30943 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Mon, 9 May 2022 14:29:26 +0800
+Subject: [PATCH] [riscv64] Fix
+ cctest/test-run-wasm-simd/RunWasm_F64x2PromoteLowF32x4WithS128Load64Zero_liftoff.
+
+Call vsetvli before vxor to clear dst_v and avoid illegal instruction.
+---
+ src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+index bf89a2f0bf..83c842065b 100644
+--- a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
++++ b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+@@ -1741,9 +1741,9 @@ void LiftoffAssembler::LoadTransform(LiftoffRegister dst, Register src_addr,
+       vzext_vf2(dst_v, kSimd128ScratchReg);
+     }
+   } else if (transform == LoadTransformationKind::kZeroExtend) {
++    VU.set(kScratchReg, E32, m1);
+     vxor_vv(dst_v, dst_v, dst_v);
+     if (memtype == MachineType::Int32()) {
+-      VU.set(kScratchReg, E32, m1);
+       Lwu(scratch, src_op);
+       vmv_sx(dst_v, scratch);
+     } else {
+-- 
+2.25.1
+

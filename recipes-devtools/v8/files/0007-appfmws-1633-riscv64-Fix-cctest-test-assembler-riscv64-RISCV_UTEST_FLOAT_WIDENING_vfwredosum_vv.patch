@@ -1,0 +1,29 @@
+From 0a8fff8639f21354374c40cb88a62ec8e1f50b94 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Fri, 6 May 2022 09:23:43 +0800
+Subject: [PATCH 1/2] [riscv64] Fix
+ cctest/test-assembler-riscv64/RISCV_UTEST_FLOAT_WIDENING_vfwredosum_vv.
+
+Fix expect result as vfmv_vf() copies |rs1_fval| to all elements of |v4|.
+---
+ test/cctest/test-assembler-riscv64.cc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/test/cctest/test-assembler-riscv64.cc b/test/cctest/test-assembler-riscv64.cc
+index 0e18c468ed..e4820cf010 100644
+--- a/test/cctest/test-assembler-riscv64.cc
++++ b/test/cctest/test-assembler-riscv64.cc
+@@ -2571,7 +2571,9 @@ UTEST_RVV_FMA_VF_FORM_WITH_RES(vfnmsac_vf, ARRAY_FLOAT,
+     for (float rs1_fval : compiler::ValueHelper::GetVector<float>()) { \
+       std::vector<double> temp_arr(kRvvVLEN / 32,                      \
+                                    static_cast<double>(rs1_fval));     \
+-      double expect_res = rs1_fval;                                    \
++      double rs1_dval;                                                 \
++      *(uint64_t*)&rs1_dval = (uint64_t)bit_cast<uint32_t>(rs1_fval) << 32 | bit_cast<uint32_t>(rs1_fval); \
++      double expect_res = rs1_dval;                                    \
+       for (double val : temp_arr) {                                    \
+         expect_res += val;                                             \
+         if (std::isnan(expect_res)) {                                  \
+-- 
+2.25.1
+
