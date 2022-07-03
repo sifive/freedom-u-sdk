@@ -1,0 +1,59 @@
+From 920f9eb0ea87cd9db1a7099699062677e1d9466a Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Fri, 27 May 2022 16:00:40 +0800
+Subject: [PATCH] [riscv64] Fix mjsunit/wasm/atomics64-stress.
+
+---
+ .../baseline/riscv64/liftoff-assembler-riscv64.h  | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+index 0428cfc356..b98b6c514c 100644
+--- a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
++++ b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+@@ -690,6 +690,9 @@ inline void AtomicBinop(LiftoffAssembler* lasm, Register dst_addr,
+       __ sync();
+       break;
+     case StoreType::kI64Store32:
++      __ lwu(result_reg, actual_addr, 0);
++      __ sync();
++      break;
+     case StoreType::kI32Store:
+       __ lr_w(true, false, result_reg, actual_addr);
+       break;
+@@ -736,11 +739,16 @@ inline void AtomicBinop(LiftoffAssembler* lasm, Register dst_addr,
+       __ mv(store_result, zero_reg);
+       break;
+     case StoreType::kI64Store32:
++      __ sync();
++      __ sw(temp, actual_addr, 0);
++      __ sync();
++      __ mv(store_result, zero_reg);
++      break;
+     case StoreType::kI32Store:
+       __ sc_w(false, true, store_result, actual_addr, temp);
+       break;
+     case StoreType::kI64Store:
+-      __ sc_w(false, true, store_result, actual_addr, temp);
++      __ sc_d(false, true, store_result, actual_addr, temp);
+       break;
+     default:
+       UNREACHABLE();
+@@ -773,10 +781,13 @@ void LiftoffAssembler::AtomicLoad(LiftoffRegister dst, Register src_addr,
+       sync();
+       return;
+     case LoadType::kI32Load:
+-    case LoadType::kI64Load32U:
+       lw(dst.gp(), src_reg, 0);
+       sync();
+       return;
++    case LoadType::kI64Load32U:
++      lwu(dst.gp(), src_reg, 0);
++      sync();
++      return;
+     case LoadType::kI64Load:
+       ld(dst.gp(), src_reg, 0);
+       sync();
+-- 
+2.25.1
+

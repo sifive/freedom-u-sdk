@@ -1,0 +1,28 @@
+From 588f2b4c45149e189941fc3cb34163d4aa82f42a Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Thu, 12 May 2022 13:55:47 +0800
+Subject: [PATCH] [riscv64] Fix mjsunit/wasm/huge-memory.
+
+Clear higher 32-bit of load index to address the case when bit 31 is set and
+sign-extended in a 64-bit register.
+---
+ src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+index bf89a2f0bf..a68352209d 100644
+--- a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
++++ b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+@@ -1339,7 +1339,8 @@ void LiftoffAssembler::emit_i64_addi(LiftoffRegister dst, LiftoffRegister lhs,
+   TurboAssembler::Add64(dst.gp(), lhs.gp(), Operand(imm));
+ }
+ void LiftoffAssembler::emit_u32_to_uintptr(Register dst, Register src) {
+-  addw(dst, src, zero_reg);
++  slli(dst, src, 32);
++  srli(dst, dst, 32);
+ }
+ 
+ void LiftoffAssembler::emit_f32_neg(DoubleRegister dst, DoubleRegister src) {
+-- 
+2.25.1
+

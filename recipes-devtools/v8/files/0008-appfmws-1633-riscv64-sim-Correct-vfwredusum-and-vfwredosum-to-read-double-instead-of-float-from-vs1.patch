@@ -1,0 +1,26 @@
+From 61826c7db553e95477b875e6eb32c020c43741e1 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Fri, 6 May 2022 09:35:27 +0800
+Subject: [PATCH 2/2] [riscv64][sim] Correct vfwredusum and vfwredosum to read
+ double instead of float from vs1.
+
+---
+ src/execution/riscv64/simulator-riscv64.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/execution/riscv64/simulator-riscv64.cc b/src/execution/riscv64/simulator-riscv64.cc
+index f4159dae0d..78ae57aa78 100644
+--- a/src/execution/riscv64/simulator-riscv64.cc
++++ b/src/execution/riscv64/simulator-riscv64.cc
+@@ -6548,7 +6548,7 @@ void Simulator::DecodeRvvFVV() {
+         }
+         case E32: {
+           double& vd = Rvvelt<double>(rvv_vd_reg(), 0, true);
+-          float vs1 = Rvvelt<float>(rvv_vs1_reg(), 0);
++          double vs1 = Rvvelt<double>(rvv_vs1_reg(), 0);
+           double alu_out = vs1;
+           for (uint64_t i = rvv_vstart(); i < rvv_vl(); ++i) {
+             double vs2 = static_cast<double>(Rvvelt<float>(rvv_vs2_reg(), i));
+-- 
+2.25.1
+
