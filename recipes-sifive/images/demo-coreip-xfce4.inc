@@ -48,6 +48,7 @@ IMAGE_INSTALL += "\
     xvinfo \
     x11perf \
     xdotool \
+    glmark2 \
     "
 
 inherit features_check
