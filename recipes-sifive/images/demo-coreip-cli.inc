@@ -170,6 +170,7 @@ IMAGE_INSTALL += "\
     libtensorflow-lite \
     python3-tensorflow-lite \
     python3-tensorflow-lite-example \
+    python3-tensorflow-lite-demo \
     tensorflow-lite-label-image \
     tensorflow-lite-minimal \
     ${CORE_IMAGE_EXTRA_INSTALL} \

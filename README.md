@@ -211,6 +211,13 @@ In this particular case we uncompress rootfs into a directory. We ask `nbdkit` t
 
 `nbdkit` has a number of plugins and filters allowing various ways how to share disk images over the network.
 
+## Run Tensorflow Lite demo
+
+```
+cd /usr/share/tensorflow/lite/examples/python/
+python3 python3 mnist.py
+```
+
 ## Contributions & Feedback
 
 If you want to file issues, send patches and make feature/enhancement requests use [meta-sifive](https://github.com/sifive/meta-sifive) or [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repositories on GitHub.

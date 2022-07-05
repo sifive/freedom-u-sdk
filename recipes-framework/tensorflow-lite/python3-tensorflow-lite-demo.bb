@@ -1,23 +1,32 @@
 DESCRIPTION = "A Sample of testing Tensorflow-lite with MNIST handwritten digits."
 LICENSE = "CLOSED"
 
-inherit allarch
+RDEPENDS:${PN} += " \
+    python3-tensorflow-lite \
+    python3-numpy \
+"
 
-FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+SRC_URI = "\
+    file://demo/digit5.txt \
+    file://demo/mnist.tflite \
+    file://demo/mnist.py \
+"
 
-SRC_URI = "file://demo/"
+INHIBIT_DEFAULT_DEPS = "1"
+
+S = "${WORKDIR}"
 
 do_configure[noexec] = "1"
 
 do_compile[noexec] = "1"
 
-do_install:append() {
-    install -d ${D}${docdir}/${PN}/example
-    install ${WORKDIR}/demo/* ${D}${docdir}/${PN}/example
+do_install() {
+    install -d ${D}${datadir}/tensorflow/lite/examples/python
+    install ${WORKDIR}/demo/digit5.txt ${D}${datadir}/tensorflow/lite/examples/python/digit5.txt
+    install ${WORKDIR}/demo/mnist.py ${D}${datadir}/tensorflow/lite/examples/python/mnist.py
+    install ${WORKDIR}/demo/mnist.tflite ${D}${datadir}/tensorflow/lite/examples/python/mnist.tflite
 }
-
-INHIBIT_DEFAULT_DEPS = "1"
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
-FILES:${PN}-doc = "${docdir}/${PN}/example/*"
+FILES:${PN} = "${datadir}/tensorflow/lite/examples/python/*"
