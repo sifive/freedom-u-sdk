@@ -173,6 +173,7 @@ IMAGE_INSTALL += "\
     python3-tensorflow-lite-demo \
     tensorflow-lite-label-image \
     tensorflow-lite-minimal \
+    coremark \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
