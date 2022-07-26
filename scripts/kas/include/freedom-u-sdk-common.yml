@@ -7,7 +7,7 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: 35167536c163eb6b7653cbcaad9f65b834d3e2f8
+    refspec: 68f4ce662cad28fed739900addbdee949ad3c1e8
     layers:
       .: excluded
 
@@ -15,25 +15,25 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: dd39446dff75c6e48f4aa44ec90087f172d717d4
+    refspec: c419bd4537756e9f6c2fe6da3a9b798526e27eca
     layers:
       meta:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 8995a0d05fc6ac0afba71d484f0efb71639d9843
+    refspec: da301d7c6627a5a1ee541a646aba22dc993109d9
     layers:
       .:
 
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: 6d1a522b9b6e0705a9aa89f83975172f147b14fe
+    refspec: facce3c8cd8eeaad80c00365bbac09460f7ea266
     layers:
       .:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: 11df15765c1c16572dfbbbe2831de6ad39f0ed63
+    refspec: 03c4831f445ab62a0eec57a8f0d6d11641b882ab
     layers:
       meta-filesystems:
       meta-gnome:
@@ -45,7 +45,7 @@ repos:
 
   meta-tensorflow-lite:
     url: https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
-    refspec: a58e5f1efbf5de17580e1f9f65f70d76715003b2
+    refspec: 4299e649292a9471732e1fff2dc0eb776aba68f5
     layers:
       .:
 
