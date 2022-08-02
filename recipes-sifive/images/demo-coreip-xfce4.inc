@@ -1,7 +1,6 @@
 require demo-coreip-cli.inc
 
 IMAGE_FEATURES += "\
-    nfs-client \
     x11-base \
     hwcodecs \
 "
