@@ -1,1 +1,1 @@
-PACKAGECONFIG:append:pn-gdb = " python tui xz"
+PACKAGECONFIG:append = " python tui xz"
