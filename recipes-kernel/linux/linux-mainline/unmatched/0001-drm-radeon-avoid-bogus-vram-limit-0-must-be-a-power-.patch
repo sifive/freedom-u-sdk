@@ -1,0 +1,59 @@
+From addd84763c748b2d189e2eba08a88a9b6a6195e6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+Date: Wed, 6 Jul 2022 22:01:44 +0200
+Subject: [PATCH] drm/radeon: avoid bogus "vram limit (0) must be a power of 2"
+ warning
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+I was getting the following message on boot on Linux 5.19-rc5:
+        radeon 0000:01:05.0: vram limit (0) must be a power of 2
+(I didn't use any radeon.vramlimit commandline parameter).
+
+This is caused by
+commit 8c2d34eb53b9 ("drm/radeon: use kernel is_power_of_2 rather than local version")
+which removed radeon_check_pot_argument() and converted its users to
+is_power_of_2(). The two functions differ in its handling of 0, which is
+the default value of radeon_vram_limit: radeon_check_pot_argument()
+"incorrectly" considered it a power of 2, while is_power_of_2() does not.
+
+An appropriate conditional silences the warning message.
+
+It is not necessary to add a similar test to other callers of
+is_power_of_2() in radeon_device.c. The matching commit in amdgpu:
+commit 761175078466 ("drm/amdgpu: use kernel is_power_of_2 rather than local version")
+is unaffected by this bug.
+
+Tested on Radeon HD 3200.
+
+Not ccing stable, this is not serious enough.
+
+Fixes: 8c2d34eb53b9 ("drm/radeon: use kernel is_power_of_2 rather than local version")
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Jonathan Gray <jsg@jsg.id.au>
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+---
+ drivers/gpu/drm/radeon/radeon_device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index 15692cb241fc..429644d5ddc6 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1113,7 +1113,7 @@ static int radeon_gart_size_auto(enum radeon_family family)
+ static void radeon_check_arguments(struct radeon_device *rdev)
+ {
+ 	/* vramlimit must be a power of two */
+-	if (!is_power_of_2(radeon_vram_limit)) {
++	if (radeon_vram_limit != 0 && !is_power_of_2(radeon_vram_limit)) {
+ 		dev_warn(rdev->dev, "vram limit (%d) must be a power of 2\n",
+ 				radeon_vram_limit);
+ 		radeon_vram_limit = 0;
+-- 
+2.35.3
+
