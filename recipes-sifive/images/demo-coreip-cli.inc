@@ -1,6 +1,7 @@
 DESCRIPTION = "SiFive RISC-V Core IP Demo Benchmarks Linux image"
 
 IMAGE_FEATURES += "\
+    hwcodecs \
     splash \
     ssh-server-openssh \
     tools-sdk \

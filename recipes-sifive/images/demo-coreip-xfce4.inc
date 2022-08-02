@@ -2,7 +2,6 @@ require demo-coreip-cli.inc
 
 IMAGE_FEATURES += "\
     x11-base \
-    hwcodecs \
 "
 
 IMAGE_INSTALL += "\
