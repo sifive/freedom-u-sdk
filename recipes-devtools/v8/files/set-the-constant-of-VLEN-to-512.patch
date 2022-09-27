@@ -1,0 +1,25 @@
+From 483b61b6519631670aa524c71ab3353f0f0459b9 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Tue, 31 May 2022 19:23:28 +0800
+Subject: [PATCH] Set the constant of VLEN to 512.
+
+---
+ src/codegen/riscv64/constants-riscv64.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/codegen/riscv64/constants-riscv64.h b/src/codegen/riscv64/constants-riscv64.h
+index 67856b771b..f26d01d2a5 100644
+--- a/src/codegen/riscv64/constants-riscv64.h
++++ b/src/codegen/riscv64/constants-riscv64.h
+@@ -245,7 +245,7 @@ const int kRvcFunct6Bits = 6;
+ 
+ // for RVV extension
+ constexpr int kRvvELEN = 64;
+-constexpr int kRvvVLEN = 128;
++constexpr int kRvvVLEN = 512;
+ constexpr int kRvvSLEN = kRvvVLEN;
+ const int kRvvFunct6Shift = 26;
+ const int kRvvFunct6Bits = 6;
+-- 
+2.25.1
+

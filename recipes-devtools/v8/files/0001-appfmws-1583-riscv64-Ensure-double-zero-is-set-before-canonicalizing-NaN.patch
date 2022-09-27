@@ -1,0 +1,29 @@
+From 09585a4c8d769496660ed1004542ab7934755085 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Thu, 17 Mar 2022 12:17:04 +0800
+Subject: [PATCH] [riscv64] Ensure double zero is set before canonicalizing
+ NaN.
+
+---
+ src/codegen/riscv64/macro-assembler-riscv64.cc | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/codegen/riscv64/macro-assembler-riscv64.cc b/src/codegen/riscv64/macro-assembler-riscv64.cc
+index fcf7256d29..24862814f4 100644
+--- a/src/codegen/riscv64/macro-assembler-riscv64.cc
++++ b/src/codegen/riscv64/macro-assembler-riscv64.cc
+@@ -3670,6 +3670,11 @@ void MacroAssembler::PopStackHandler() {
+ 
+ void TurboAssembler::FPUCanonicalizeNaN(const DoubleRegister dst,
+                                         const DoubleRegister src) {
++  // Ensure double zero is set.
++  fmv_d_x(kDoubleRegZero, zero_reg);
++  has_double_zero_reg_set_ = true;
++  has_single_zero_reg_set_ = false;
++
+   // Subtracting 0.0 preserves all inputs except for signalling NaNs, which
+   // become quiet NaNs. We use fsub rather than fadd because fsub preserves -0.0
+   // inputs: -0.0 + 0.0 = 0.0, but -0.0 - 0.0 = -0.0.
+-- 
+2.25.1
+

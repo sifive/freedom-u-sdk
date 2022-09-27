@@ -1,0 +1,27 @@
+From f8a2f6d089438dc9d8afbe91329edbc3057f240a Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Mon, 23 May 2022 14:23:44 +0800
+Subject: [PATCH] [riscv64] Fix mjsunit/wasm/exceptions-api.
+
+Fix StaticStackFrameSize() to include tier up budget to avoid overwriting
+exception's values.
+---
+ src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+index bf89a2f0bf..9dbd6b6451 100644
+--- a/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
++++ b/src/wasm/baseline/riscv64/liftoff-assembler-riscv64.h
+@@ -393,7 +393,7 @@ void LiftoffAssembler::AbortCompilation() { AbortedCodeGeneration(); }
+ 
+ // static
+ constexpr int LiftoffAssembler::StaticStackFrameSize() {
+-  return liftoff::kFeedbackVectorOffset;
++  return liftoff::kTierupBudgetOffset;
+ }
+ 
+ int LiftoffAssembler::SlotSizeForType(ValueKind kind) {
+-- 
+2.25.1
+

@@ -1,0 +1,73 @@
+From 0bd4b9bcc6c9c73636e0c075cd9014c3990cd5f0 Mon Sep 17 00:00:00 2001
+From: Ting Chou <ting.chou@sifive.com>
+Date: Thu, 5 May 2022 11:30:05 +0800
+Subject: [PATCH 1/2] [riscv64] Fix
+ cctest/test-assembler-riscv64/RISCV_UTEST_FLOAT_WIDENING_vfwmacc_vf.
+
+The expect result from std::fma() is with float arguments, however the widening
+instruction expects addend and destination is 2*SEW (64) bits wide. Correct the
+arguments for std::fma() to double with the same content for the instruction.
+---
+ test/cctest/test-assembler-riscv64.cc | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/test/cctest/test-assembler-riscv64.cc b/test/cctest/test-assembler-riscv64.cc
+index 0e18c468ed..3035a4ddf2 100644
+--- a/test/cctest/test-assembler-riscv64.cc
++++ b/test/cctest/test-assembler-riscv64.cc
+@@ -2412,6 +2412,11 @@ UTEST_RVV_VFW_VF_FORM_WITH_OP(vfwmul_vf, *, false, is_invalid_fmul)
+     for (float rs1_fval : array) {                                            \
+       for (float rs2_fval : array) {                                          \
+         for (float rs3_fval : array) {                                        \
++          double rs1_dval;                                                    \
++          *(uint64_t*)&rs1_dval = (uint64_t)bit_cast<uint32_t>(rs1_fval) << 32 | bit_cast<uint32_t>(rs1_fval); \
++          double rs2_dval = static_cast<double>(rs2_fval);                    \
++          double rs3_dval = static_cast<double>(rs3_fval);                    \
++          *(uint64_t*)&rs1_dval = (uint64_t)bit_cast<uint32_t>(rs1_fval) << 32 | bit_cast<uint32_t>(rs1_fval); \
+           double res =                                                        \
+               GenAndRunTest<double, float>(rs1_fval, rs2_fval, rs3_fval, fn); \
+           CHECK_DOUBLE_EQ((expect_res), res);                                 \
+@@ -2437,6 +2442,10 @@ UTEST_RVV_VFW_VF_FORM_WITH_OP(vfwmul_vf, *, false, is_invalid_fmul)
+     for (float rs1_fval : array) {                                            \
+       for (float rs2_fval : array) {                                          \
+         for (float rs3_fval : array) {                                        \
++          double rs1_dval;                                                    \
++          *(uint64_t*)&rs1_dval = (uint64_t)bit_cast<uint32_t>(rs1_fval) << 32 | bit_cast<uint32_t>(rs1_fval); \
++          double rs2_dval = static_cast<double>(rs2_fval);                    \
++          double rs3_dval = static_cast<double>(rs3_fval);                    \
+           double res =                                                        \
+               GenAndRunTest<double, float>(rs1_fval, rs2_fval, rs3_fval, fn); \
+           CHECK_DOUBLE_EQ((expect_res), res);                                 \
+@@ -2447,21 +2456,21 @@ UTEST_RVV_VFW_VF_FORM_WITH_OP(vfwmul_vf, *, false, is_invalid_fmul)
+ 
+ #define ARRAY_FLOAT compiler::ValueHelper::GetVector<float>()
+ UTEST_RVV_VFW_FMA_VV_FORM_WITH_RES(vfwmacc_vv, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, rs3_fval, rs1_fval))
++                                   std::fma(rs2_dval, rs3_dval, rs1_dval))
+ UTEST_RVV_VFW_FMA_VF_FORM_WITH_RES(vfwmacc_vf, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, rs3_fval, rs1_fval))
++                                   std::fma(rs2_dval, rs3_dval, rs1_dval))
+ UTEST_RVV_VFW_FMA_VV_FORM_WITH_RES(vfwnmacc_vv, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, -rs3_fval, -rs1_fval))
++                                   std::fma(rs2_dval, -rs3_dval, -rs1_dval))
+ UTEST_RVV_VFW_FMA_VF_FORM_WITH_RES(vfwnmacc_vf, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, -rs3_fval, -rs1_fval))
++                                   std::fma(rs2_dval, -rs3_dval, -rs1_dval))
+ UTEST_RVV_VFW_FMA_VV_FORM_WITH_RES(vfwmsac_vv, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, rs3_fval, -rs1_fval))
++                                   std::fma(rs2_dval, rs3_dval, -rs1_dval))
+ UTEST_RVV_VFW_FMA_VF_FORM_WITH_RES(vfwmsac_vf, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, rs3_fval, -rs1_fval))
++                                   std::fma(rs2_dval, rs3_dval, -rs1_dval))
+ UTEST_RVV_VFW_FMA_VV_FORM_WITH_RES(vfwnmsac_vv, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, -rs3_fval, rs1_fval))
++                                   std::fma(rs2_dval, -rs3_dval, rs1_dval))
+ UTEST_RVV_VFW_FMA_VF_FORM_WITH_RES(vfwnmsac_vf, ARRAY_FLOAT,
+-                                   std::fma(rs2_fval, -rs3_fval, rs1_fval))
++                                   std::fma(rs2_dval, -rs3_dval, rs1_dval))
+ 
+ #undef ARRAY_FLOAT
+ #undef UTEST_RVV_VFW_FMA_VV_FORM_WITH_RES
+-- 
+2.25.1
+

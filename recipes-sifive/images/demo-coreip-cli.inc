@@ -166,6 +166,7 @@ IMAGE_INSTALL += "\
     xfsprogs-repair \
     btrfs-tools \
     perf-python \
+    v8 \
     vmtouch \
     libtensorflow-lite \
     python3-tensorflow-lite \
