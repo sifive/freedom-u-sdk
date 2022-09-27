@@ -1,0 +1,1266 @@
+diff --git a/third_party/ffmpeg/BUILD.gn b/third_party/ffmpeg/BUILD.gn
+index 5ea4e37336..cd4b61bb2d 100755
+--- a/third_party/ffmpeg/BUILD.gn
++++ b/third_party/ffmpeg/BUILD.gn
+@@ -7,6 +7,7 @@ import("ffmpeg_options.gni")
+ 
+ import("//build/buildflag_header.gni")
+ import("//build/config/compiler/compiler.gni")
++import("//build/config/sysroot.gni")
+ import("//build/config/sanitizers/sanitizers.gni")
+ 
+ # Path to platform configuration files.
+@@ -435,6 +436,7 @@ if (is_component_ffmpeg) {
+       # Fixes warnings PIC relocation when building as component.
+       ldflags += [
+         "-Wl,-Bsymbolic",
++        "-Wl,-L../../build/linux/debian_sid_riscv64-sysroot/usr/lib/riscv64-linux-gnu",
+         "-L",
+         rebase_path(target_gen_dir, root_build_dir),
+       ]
+diff --git a/third_party/ffmpeg/CREDITS.chromium b/third_party/ffmpeg/CREDITS.chromium
+index d8b6501bef..894feedc0d 100644
+--- a/third_party/ffmpeg/CREDITS.chromium
++++ b/third_party/ffmpeg/CREDITS.chromium
+@@ -129,160 +129,6 @@ incompatible with the GPLv2 and v3. To the best of our knowledge, they are
+ compatible with the LGPL.
+ 
+ 
+-********************************************************************************
+-
+-libavcodec/arm/jrevdct_arm.S
+-
+-C-like prototype :
+-        void j_rev_dct_arm(DCTBLOCK data)
+-
+-   With DCTBLOCK being a pointer to an array of 64 'signed shorts'
+-
+-   Copyright (c) 2001 Lionel Ulmer (lionel.ulmer@free.fr / bbrox@bbrox.org)
+-
+-   Permission is hereby granted, free of charge, to any person obtaining a copy
+-   of this software and associated documentation files (the "Software"), to deal
+-   in the Software without restriction, including without limitation the rights
+-   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-   copies of the Software, and to permit persons to whom the Software is
+-   furnished to do so, subject to the following conditions:
+-
+-   The above copyright notice and this permission notice shall be included in
+-   all copies or substantial portions of the Software.
+-
+-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+-   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-
+-********************************************************************************
+-
+-libavcodec/arm/vp8dsp_armv6.S
+-
+-VP8 ARMv6 optimisations
+-
+-Copyright (c) 2010 Google Inc.
+-Copyright (c) 2010 Rob Clark <rob@ti.com>
+-Copyright (c) 2011 Mans Rullgard <mans@mansr.com>
+-
+-This file is part of FFmpeg.
+-
+-FFmpeg is free software; you can redistribute it and/or
+-modify it under the terms of the GNU Lesser General Public
+-License as published by the Free Software Foundation; either
+-version 2.1 of the License, or (at your option) any later version.
+-
+-FFmpeg is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-Lesser General Public License for more details.
+-
+-You should have received a copy of the GNU Lesser General Public
+-License along with FFmpeg; if not, write to the Free Software
+-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+-
+-This code was partially ported from libvpx, which uses this license:
+-
+-Redistribution and use in source and binary forms, with or without
+-modification, are permitted provided that the following conditions are
+-met:
+-
+-* Redistributions of source code must retain the above copyright
+-notice, this list of conditions and the following disclaimer.
+-
+-* Redistributions in binary form must reproduce the above copyright
+-notice, this list of conditions and the following disclaimer in
+-the documentation and/or other materials provided with the
+-distribution.
+-
+-* Neither the name of Google nor the names of its contributors may
+-be used to endorse or promote products derived from this software
+-without specific prior written permission.
+-
+-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-
+-********************************************************************************
+-
+-libavcodec/x86/xvididct.asm
+-
+-XVID MPEG-4 VIDEO CODEC
+-
+- Conversion from gcc syntax to x264asm syntax with modifications
+- by Christophe Gisquet <christophe.gisquet@gmail.com>
+-
+- ===========     SSE2 inverse discrete cosine transform     ===========
+-
+- Copyright(C) 2003 Pascal Massimino <skal@planet-d.net>
+-
+- Conversion to gcc syntax with modifications
+- by Alexander Strange <astrange@ithinksw.com>
+-
+- Originally from dct/x86_asm/fdct_sse2_skal.asm in Xvid.
+-
+- Vertical pass is an implementation of the scheme:
+-  Loeffler C., Ligtenberg A., and Moschytz C.S.:
+-  Practical Fast 1D DCT Algorithm with Eleven Multiplications,
+-  Proc. ICASSP 1989, 988-991.
+-
+- Horizontal pass is a double 4x4 vector/matrix multiplication,
+- (see also Intel's Application Note 922:
+-  http://developer.intel.com/vtune/cbts/strmsimd/922down.htm
+-  Copyright (C) 1999 Intel Corporation)
+-
+- More details at http://skal.planet-d.net/coding/dct.html
+-
+- =======     MMX and XMM forward discrete cosine transform     =======
+-
+- Copyright(C) 2001 Peter Ross <pross@xvid.org>
+-
+- Originally provided by Intel at AP-922
+- http://developer.intel.com/vtune/cbts/strmsimd/922down.htm
+- (See more app notes at http://developer.intel.com/vtune/cbts/strmsimd/appnotes.htm)
+- but in a limited edition.
+- New macro implements a column part for precise iDCT
+- The routine precision now satisfies IEEE standard 1180-1990.
+-
+- Copyright(C) 2000-2001 Peter Gubanov <peter@elecard.net.ru>
+- Rounding trick Copyright(C) 2000 Michel Lespinasse <walken@zoy.org>
+-
+- http://www.elecard.com/peter/idct.html
+- http://www.linuxvideo.org/mpeg2dec/
+-
+- These examples contain code fragments for first stage iDCT 8x8
+- (for rows) and first stage DCT 8x8 (for columns)
+-
+- conversion to gcc syntax by Michael Niedermayer
+-
+- ======================================================================
+-
+- This file is part of FFmpeg.
+-
+- FFmpeg is free software; you can redistribute it and/or
+- modify it under the terms of the GNU Lesser General Public
+- License as published by the Free Software Foundation; either
+- version 2.1 of the License, or (at your option) any later version.
+-
+- FFmpeg is distributed in the hope that it will be useful,
+- but WITHOUT ANY WARRANTY; without even the implied warranty of
+- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+- Lesser General Public License for more details.
+-
+- You should have received a copy of the GNU Lesser General Public License
+- along with FFmpeg; if not, write to the Free Software Foundation,
+- Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+-
+ ********************************************************************************
+ 
+ libavformat/oggparsetheora.c
+@@ -311,31 +157,6 @@ DEALINGS IN THE SOFTWARE.
+ 
+ ********************************************************************************
+ 
+-libavutil/x86/x86inc.asm
+-
+-x86inc.asm: x264asm abstraction layer
+-
+- Copyright (C) 2005-2018 x264 project
+-
+- Authors: Loren Merritt <lorenm@u.washington.edu>
+-          Henrik Gramner <henrik@gramner.com>
+-          Anton Mitrofanov <BugMaster@narod.ru>
+-          Fiona Glaser <fiona@x264.com>
+-
+- Permission to use, copy, modify, and/or distribute this software for any
+- purpose with or without fee is hereby granted, provided that the above
+- copyright notice and this permission notice appear in all copies.
+-
+- THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+- WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+- MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+- ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+- WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+- ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+- OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-
+-********************************************************************************
+-
+ libswresample/swresample.h
+ 
+ Copyright (C) 2011-2013 Michael Niedermayer (michaelni@gmx.at)
+diff --git a/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py b/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py
+index 423e867101..0362c88ddb 100755
+--- a/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py
++++ b/third_party/ffmpeg/chromium/scripts/build_ffmpeg.py
+@@ -40,7 +40,7 @@ BRANDINGS = [
+ ARCH_MAP = {
+     'android': ['ia32', 'x64', 'arm-neon', 'arm64'],
+     'linux': [
+-        'ia32', 'x64', 'noasm-x64', 'arm', 'arm-neon', 'arm64'
++        'ia32', 'x64', 'noasm-x64', 'arm', 'arm-neon', 'arm64', 'riscv64'
+     ],
+     'mac': ['x64', 'arm64'],
+     'win': ['ia32', 'x64', 'arm64'],
+@@ -142,6 +142,8 @@ def DetermineHostOsAndArch():
+     host_arch = 'mips64el'
+   elif platform.machine().startswith('arm'):
+     host_arch = 'arm'
++  elif platform.machine() == 'riscv64':
++    host_arch = 'riscv64'
+   else:
+     return None
+ 
+@@ -893,6 +895,13 @@ def ConfigureAndBuild(target_arch, target_os, host_os, host_arch, parallel_jobs,
+             '--extra-cflags=--target=mips64el-linux-gnuabi64',
+             '--extra-ldflags=--target=mips64el-linux-gnuabi64',
+         ])
++    elif target_arch == 'riscv64':
++      configure_flags['Common'].extend([
++        '--arch=riscv64',
++        '--enable-cross-compile',
++        '--target-os=linux',
++        '--sysroot=' + os.path.join(CHROMIUM_ROOT_DIR, '../recipe-sysroot')
++      ])
+     else:
+       print(
+           'Error: Unknown target arch %r for target OS %r!' % (target_arch,
+@@ -909,16 +918,16 @@ def ConfigureAndBuild(target_arch, target_os, host_os, host_arch, parallel_jobs,
+   if 'win' not in target_os and 'android' not in target_os:
+     configure_flags['Common'].extend([
+         '--enable-pic',
+-        '--cc=clang',
+-        '--cxx=clang++',
+-        '--ld=clang',
++        '--cc=riscv64-freedomusdk-linux-clang',
++        '--cxx=riscv64-freedomusdk-linux-clang++',
++        '--ld=riscv64-freedomusdk-linux-clang',
+     ])
+ 
+     # Clang Linux will use the first 'ld' it finds on the path, which will
+     # typically be the system one, so explicitly configure use of Clang's
+     # ld.lld, to ensure that things like cross-compilation and LTO work.
+     # This does not work for ia32 and is always used on mac.
+-    if target_arch != 'ia32' and target_os != 'mac':
++    if target_arch != 'ia32' and target_arch != 'riscv64' and target_os != 'mac':
+       configure_flags['Common'].append('--extra-ldflags=-fuse-ld=lld')
+ 
+   # Should be run on Mac, unless we're cross-compiling on Linux.
+diff --git a/third_party/ffmpeg/chromium/scripts/copy_config.sh b/third_party/ffmpeg/chromium/scripts/copy_config.sh
+index 4db59d2081..cbfd974ace 100755
+--- a/third_party/ffmpeg/chromium/scripts/copy_config.sh
++++ b/third_party/ffmpeg/chromium/scripts/copy_config.sh
+@@ -10,7 +10,7 @@ for os in android linux linux-noasm mac win; do
+     # Copy config files for various architectures:
+     #   - ia32/x64 have config.asm, config.h
+     #   - arm/arm-neon have config.h
+-    for arch in arm arm-neon arm64 ia32 x64 mipsel mips64el; do
++    for arch in arm arm-neon arm64 ia32 x64 mipsel mips64el riscv64; do
+       # Don't waste time on non-existent configs, if no config.h then skip.
+       [ ! -e "build.$arch.$os/$target/config.h" ] && continue
+       for f in config.h config_components.h config.asm libavutil/avconfig.h libavutil/ffversion.h libavcodec/bsf_list.c libavcodec/codec_list.c libavcodec/parser_list.c libavformat/demuxer_list.c libavformat/muxer_list.c libavformat/protocol_list.c; do
+diff --git a/third_party/ffmpeg/chromium/scripts/generate_gn.py b/third_party/ffmpeg/chromium/scripts/generate_gn.py
+index e86c7e0b6f..77e9706d09 100755
+--- a/third_party/ffmpeg/chromium/scripts/generate_gn.py
++++ b/third_party/ffmpeg/chromium/scripts/generate_gn.py
+@@ -78,7 +78,7 @@ _Attrs = ('ARCHITECTURE', 'TARGET', 'PLATFORM')
+ Attr = collections.namedtuple('Attr', _Attrs)(*_Attrs)
+ SUPPORT_MATRIX = {
+     Attr.ARCHITECTURE:
+-        set(['ia32', 'x64', 'arm', 'arm64', 'arm-neon']),
++        set(['ia32', 'x64', 'arm', 'arm64', 'arm-neon', 'riscv64']),
+     Attr.TARGET:
+         set(['Chromium', 'Chrome', 'ChromeOS']),
+     Attr.PLATFORM:
+diff --git a/third_party/ffmpeg/chromium/scripts/generate_gn_unittest.py b/third_party/ffmpeg/chromium/scripts/generate_gn_unittest.py
+index 880a697da6..3e96924c7f 100755
+--- a/third_party/ffmpeg/chromium/scripts/generate_gn_unittest.py
++++ b/third_party/ffmpeg/chromium/scripts/generate_gn_unittest.py
+@@ -323,6 +323,9 @@ class SourceSetUnittest(unittest.TestCase):
+     f = SourceSet(
+         set(['common', 'arm-neon', 'chrome', 'chromeos']),
+         set([SourceListCondition('arm-neon', 'ChromeOS', 'linux')]))
++    g = SourceSet(
++        set(['common']),
++        set([SourceListCondition('riscv64', 'Chromium', 'linux')]))
+ 
+     expected = set()
+     expected.add(
+@@ -334,7 +337,8 @@ class SourceSetUnittest(unittest.TestCase):
+                 SourceListCondition('x64', 'Chromium', 'linux'),
+                 SourceListCondition('x64', 'Chrome', 'linux'),
+                 SourceListCondition('arm', 'Chromium', 'linux'),
+-                SourceListCondition('arm-neon', 'ChromeOS', 'linux')
++                SourceListCondition('arm-neon', 'ChromeOS', 'linux'),
++                SourceListCondition('riscv64', 'Chromium', 'linux')
+             ])))
+     expected.add(
+         SourceSet(
+@@ -362,7 +366,7 @@ class SourceSetUnittest(unittest.TestCase):
+             set(['arm-neon', 'chromeos']),
+             set([SourceListCondition('arm-neon', 'ChromeOS', 'linux')])))
+ 
+-    source_sets = gg.CreatePairwiseDisjointSets([a, b, c, d, e, f])
++    source_sets = gg.CreatePairwiseDisjointSets([a, b, c, d, e, f, g])
+     self.assertEqualSourceSets(expected, set(source_sets))
+ 
+   def testReduceConditions(self):
+@@ -375,6 +379,7 @@ class SourceSetUnittest(unittest.TestCase):
+             SourceListCondition('arm', 'Chromium', 'linux'),
+             SourceListCondition('arm64', 'Chromium', 'linux'),
+             SourceListCondition('arm-neon', 'Chromium', 'linux'),
++            SourceListCondition('riscv64', 'Chromium', 'linux'),
+         ]))
+     gg.ReduceConditionalLogic(a)
+ 
+diff --git a/third_party/ffmpeg/ffmpeg_generated.gni b/third_party/ffmpeg/ffmpeg_generated.gni
+index 6798e91e08..e3ee785c24 100644
+--- a/third_party/ffmpeg/ffmpeg_generated.gni
++++ b/third_party/ffmpeg/ffmpeg_generated.gni
+@@ -14,15 +14,12 @@ ffmpeg_asm_sources = []
+ 
+ use_linux_config = is_linux || is_chromeos || is_fuchsia
+ 
+-if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && current_cpu == "arm64") || (is_android && current_cpu == "x64") || (is_android && current_cpu == "x86") || (is_mac) || (is_win) || (use_linux_config)) {
++if (use_linux_config && current_cpu == "riscv64") {
+   ffmpeg_c_sources += [
+     "libavcodec/ac3_channel_layout_tab.c",
+     "libavcodec/ac3_parser.c",
+     "libavcodec/adts_parser.c",
+     "libavcodec/allcodecs.c",
+-    "libavcodec/autorename_libavcodec_flacdsp.c",
+-    "libavcodec/autorename_libavcodec_mpegaudiodsp.c",
+-    "libavcodec/autorename_libavcodec_vorbisdsp.c",
+     "libavcodec/avcodec.c",
+     "libavcodec/avdct.c",
+     "libavcodec/avfft.c",
+@@ -47,7 +44,10 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavcodec/flac_parser.c",
+     "libavcodec/flacdata.c",
+     "libavcodec/flacdec.c",
++    "libavcodec/flacdsp.c",
+     "libavcodec/golomb.c",
++    "libavcodec/h264pred.c",
++    "libavcodec/hpeldsp.c",
+     "libavcodec/imgconvert.c",
+     "libavcodec/jni.c",
+     "libavcodec/libopus.c",
+@@ -65,6 +65,7 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavcodec/mpegaudiodec_common.c",
+     "libavcodec/mpegaudiodec_fixed.c",
+     "libavcodec/mpegaudiodecheader.c",
++    "libavcodec/mpegaudiodsp.c",
+     "libavcodec/mpegaudiodsp_data.c",
+     "libavcodec/mpegaudiodsp_fixed.c",
+     "libavcodec/mpegaudiodsp_float.c",
+@@ -86,11 +87,20 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavcodec/rdft.c",
+     "libavcodec/to_upper4.c",
+     "libavcodec/utils.c",
++    "libavcodec/videodsp.c",
+     "libavcodec/vlc.c",
+     "libavcodec/vorbis.c",
+     "libavcodec/vorbis_data.c",
+     "libavcodec/vorbis_parser.c",
+     "libavcodec/vorbisdec.c",
++    "libavcodec/vorbisdsp.c",
++    "libavcodec/vp3.c",
++    "libavcodec/vp3_parser.c",
++    "libavcodec/vp3dsp.c",
++    "libavcodec/vp56rac.c",
++    "libavcodec/vp8.c",
++    "libavcodec/vp8_parser.c",
++    "libavcodec/vp8dsp.c",
+     "libavcodec/vp9_parser.c",
+     "libavcodec/xiph.c",
+     "libavformat/allformats.c",
+@@ -139,11 +149,6 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavformat/wavdec.c",
+     "libavutil/aes.c",
+     "libavutil/aes_ctr.c",
+-    "libavutil/autorename_libavutil_cpu.c",
+-    "libavutil/autorename_libavutil_fixed_dsp.c",
+-    "libavutil/autorename_libavutil_float_dsp.c",
+-    "libavutil/autorename_libavutil_imgutils.c",
+-    "libavutil/autorename_libavutil_tx_float.c",
+     "libavutil/autorename_libavutil_utils.c",
+     "libavutil/avstring.c",
+     "libavutil/base64.c",
+@@ -152,6 +157,7 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavutil/camellia.c",
+     "libavutil/channel_layout.c",
+     "libavutil/color_utils.c",
++    "libavutil/cpu.c",
+     "libavutil/crc.c",
+     "libavutil/detection_bbox.c",
+     "libavutil/dict.c",
+@@ -164,10 +170,13 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavutil/fifo.c",
+     "libavutil/file_open.c",
+     "libavutil/film_grain_params.c",
++    "libavutil/fixed_dsp.c",
++    "libavutil/float_dsp.c",
+     "libavutil/frame.c",
+     "libavutil/hdr_dynamic_metadata.c",
+     "libavutil/hdr_dynamic_vivid_metadata.c",
+     "libavutil/hwcontext.c",
++    "libavutil/imgutils.c",
+     "libavutil/integer.c",
+     "libavutil/intmath.c",
+     "libavutil/lfg.c",
+@@ -197,27 +206,20 @@ if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && curre
+     "libavutil/twofish.c",
+     "libavutil/tx.c",
+     "libavutil/tx_double.c",
++    "libavutil/tx_float.c",
+     "libavutil/tx_int32.c",
+     "libavutil/video_enc_params.c",
+   ]
+ }
+ 
+-if (use_linux_config && ffmpeg_branding == "ChromeOS") {
++if (use_linux_config && current_cpu == "riscv64" && ffmpeg_branding == "ChromeOS") {
+   ffmpeg_c_sources += [
+     "libavcodec/acelp_filters.c",
+     "libavcodec/acelp_pitch_delay.c",
+     "libavcodec/acelp_vectors.c",
+     "libavcodec/amrnbdec.c",
+     "libavcodec/amrwbdec.c",
+-    "libavcodec/autorename_libavcodec_blockdsp.c",
+-    "libavcodec/autorename_libavcodec_idctdsp.c",
+-    "libavcodec/autorename_libavcodec_me_cmp.c",
+-    "libavcodec/autorename_libavcodec_mpegvideo.c",
+-    "libavcodec/autorename_libavcodec_mpegvideodsp.c",
+-    "libavcodec/autorename_libavcodec_pixblockdsp.c",
+-    "libavcodec/autorename_libavcodec_qpeldsp.c",
+-    "libavcodec/autorename_libavcodec_simple_idct.c",
+-    "libavcodec/autorename_libavcodec_xvididct.c",
++    "libavcodec/blockdsp.c",
+     "libavcodec/celp_filters.c",
+     "libavcodec/celp_math.c",
+     "libavcodec/error_resilience.c",
+@@ -231,32 +233,50 @@ if (use_linux_config && ffmpeg_branding == "ChromeOS") {
+     "libavcodec/h263data.c",
+     "libavcodec/h263dec.c",
+     "libavcodec/h263dsp.c",
++    "libavcodec/idctdsp.c",
+     "libavcodec/ituh263dec.c",
+     "libavcodec/jfdctfst.c",
+     "libavcodec/jfdctint.c",
+     "libavcodec/jrevdct.c",
+     "libavcodec/lsp.c",
++    "libavcodec/me_cmp.c",
+     "libavcodec/mpeg4video.c",
+     "libavcodec/mpeg4video_parser.c",
+     "libavcodec/mpeg4videodec.c",
+     "libavcodec/mpeg_er.c",
+     "libavcodec/mpegpicture.c",
+     "libavcodec/mpegutils.c",
++    "libavcodec/mpegvideo.c",
+     "libavcodec/mpegvideo_dec.c",
+     "libavcodec/mpegvideo_motion.c",
+     "libavcodec/mpegvideodata.c",
++    "libavcodec/mpegvideodsp.c",
+     "libavcodec/msgsmdec.c",
++    "libavcodec/pixblockdsp.c",
++    "libavcodec/qpeldsp.c",
+     "libavcodec/rl.c",
++    "libavcodec/simple_idct.c",
+     "libavcodec/tiff_common.c",
++    "libavcodec/xvididct.c",
+     "libavformat/amr.c",
+     "libavformat/avidec.c",
+   ]
+ }
+ 
+-if ((is_mac && ffmpeg_branding == "Chrome") || (is_win && ffmpeg_branding == "Chrome") || (use_linux_config && ffmpeg_branding == "Chrome") || (use_linux_config && ffmpeg_branding == "ChromeOS")) {
++if ((use_linux_config && current_cpu == "riscv64" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "riscv64" && ffmpeg_branding == "ChromeOS")) {
+   ffmpeg_c_sources += [
++    "libavcodec/aac_ac3_parser.c",
++    "libavcodec/aac_parser.c",
++    "libavcodec/aacdec.c",
++    "libavcodec/aacps_common.c",
++    "libavcodec/aacps_float.c",
++    "libavcodec/aacpsdsp_float.c",
++    "libavcodec/aacsbr.c",
++    "libavcodec/aactab.c",
++    "libavcodec/adts_header.c",
+     "libavcodec/atsc_a53.c",
+     "libavcodec/cabac.c",
++    "libavcodec/cbrt_data.c",
+     "libavcodec/h2645_parse.c",
+     "libavcodec/h264_cabac.c",
+     "libavcodec/h264_cavlc.c",
+@@ -277,383 +297,14 @@ if ((is_mac && ffmpeg_branding == "Chrome") || (is_win && ffmpeg_branding == "Ch
+     "libavcodec/h264idct.c",
+     "libavcodec/h264qpel.c",
+     "libavcodec/h274.c",
+-    "libavcodec/startcode.c",
+-  ]
+-}
+-
+-if ((use_linux_config && current_cpu == "x64" && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/x86/autorename_libavcodec_x86_mpegvideo.c",
+-    "libavcodec/x86/blockdsp_init.c",
+-    "libavcodec/x86/fdct.c",
+-    "libavcodec/x86/fdctdsp_init.c",
+-    "libavcodec/x86/h263dsp_init.c",
+-    "libavcodec/x86/idctdsp_init.c",
+-    "libavcodec/x86/me_cmp_init.c",
+-    "libavcodec/x86/mpegvideodsp.c",
+-    "libavcodec/x86/pixblockdsp_init.c",
+-    "libavcodec/x86/qpeldsp_init.c",
+-    "libavcodec/x86/xvididct_init.c",
+-  ]
+-  ffmpeg_asm_sources += [
+-    "libavcodec/x86/blockdsp.asm",
+-    "libavcodec/x86/h263_loopfilter.asm",
+-    "libavcodec/x86/idctdsp.asm",
+-    "libavcodec/x86/me_cmp.asm",
+-    "libavcodec/x86/pixblockdsp.asm",
+-    "libavcodec/x86/qpeldsp.asm",
+-    "libavcodec/x86/simple_idct.asm",
+-    "libavcodec/x86/simple_idct10.asm",
+-    "libavcodec/x86/xvididct.asm",
+-  ]
+-}
+-
+-if ((current_cpu == "arm64" && ffmpeg_branding == "Chrome") || (current_cpu == "x64" && ffmpeg_branding == "Chrome") || (is_android && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (is_android && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (is_mac && ffmpeg_branding == "Chrome") || (is_win && ffmpeg_branding == "Chrome") || (use_linux_config && ffmpeg_branding == "Chrome") || (use_linux_config && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/aac_ac3_parser.c",
+-    "libavcodec/aac_parser.c",
+-    "libavcodec/aacdec.c",
+-    "libavcodec/aacps_common.c",
+-    "libavcodec/aacps_float.c",
+-    "libavcodec/aacpsdsp_float.c",
+-    "libavcodec/aacsbr.c",
+-    "libavcodec/aactab.c",
+-    "libavcodec/adts_header.c",
+-    "libavcodec/autorename_libavcodec_mdct15.c",
+-    "libavcodec/autorename_libavcodec_sbrdsp.c",
+-    "libavcodec/cbrt_data.c",
+     "libavcodec/kbdwin.c",
++    "libavcodec/mdct15.c",
++    "libavcodec/sbrdsp.c",
+     "libavcodec/sinewin.c",
++    "libavcodec/startcode.c",
+     "libavformat/apetag.c",
+     "libavformat/autorename_libavformat_aacdec.c",
+     "libavformat/img2.c",
+   ]
+ }
+ 
+-if ((use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "arm" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/blockdsp_init_arm.c",
+-    "libavcodec/arm/idctdsp_init_arm.c",
+-    "libavcodec/arm/idctdsp_init_armv5te.c",
+-    "libavcodec/arm/idctdsp_init_armv6.c",
+-    "libavcodec/arm/me_cmp_init_arm.c",
+-    "libavcodec/arm/mpegvideo_arm.c",
+-    "libavcodec/arm/mpegvideo_armv5te.c",
+-    "libavcodec/arm/pixblockdsp_init_arm.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/idctdsp_arm.S",
+-    "libavcodec/arm/idctdsp_armv6.S",
+-    "libavcodec/arm/jrevdct_arm.S",
+-    "libavcodec/arm/me_cmp_armv6.S",
+-    "libavcodec/arm/mpegvideo_armv5te_s.S",
+-    "libavcodec/arm/pixblockdsp_armv6.S",
+-    "libavcodec/arm/simple_idct_arm.S",
+-    "libavcodec/arm/simple_idct_armv5te.S",
+-    "libavcodec/arm/simple_idct_armv6.S",
+-  ]
+-}
+-
+-if ((is_mac && current_cpu == "x64") || (is_win && current_cpu == "x64") || (is_win && current_cpu == "x86") || (use_linux_config && current_cpu == "x64") || (use_linux_config && current_cpu == "x86")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/x86/autorename_libavcodec_x86_videodsp_init.c",
+-    "libavcodec/x86/h264_intrapred_init.c",
+-    "libavcodec/x86/hpeldsp_init.c",
+-    "libavcodec/x86/hpeldsp_vp3_init.c",
+-    "libavcodec/x86/vp3dsp_init.c",
+-    "libavcodec/x86/vp8dsp_init.c",
+-  ]
+-  ffmpeg_asm_sources += [
+-    "libavcodec/x86/autorename_libavcodec_x86_hpeldsp.asm",
+-    "libavcodec/x86/autorename_libavcodec_x86_videodsp.asm",
+-    "libavcodec/x86/autorename_libavcodec_x86_vp3dsp.asm",
+-    "libavcodec/x86/autorename_libavcodec_x86_vp8dsp.asm",
+-    "libavcodec/x86/fpel.asm",
+-    "libavcodec/x86/h264_intrapred.asm",
+-    "libavcodec/x86/h264_intrapred_10bit.asm",
+-    "libavcodec/x86/hpeldsp_vp3.asm",
+-    "libavcodec/x86/vp8dsp_loopfilter.asm",
+-  ]
+-}
+-
+-if ((is_mac && current_cpu == "x64" && ffmpeg_branding == "Chrome") || (is_win && current_cpu == "x64" && ffmpeg_branding == "Chrome") || (is_win && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x64" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x64" && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/x86/h264_qpel.c",
+-    "libavcodec/x86/h264chroma_init.c",
+-    "libavcodec/x86/h264dsp_init.c",
+-  ]
+-  ffmpeg_asm_sources += [
+-    "libavcodec/x86/h264_chromamc.asm",
+-    "libavcodec/x86/h264_chromamc_10bit.asm",
+-    "libavcodec/x86/h264_deblock.asm",
+-    "libavcodec/x86/h264_deblock_10bit.asm",
+-    "libavcodec/x86/h264_idct.asm",
+-    "libavcodec/x86/h264_idct_10bit.asm",
+-    "libavcodec/x86/h264_qpel_10bit.asm",
+-    "libavcodec/x86/h264_qpel_8bit.asm",
+-    "libavcodec/x86/h264_weight.asm",
+-    "libavcodec/x86/h264_weight_10bit.asm",
+-    "libavcodec/x86/qpel.asm",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "arm" && arm_use_neon) || (use_linux_config && current_cpu == "arm" && arm_use_neon) || (use_linux_config && current_cpu == "arm")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/fft_init_arm.c",
+-    "libavcodec/arm/flacdsp_init_arm.c",
+-    "libavcodec/arm/mpegaudiodsp_init_arm.c",
+-    "libavcodec/arm/rdft_init_arm.c",
+-    "libavcodec/arm/vorbisdsp_init_arm.c",
+-    "libavutil/arm/autorename_libavutil_arm_cpu.c",
+-    "libavutil/arm/float_dsp_init_arm.c",
+-    "libavutil/arm/float_dsp_init_vfp.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/fft_vfp.S",
+-    "libavcodec/arm/flacdsp_arm.S",
+-    "libavcodec/arm/mdct_vfp.S",
+-    "libavcodec/arm/mpegaudiodsp_fixed_armv6.S",
+-    "libavutil/arm/float_dsp_vfp.S",
+-  ]
+-}
+-
+-if ((use_linux_config && current_cpu == "arm" && arm_use_neon) || (use_linux_config && current_cpu == "arm")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/h264pred_init_arm.c",
+-    "libavcodec/arm/hpeldsp_init_arm.c",
+-    "libavcodec/arm/hpeldsp_init_armv6.c",
+-    "libavcodec/arm/videodsp_init_arm.c",
+-    "libavcodec/arm/videodsp_init_armv5te.c",
+-    "libavcodec/arm/vp3dsp_init_arm.c",
+-    "libavcodec/arm/vp8dsp_init_arm.c",
+-    "libavcodec/arm/vp8dsp_init_armv6.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/hpeldsp_arm.S",
+-    "libavcodec/arm/hpeldsp_armv6.S",
+-    "libavcodec/arm/videodsp_armv5te.S",
+-    "libavcodec/arm/vp8_armv6.S",
+-    "libavcodec/arm/vp8dsp_armv6.S",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "x64") || (is_mac && current_cpu == "x64") || (is_win && current_cpu == "x64") || (is_win && current_cpu == "x86") || (use_linux_config && current_cpu == "x64") || (use_linux_config && current_cpu == "x86")) {
+-  ffmpeg_c_sources += [
+-    "libavutil/x86/tx_float_init.c",
+-  ]
+-  ffmpeg_asm_sources += [
+-    "libavcodec/x86/dct32.asm",
+-    "libavcodec/x86/fft.asm",
+-    "libavcodec/x86/flacdsp.asm",
+-    "libavcodec/x86/imdct36.asm",
+-    "libavcodec/x86/vorbisdsp.asm",
+-    "libavutil/x86/cpuid.asm",
+-    "libavutil/x86/fixed_dsp.asm",
+-    "libavutil/x86/float_dsp.asm",
+-    "libavutil/x86/imgutils.asm",
+-    "libavutil/x86/lls.asm",
+-    "libavutil/x86/tx_float.asm",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "x64") || (is_android && current_cpu == "x86") || (is_mac && current_cpu == "x64") || (is_win && current_cpu == "x64") || (is_win && current_cpu == "x86") || (use_linux_config && current_cpu == "x64") || (use_linux_config && current_cpu == "x86")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/x86/autorename_libavcodec_x86_vorbisdsp_init.c",
+-    "libavcodec/x86/constants.c",
+-    "libavcodec/x86/dct_init.c",
+-    "libavcodec/x86/fft_init.c",
+-    "libavcodec/x86/flacdsp_init.c",
+-    "libavcodec/x86/mpegaudiodsp.c",
+-    "libavutil/x86/autorename_libavutil_x86_cpu.c",
+-    "libavutil/x86/autorename_libavutil_x86_float_dsp_init.c",
+-    "libavutil/x86/fixed_dsp_init.c",
+-    "libavutil/x86/imgutils_init.c",
+-    "libavutil/x86/lls_init.c",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "arm64") || (is_mac && current_cpu == "arm64") || (is_win && current_cpu == "arm64") || (use_linux_config && current_cpu == "arm64")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/aarch64/fft_init_aarch64.c",
+-    "libavcodec/aarch64/mpegaudiodsp_init.c",
+-    "libavcodec/aarch64/vorbisdsp_init.c",
+-    "libavutil/aarch64/cpu.c",
+-    "libavutil/aarch64/float_dsp_init.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_fft_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_mdct_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_vorbisdsp_neon.S",
+-    "libavcodec/aarch64/mpegaudiodsp_neon.S",
+-    "libavutil/aarch64/autorename_libavutil_aarch64_float_dsp_neon.S",
+-  ]
+-}
+-
+-if ((is_mac) || (is_win) || (use_linux_config)) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/autorename_libavcodec_videodsp.c",
+-    "libavcodec/h264pred.c",
+-    "libavcodec/hpeldsp.c",
+-    "libavcodec/vp3.c",
+-    "libavcodec/vp3_parser.c",
+-    "libavcodec/vp3dsp.c",
+-    "libavcodec/vp56rac.c",
+-    "libavcodec/vp8.c",
+-    "libavcodec/vp8_parser.c",
+-    "libavcodec/vp8dsp.c",
+-  ]
+-}
+-
+-if ((is_mac && current_cpu == "arm64") || (is_win && current_cpu == "arm64") || (use_linux_config && current_cpu == "arm64")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/aarch64/h264pred_init.c",
+-    "libavcodec/aarch64/hpeldsp_init_aarch64.c",
+-    "libavcodec/aarch64/videodsp_init.c",
+-    "libavcodec/aarch64/vp8dsp_init_aarch64.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_h264pred_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_hpeldsp_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_vp8dsp_neon.S",
+-    "libavcodec/aarch64/videodsp.S",
+-  ]
+-}
+-
+-if ((is_mac && current_cpu == "arm64" && ffmpeg_branding == "Chrome") || (is_win && current_cpu == "arm64" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm64" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm64" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/aarch64/h264chroma_init_aarch64.c",
+-    "libavcodec/aarch64/h264dsp_init_aarch64.c",
+-    "libavcodec/aarch64/h264qpel_init_aarch64.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_h264cmc_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_h264dsp_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_h264idct_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_h264qpel_neon.S",
+-  ]
+-}
+-
+-if (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS") {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/blockdsp_init_neon.c",
+-    "libavcodec/arm/idctdsp_init_neon.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/autorename_libavcodec_arm_pixblockdsp_neon.S",
+-    "libavcodec/arm/autorename_libavcodec_arm_simple_idct_neon.S",
+-    "libavcodec/arm/blockdsp_neon.S",
+-    "libavcodec/arm/idctdsp_neon.S",
+-    "libavcodec/arm/mpegvideo_neon.S",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "arm" && arm_use_neon) || (use_linux_config && current_cpu == "arm" && arm_use_neon)) {
+-  ffmpeg_c_sources += [
+-    "libavutil/arm/float_dsp_init_neon.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/fft_neon.S",
+-    "libavcodec/arm/mdct_neon.S",
+-    "libavcodec/arm/rdft_neon.S",
+-    "libavcodec/arm/vorbisdsp_neon.S",
+-    "libavutil/arm/float_dsp_neon.S",
+-  ]
+-}
+-
+-if (use_linux_config && current_cpu == "arm" && arm_use_neon) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/hpeldsp_init_neon.c",
+-    "libavcodec/arm/vp8dsp_init_neon.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/h264pred_neon.S",
+-    "libavcodec/arm/hpeldsp_neon.S",
+-    "libavcodec/arm/vp3dsp_neon.S",
+-    "libavcodec/arm/vp8dsp_neon.S",
+-  ]
+-}
+-
+-if ((use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "arm" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/h264chroma_init_arm.c",
+-    "libavcodec/arm/h264dsp_init_arm.c",
+-    "libavcodec/arm/h264qpel_init_arm.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/startcode_armv6.S",
+-  ]
+-}
+-
+-if ((use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/h264cmc_neon.S",
+-    "libavcodec/arm/h264dsp_neon.S",
+-    "libavcodec/arm/h264idct_neon.S",
+-    "libavcodec/arm/h264qpel_neon.S",
+-  ]
+-}
+-
+-if ((current_cpu == "arm64" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm64" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/aarch64/aacpsdsp_init_aarch64.c",
+-    "libavcodec/aarch64/sbrdsp_init_aarch64.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_aacpsdsp_neon.S",
+-    "libavcodec/aarch64/autorename_libavcodec_aarch64_sbrdsp_neon.S",
+-  ]
+-}
+-
+-if (use_linux_config && current_cpu == "arm64" && ffmpeg_branding == "ChromeOS") {
+-  ffmpeg_c_sources += [
+-    "libavcodec/aarch64/idctdsp_init_aarch64.c",
+-    "libavcodec/aarch64/pixblockdsp_init_aarch64.c",
+-  ]
+-  ffmpeg_gas_sources += [
+-    "libavcodec/aarch64/pixblockdsp_neon.S",
+-    "libavcodec/aarch64/simple_idct_neon.S",
+-  ]
+-}
+-
+-if ((current_cpu == "x64" && ffmpeg_branding == "Chrome") || (is_android && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (is_win && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x64" && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/x86/aacpsdsp_init.c",
+-    "libavcodec/x86/mdct15_init.c",
+-    "libavcodec/x86/sbrdsp_init.c",
+-  ]
+-}
+-
+-if ((current_cpu == "x64" && ffmpeg_branding == "Chrome") || (is_win && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x64" && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "x86" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_asm_sources += [
+-    "libavcodec/x86/aacpsdsp.asm",
+-    "libavcodec/x86/mdct15.asm",
+-    "libavcodec/x86/sbrdsp.asm",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "arm" && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/arm/aacpsdsp_init_arm.c",
+-    "libavcodec/arm/sbrdsp_init_arm.c",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "Chrome") || (use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_gas_sources += [
+-    "libavcodec/arm/aacpsdsp_neon.S",
+-    "libavcodec/arm/sbrdsp_neon.S",
+-  ]
+-}
+-
+-if ((is_android && current_cpu == "arm" && arm_use_neon) || (is_android && current_cpu == "arm64") || (is_android && current_cpu == "x64") || (is_android && current_cpu == "x86")) {
+-  ffmpeg_c_sources += [
+-    "compat/strtod.c",
+-  ]
+-}
+-
+-if ((use_linux_config && current_cpu == "arm" && arm_use_neon && ffmpeg_branding == "ChromeOS") || (use_linux_config && current_cpu == "arm64" && ffmpeg_branding == "ChromeOS")) {
+-  ffmpeg_c_sources += [
+-    "libavcodec/neon/mpegvideo.c",
+-  ]
+-}
+-
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_aacpsdsp_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_aacpsdsp_neon.S
+deleted file mode 100644
+index 06fc13706d..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_aacpsdsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "aacpsdsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_fft_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_fft_neon.S
+deleted file mode 100644
+index 739b10d734..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_fft_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "fft_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264cmc_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264cmc_neon.S
+deleted file mode 100644
+index c79db8bbbc..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264cmc_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "h264cmc_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264dsp_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264dsp_neon.S
+deleted file mode 100644
+index 2dbf3ac9be..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264dsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "h264dsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264idct_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264idct_neon.S
+deleted file mode 100644
+index ac5f5e0633..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264idct_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "h264idct_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264pred_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264pred_neon.S
+deleted file mode 100644
+index c137cda781..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264pred_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "h264pred_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264qpel_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264qpel_neon.S
+deleted file mode 100644
+index 82d383fdda..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_h264qpel_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "h264qpel_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_hpeldsp_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_hpeldsp_neon.S
+deleted file mode 100644
+index 6b2a3aafbc..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_hpeldsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "hpeldsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_mdct_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_mdct_neon.S
+deleted file mode 100644
+index 12d6b19e02..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_mdct_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "mdct_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_sbrdsp_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_sbrdsp_neon.S
+deleted file mode 100644
+index 0020ac06ba..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_sbrdsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "sbrdsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_vorbisdsp_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_vorbisdsp_neon.S
+deleted file mode 100644
+index f0058644c0..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_vorbisdsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "vorbisdsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_vp8dsp_neon.S b/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_vp8dsp_neon.S
+deleted file mode 100644
+index c0cd74095d..0000000000
+--- a/third_party/ffmpeg/libavcodec/aarch64/autorename_libavcodec_aarch64_vp8dsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "vp8dsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/arm/autorename_libavcodec_arm_pixblockdsp_neon.S b/third_party/ffmpeg/libavcodec/arm/autorename_libavcodec_arm_pixblockdsp_neon.S
+deleted file mode 100644
+index e1d69f8a32..0000000000
+--- a/third_party/ffmpeg/libavcodec/arm/autorename_libavcodec_arm_pixblockdsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "pixblockdsp_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/arm/autorename_libavcodec_arm_simple_idct_neon.S b/third_party/ffmpeg/libavcodec/arm/autorename_libavcodec_arm_simple_idct_neon.S
+deleted file mode 100644
+index 796796745c..0000000000
+--- a/third_party/ffmpeg/libavcodec/arm/autorename_libavcodec_arm_simple_idct_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "simple_idct_neon.S"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_blockdsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_blockdsp.c
+deleted file mode 100644
+index 60549b3c7d..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_blockdsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "blockdsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_flacdsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_flacdsp.c
+deleted file mode 100644
+index c818953475..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_flacdsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "flacdsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_idctdsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_idctdsp.c
+deleted file mode 100644
+index c747a9457a..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_idctdsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "idctdsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mdct15.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_mdct15.c
+deleted file mode 100644
+index 2142ae206c..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mdct15.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "mdct15.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_me_cmp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_me_cmp.c
+deleted file mode 100644
+index 46db0f5dc9..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_me_cmp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "me_cmp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegaudiodsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegaudiodsp.c
+deleted file mode 100644
+index 43079e7f3d..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegaudiodsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "mpegaudiodsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegvideo.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegvideo.c
+deleted file mode 100644
+index 72be6b77ab..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegvideo.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "mpegvideo.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegvideodsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegvideodsp.c
+deleted file mode 100644
+index dc97fff74e..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_mpegvideodsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "mpegvideodsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_pixblockdsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_pixblockdsp.c
+deleted file mode 100644
+index 09ae9940f1..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_pixblockdsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "pixblockdsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_qpeldsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_qpeldsp.c
+deleted file mode 100644
+index 6a392b4d8e..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_qpeldsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "qpeldsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_sbrdsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_sbrdsp.c
+deleted file mode 100644
+index 4edbd8788b..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_sbrdsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "sbrdsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_simple_idct.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_simple_idct.c
+deleted file mode 100644
+index e06b988550..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_simple_idct.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "simple_idct.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_videodsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_videodsp.c
+deleted file mode 100644
+index fbe1348a98..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_videodsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "videodsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_vorbisdsp.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_vorbisdsp.c
+deleted file mode 100644
+index 1cf7818876..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_vorbisdsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "vorbisdsp.c"
+diff --git a/third_party/ffmpeg/libavcodec/autorename_libavcodec_xvididct.c b/third_party/ffmpeg/libavcodec/autorename_libavcodec_xvididct.c
+deleted file mode 100644
+index 9791b89d28..0000000000
+--- a/third_party/ffmpeg/libavcodec/autorename_libavcodec_xvididct.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "xvididct.c"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_hpeldsp.asm b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_hpeldsp.asm
+deleted file mode 100644
+index 258ec44b65..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_hpeldsp.asm
++++ /dev/null
+@@ -1,2 +0,0 @@
+-; File automatically generated. See crbug.com/495833.
+-%include "hpeldsp.asm"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_mpegvideo.c b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_mpegvideo.c
+deleted file mode 100644
+index 72be6b77ab..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_mpegvideo.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "mpegvideo.c"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_videodsp.asm b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_videodsp.asm
+deleted file mode 100644
+index 2c3627bf00..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_videodsp.asm
++++ /dev/null
+@@ -1,2 +0,0 @@
+-; File automatically generated. See crbug.com/495833.
+-%include "videodsp.asm"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_videodsp_init.c b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_videodsp_init.c
+deleted file mode 100644
+index f49bf19a7b..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_videodsp_init.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "videodsp_init.c"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vorbisdsp_init.c b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vorbisdsp_init.c
+deleted file mode 100644
+index e1b3dc8deb..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vorbisdsp_init.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "vorbisdsp_init.c"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vp3dsp.asm b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vp3dsp.asm
+deleted file mode 100644
+index 668c9745eb..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vp3dsp.asm
++++ /dev/null
+@@ -1,2 +0,0 @@
+-; File automatically generated. See crbug.com/495833.
+-%include "vp3dsp.asm"
+diff --git a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vp8dsp.asm b/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vp8dsp.asm
+deleted file mode 100644
+index f320f55b7f..0000000000
+--- a/third_party/ffmpeg/libavcodec/x86/autorename_libavcodec_x86_vp8dsp.asm
++++ /dev/null
+@@ -1,2 +0,0 @@
+-; File automatically generated. See crbug.com/495833.
+-%include "vp8dsp.asm"
+diff --git a/third_party/ffmpeg/libavutil/aarch64/autorename_libavutil_aarch64_float_dsp_neon.S b/third_party/ffmpeg/libavutil/aarch64/autorename_libavutil_aarch64_float_dsp_neon.S
+deleted file mode 100644
+index 9edc48b82c..0000000000
+--- a/third_party/ffmpeg/libavutil/aarch64/autorename_libavutil_aarch64_float_dsp_neon.S
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "float_dsp_neon.S"
+diff --git a/third_party/ffmpeg/libavutil/arm/autorename_libavutil_arm_cpu.c b/third_party/ffmpeg/libavutil/arm/autorename_libavutil_arm_cpu.c
+deleted file mode 100644
+index 3adbdc6f77..0000000000
+--- a/third_party/ffmpeg/libavutil/arm/autorename_libavutil_arm_cpu.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "cpu.c"
+diff --git a/third_party/ffmpeg/libavutil/autorename_libavutil_cpu.c b/third_party/ffmpeg/libavutil/autorename_libavutil_cpu.c
+deleted file mode 100644
+index 3adbdc6f77..0000000000
+--- a/third_party/ffmpeg/libavutil/autorename_libavutil_cpu.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "cpu.c"
+diff --git a/third_party/ffmpeg/libavutil/autorename_libavutil_fixed_dsp.c b/third_party/ffmpeg/libavutil/autorename_libavutil_fixed_dsp.c
+deleted file mode 100644
+index 5d4d92a91b..0000000000
+--- a/third_party/ffmpeg/libavutil/autorename_libavutil_fixed_dsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "fixed_dsp.c"
+diff --git a/third_party/ffmpeg/libavutil/autorename_libavutil_float_dsp.c b/third_party/ffmpeg/libavutil/autorename_libavutil_float_dsp.c
+deleted file mode 100644
+index c189d0a0be..0000000000
+--- a/third_party/ffmpeg/libavutil/autorename_libavutil_float_dsp.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "float_dsp.c"
+diff --git a/third_party/ffmpeg/libavutil/autorename_libavutil_imgutils.c b/third_party/ffmpeg/libavutil/autorename_libavutil_imgutils.c
+deleted file mode 100644
+index 4c2b8820a4..0000000000
+--- a/third_party/ffmpeg/libavutil/autorename_libavutil_imgutils.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "imgutils.c"
+diff --git a/third_party/ffmpeg/libavutil/autorename_libavutil_tx_float.c b/third_party/ffmpeg/libavutil/autorename_libavutil_tx_float.c
+deleted file mode 100644
+index 7688264d9e..0000000000
+--- a/third_party/ffmpeg/libavutil/autorename_libavutil_tx_float.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "tx_float.c"
+diff --git a/third_party/ffmpeg/libavutil/x86/autorename_libavutil_x86_cpu.c b/third_party/ffmpeg/libavutil/x86/autorename_libavutil_x86_cpu.c
+deleted file mode 100644
+index 3adbdc6f77..0000000000
+--- a/third_party/ffmpeg/libavutil/x86/autorename_libavutil_x86_cpu.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "cpu.c"
+diff --git a/third_party/ffmpeg/libavutil/x86/autorename_libavutil_x86_float_dsp_init.c b/third_party/ffmpeg/libavutil/x86/autorename_libavutil_x86_float_dsp_init.c
+deleted file mode 100644
+index 2982badd57..0000000000
+--- a/third_party/ffmpeg/libavutil/x86/autorename_libavutil_x86_float_dsp_init.c
++++ /dev/null
+@@ -1,2 +0,0 @@
+-// File automatically generated. See crbug.com/495833.
+-#include "float_dsp_init.c"

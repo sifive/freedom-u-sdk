@@ -1,0 +1,44 @@
+From 13268a069540a1568a9a0ddf89ec330347ea79ad Mon Sep 17 00:00:00 2001
+From: Arthur Eubanks <aeubanks@google.com>
+Date: Tue, 21 Jun 2022 20:48:23 +0000
+Subject: [PATCH] [clang] (Re)enable opaque pointers
+
+This brings us in line with upstream clang.
+
+A clang roll (https://crrev.com/c/3712642) with the miscompile fix (https://reviews.llvm.org/D127876) has been rolled in and I manually verified that chrome does not crash as it did previously.
+
+Bug: 1322823
+Change-Id: Ia78627a1c28f891791f308baab0959b08ac4df69
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/3715451
+Commit-Queue: Arthur Eubanks <aeubanks@google.com>
+Reviewed-by: Hans Wennborg <hans@chromium.org>
+Cr-Commit-Position: refs/heads/main@{#1016374}
+
+Upstream-Status: Backport [13268a069540a1568a9a0ddf89ec330347ea79ad]
+Signed-Off-By: Randy MacLeod <randy.macleod@windriver.com>
+---
+ build/config/compiler/BUILD.gn | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 676efeddd22bd..6c9b73d6d1c2b 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -1489,15 +1487,6 @@
+         cflags += [ "-Wno-unqualified-std-cast-call" ]
+       }
+ 
+-      if (!is_nacl && !(is_chromeos ||
+-                        default_toolchain == "//build/toolchain/cros:target")) {
+-        # TODO(https://crbug.com/1322823): Remove flags once potential miscompile is investigated.
+-        cflags += [
+-          "-Xclang",
+-          "-no-opaque-pointers",
+-        ]
+-      }
+-
+       if (is_fuchsia) {
+         # TODO(https://bugs.chromium.org/p/fuchsia/issues/detail?id=77383)
+         cflags += [ "-Wno-deprecated-copy" ]
+-- 
+2.32.0

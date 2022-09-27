@@ -1,0 +1,46 @@
+diff --git a/third_party/angle/BUILD.gn b/third_party/angle/BUILD.gn
+index b92e52fc2..8fd77fe35 100644
+--- a/third_party/angle/BUILD.gn
++++ b/third_party/angle/BUILD.gn
+@@ -233,7 +233,12 @@ config("extra_warnings") {
+       "-Wstrict-prototypes",
+       "-Wunreachable-code-aggressive",
+       "-Wshorten-64-to-32",
++
++      # Workaround for clang unable to locate pci/pci.h header
++      "-I../../build/linux/debian_sid_riscv64-sysroot/usr/include/riscv64-linux-gnu",
+     ]
++    # Workaround for linker unable to locate X11 related header
++    ldflags = [ "-Wl,-L../../build/linux/debian_sid_riscv64-sysroot/usr/lib/riscv64-linux-gnu" ]
+   }
+ 
+   if (is_gcc) {
+diff --git a/third_party/angle/gni/angle.gni b/third_party/angle/gni/angle.gni
+index cbe35e044..ef47c651a 100644
+--- a/third_party/angle/gni/angle.gni
++++ b/third_party/angle/gni/angle.gni
+@@ -77,7 +77,8 @@ declare_args() {
+ 
+   if (current_cpu == "arm64" || current_cpu == "x64" ||
+       current_cpu == "mips64el" || current_cpu == "s390x" ||
+-      current_cpu == "ppc64" || current_cpu == "loong64") {
++      current_cpu == "ppc64" || current_cpu == "loong64" ||
++      current_cpu == "riscv64") {
+     angle_64bit_current_cpu = true
+   } else if (current_cpu == "arm" || current_cpu == "x86" ||
+              current_cpu == "mipsel" || current_cpu == "s390" ||
+diff --git a/third_party/angle/src/common/platform.h b/third_party/angle/src/common/platform.h
+index c39c7e040..b68561cbf 100644
+--- a/third_party/angle/src/common/platform.h
++++ b/third_party/angle/src/common/platform.h
+@@ -101,8 +101,8 @@
+ #    define ANGLE_USE_SSE
+ #endif
+ 
+-// Mips and arm devices need to include stddef for size_t.
+-#if defined(__mips__) || defined(__arm__) || defined(__aarch64__)
++// Mips, arm and riscv devices need to include stddef for size_t.
++#if defined(__mips__) || defined(__arm__) || defined(__aarch64__) || (defined(__riscv) && __riscv_xlen == 64)
+ #    include <stddef.h>
+ #endif
+ 

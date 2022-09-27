@@ -1,0 +1,26 @@
+From 75e05df5b897b869e57063d14d1035ad5b258f78 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Mon, 17 Jan 2022 04:48:24 +0000
+Subject: [PATCH 10/23] build: config: compiler: use_gold linker option
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ build/config/compiler/compiler.gni | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build/config/compiler/compiler.gni b/build/config/compiler/compiler.gni
+index 0567598343ea6..f5080708c9483 100644
+--- a/build/config/compiler/compiler.gni
++++ b/build/config/compiler/compiler.gni
+@@ -223,7 +223,7 @@ declare_args() {
+              (((is_linux || is_chromeos_lacros) &&
+                (current_cpu == "x64" || current_cpu == "x86" ||
+                 current_cpu == "arm" || current_cpu == "arm64" ||
+-                current_cpu == "mipsel" || current_cpu == "mips64el")) ||
++                current_cpu == "mipsel" || current_cpu == "mips64el" || current_cpu == "riscv64")) ||
+               (is_android && (current_cpu == "x86" || current_cpu == "x64" ||
+                               current_cpu == "arm" || current_cpu == "arm64")))
+ }
+-- 
+2.25.1
+

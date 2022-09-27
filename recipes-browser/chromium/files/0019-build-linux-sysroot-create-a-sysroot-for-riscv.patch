@@ -1,0 +1,1104 @@
+From 5254439289bd00f5fb9269f3abfa3625c4c80040 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Tue, 5 Apr 2022 06:40:16 +0000
+Subject: [PATCH 19/23] build: linux: sysroot: create a sysroot for riscv
+
+Upstream-status: Unidentified
+
+Since riscv is not an official port in Debian, this might not be
+able to upstream.
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ build/config/posix/BUILD.gn                   |  12 -
+ build/config/sysroot.gni                      |   5 +-
+ .../debian-ports-archive-2022.gpg             | Bin 0 -> 1210 bytes
+ .../sysroot-builder-riscv64.sh                | 588 ++++++++++++++++++
+ .../sysroot-creator-riscv64.sh                | 400 ++++++++++++
+ 5 files changed, 992 insertions(+), 13 deletions(-)
+ create mode 100644 build/linux/sysroot_scripts/debian-ports-archive-2022.gpg
+ create mode 100755 build/linux/sysroot_scripts/sysroot-builder-riscv64.sh
+ create mode 100755 build/linux/sysroot_scripts/sysroot-creator-riscv64.sh
+
+diff --git a/build/config/posix/BUILD.gn b/build/config/posix/BUILD.gn
+index 5d15163875717..3e0ded398ced3 100644
+--- a/build/config/posix/BUILD.gn
++++ b/build/config/posix/BUILD.gn
+@@ -28,18 +28,6 @@ config("runtime_library") {
+   if (!is_apple && sysroot != "" && current_os != "zos") {
+     # Pass the sysroot to all C compiler variants, the assembler, and linker.
+     sysroot_flags = [ "--sysroot=" + rebase_path(sysroot, root_build_dir) ]
+-    if (is_linux || is_chromeos) {
+-      # This is here so that all files get recompiled after a sysroot roll and
+-      # when turning the sysroot on or off. (defines are passed via the command
+-      # line, and build system rebuilds things when their commandline
+-      # changes). Nothing should ever read this define.
+-      sysroot_hash =
+-          exec_script("//build/linux/sysroot_scripts/install-sysroot.py",
+-                      [ "--print-hash=$current_cpu" ],
+-                      "trim string",
+-                      [ "//build/linux/sysroot_scripts/sysroots.json" ])
+-      defines += [ "CR_SYSROOT_HASH=$sysroot_hash" ]
+-    }
+     asmflags += sysroot_flags
+     ldflags += sysroot_flags
+ 
+diff --git a/build/config/sysroot.gni b/build/config/sysroot.gni
+index cbcf0a3f09615..aaf1b21baf5f7 100644
+--- a/build/config/sysroot.gni
++++ b/build/config/sysroot.gni
+@@ -23,7 +23,8 @@ declare_args() {
+   # is empty, default sysroot is calculated.
+   use_sysroot = current_cpu == "x86" || current_cpu == "x64" ||
+                 current_cpu == "arm" || current_cpu == "arm64" ||
+-                current_cpu == "mipsel" || current_cpu == "mips64el"
++                current_cpu == "mipsel" || current_cpu == "mips64el" ||
++                current_cpu == "riscv64"
+ }
+ 
+ if (sysroot == "") {
+@@ -50,6 +51,8 @@ if (sysroot == "") {
+       sysroot = "$target_sysroot_dir/debian_bullseye_arm-sysroot"
+     } else if (current_cpu == "arm64") {
+       sysroot = "$target_sysroot_dir/debian_bullseye_arm64-sysroot"
++    } else if (current_cpu == "riscv64") {
++      sysroot = "$target_sysroot_dir/debian_sid_riscv64-sysroot"
+     } else {
+       assert(false, "No linux sysroot for cpu: $target_cpu")
+     }
+diff --git a/build/linux/sysroot_scripts/debian-ports-archive-2022.gpg b/build/linux/sysroot_scripts/debian-ports-archive-2022.gpg
+new file mode 100644
+index 0000000000000000000000000000000000000000..946d514f68f75bf1035d3c2fec23be503bcaa7de
+GIT binary patch
+literal 1210
+zcmV;r1V#Iq0u2OT`-isy5CFX&gr2KN<iC3NKjKXSf#TTjm+=kmq;H8*cck8*9X4Ny
+z$uTg6SpzoPR)&h1IDe2W!ug=bbT++nGuhzYnVPO;_6%7*XzzKZaHt|$K>m94Nd<p?
+z|5QU>d+VlNCb*dZjQHg|t7oNC+@8OhGsvhjVFz-oqj3UkCZ8Eq(N@y2$KJxGW3j74
+zV36~q(PbY90ZTh0;046Ekk!SucYoHzuB$!@arn!b1x7ffCGu?~xpH;3rnbNsFM`+J
+zMIjL{5r8BNNbfPEq?e;qApDDwB7l4$oVIpEj04Xp?QEETGbPp4=cm{8Uszr(Og0Nr
+zqMQKYohL`1hup>L8d&x@+^&)_>1ENsGp1)nv&mK_jGxt&cyXY+#D)%S4f0@D3FM@7
+z3V1$RsbHI#?W2fQ41aMPMXmL?r%Xkeicrl+u8}$%i?9ga(V9^2|MF0}<~%)2;hd3e
+zKlZrTM_VCp(sD7CqF4`WURB??O{aaSWt`0FD7Y>rKPx&g+=qIv*=ej<cqgO&z^BC@
+zS5y^LPUUBZd*KZX4?o!rLuf78H*A5@MoS@H=^~njX+MG$BHv2pQub6G>+Wi9F)Ec}
+zp+s=)26mw;auSFp;L|i#LtEL!z91C6gtL3(Y(_l)kQt$!#Bp58bwc+AR{^eofl7Lo
+z`!1Lt(iUXdDLnuY0RRECRYYZCX<=?4P;YW{b09%-V`yo1WgtOybZ>28bZKKCQ)y>z
+zX>MmAOJ#W=C^9fIGASTDW^{0EVRLk4azJoza&&VoZDDhCWpXZLWnyVzZZ2<fXFiDn
+zPy`bJ3IIA5Aq30E3ShbIZzFnNTMOt?QBPg-67~fGU;Br*0viJb2?O31fC38%1QiMi
+z2n7}b0|5X69svRufB*^!5a?1-PhIm8_67(L0FApGI%0TlFf#s^R&9KJAEk|G%nNhM
+ztZ(BCz^290)D8w1_L^HlT&zMSPS;C2i5xot35$Uy>cASU=7-o<oXr8BtFDeQ_rruT
+zG*MhWOe;0?-qnBhVd^S6&Dy~$cJFw1VJi8#MJ1VH_W4_1o~5=SBp9GE$Ovg&P`;m@
+z@MU(p+3@WjKSH6vik&^rwTLJ7nz<+7LN?@IdP{WcGr==H9Q|`j!><J7IwOQoYruZa
+zlrFvfQ>O}1=P+SqwopNCZdZdc#+ebWmyaRKb;dgyi>RzfdCTyG$IUE^?m?2Az~>l0
+zd&z|kG6R}PfY%;KH+%9JDq#=c<yEzF2JYv5W39%{6NsNFEAsr5<{DowWuVgy)n*+f
+z5+m595pn)kfuNdrpC^N-N1k#$xZ8)iieVwBbOgVYnegAeez;g1*03EU&%RAoB#EGk
+z!j)qAlNOA|S6iGi1|xfW29dL<Q+zKx!vvEgVs8THQ6DHD5(c8-98c+vGG}wlD91B8
+z8?S5iGtavOoHtN1=uRRu-s6|XSxFReLd8$Cw?ZZnZq$>y=!}46xHery{3VEv-wYt9
+zOjq@MUta10RIH^9WK`+Og$(oIaFmE?5NK!Ok3M@mhVybBY-K~oCud(;>!u%`XV7n1
+YXx^}TJV%j3zJt}E_<gtaMn?Bg9P=nExc~qF
+
+literal 0
+HcmV?d00001
+
+diff --git a/build/linux/sysroot_scripts/sysroot-builder-riscv64.sh b/build/linux/sysroot_scripts/sysroot-builder-riscv64.sh
+new file mode 100755
+index 0000000000000..34cfe5a370428
+--- /dev/null
++++ b/build/linux/sysroot_scripts/sysroot-builder-riscv64.sh
+@@ -0,0 +1,588 @@
++# Copyright 2014 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++#
++# This script should not be run directly but sourced by the other
++# scripts (e.g. sysroot-creator-sid.sh).  Its up to the parent scripts
++# to define certain environment variables: e.g.
++#  DISTRO=debian
++#  DIST=sid
++#  # Similar in syntax to /etc/apt/sources.list
++#  APT_SOURCES_LIST="http://ftp.us.debian.org/debian/ sid main"
++#  KEYRING_FILE=debian-archive-sid-stable.gpg
++#  DEBIAN_PACKAGES="gcc libz libssl"
++
++#@ This script builds Debian/Ubuntu sysroot images for building Google Chrome.
++#@
++#@  Generally this script is invoked as:
++#@  sysroot-creator-<flavour>.sh <mode> <args>*
++#@  Available modes are shown below.
++#@
++#@ List of modes:
++
++######################################################################
++# Config
++######################################################################
++
++set -o nounset
++set -o errexit
++
++SCRIPT_DIR=$(cd $(dirname $0) && pwd)
++
++if [ -z "${DIST:-}" ]; then
++  echo "error: DIST not defined"
++  exit 1
++fi
++
++if [ -z "${KEYRING_FILE:-}" ]; then
++  echo "error: KEYRING_FILE not defined"
++  exit 1
++fi
++
++if [ -z "${DEBIAN_PACKAGES:-}" ]; then
++  echo "error: DEBIAN_PACKAGES not defined"
++  exit 1
++fi
++
++readonly HAS_ARCH_RISCV64=${HAS_ARCH_RISCV64:=0}
++
++readonly REQUIRED_TOOLS="curl xzcat"
++
++######################################################################
++# Package Config
++######################################################################
++
++readonly PACKAGES_EXT=xz
++readonly RELEASE_FILE="Release"
++readonly RELEASE_FILE_GPG="Release.gpg"
++
++readonly DEBIAN_DEP_LIST_RISCV64="generated_package_lists/${DIST}.riscv64"
++
++
++######################################################################
++# Helper
++######################################################################
++
++Banner() {
++  echo "######################################################################"
++  echo $*
++  echo "######################################################################"
++}
++
++
++SubBanner() {
++  echo "----------------------------------------------------------------------"
++  echo $*
++  echo "----------------------------------------------------------------------"
++}
++
++
++Usage() {
++  egrep "^#@" "${BASH_SOURCE[0]}" | cut --bytes=3-
++}
++
++
++DownloadOrCopyNonUniqueFilename() {
++  # Use this function instead of DownloadOrCopy when the url uniquely
++  # identifies the file, but the filename (excluding the directory)
++  # does not.
++  local url="$1"
++  local dest="$2"
++
++  local hash="$(echo "$url" | sha256sum | cut -d' ' -f1)"
++
++  DownloadOrCopy "${url}" "${dest}.${hash}"
++  # cp the file to prevent having to redownload it, but mv it to the
++  # final location so that it's atomic.
++  cp "${dest}.${hash}" "${dest}.$$"
++  mv "${dest}.$$" "${dest}"
++}
++
++DownloadOrCopy() {
++  if [ -f "$2" ] ; then
++    echo "$2 already in place"
++    return
++  fi
++
++  HTTP=0
++  echo "$1" | grep -Eqs '^https?://' && HTTP=1
++  if [ "$HTTP" = "1" ]; then
++    SubBanner "downloading from $1 -> $2"
++    # Appending the "$$" shell pid is necessary here to prevent concurrent
++    # instances of sysroot-creator.sh from trying to write to the same file.
++    local temp_file="${2}.partial.$$"
++    # curl --retry doesn't retry when the page gives a 4XX error, so we need to
++    # manually rerun.
++    for i in {1..10}; do
++      # --create-dirs is added in case there are slashes in the filename, as can
++      # happen with the "debian/security" release class.
++      local http_code=$(curl -L "$1" --create-dirs -o "${temp_file}" \
++                        -w "%{http_code}")
++      if [ ${http_code} -eq 200 ]; then
++        break
++      fi
++      echo "Bad HTTP code ${http_code} when downloading $1"
++      rm -f "${temp_file}"
++      sleep $i
++    done
++    if [ ! -f "${temp_file}" ]; then
++      exit 1
++    fi
++    mv "${temp_file}" $2
++  else
++    SubBanner "copying from $1"
++    cp "$1" "$2"
++  fi
++}
++
++
++SetEnvironmentVariables() {
++  case $1 in
++    *Riscv*)
++      ARCH=RISCV64
++      ;;
++    *)
++      echo "ERROR: Unable to determine architecture based on: $1"
++      exit 1
++      ;;
++  esac
++  ARCH_LOWER=$(echo $ARCH | tr '[:upper:]' '[:lower:]')
++}
++
++
++# some sanity checks to make sure this script is run from the right place
++# with the right tools
++SanityCheck() {
++  Banner "Sanity Checks"
++
++  local chrome_dir=$(cd "${SCRIPT_DIR}/../../.." && pwd)
++  BUILD_DIR="${chrome_dir}/out/sysroot-build/${DIST}"
++  mkdir -p ${BUILD_DIR}
++  echo "Using build directory: ${BUILD_DIR}"
++
++  for tool in ${REQUIRED_TOOLS} ; do
++    if ! which ${tool} > /dev/null ; then
++      echo "Required binary $tool not found."
++      echo "Exiting."
++      exit 1
++    fi
++  done
++
++  # This is where the staging sysroot is.
++  INSTALL_ROOT="${BUILD_DIR}/${DIST}_${ARCH_LOWER}_staging"
++  TARBALL="${BUILD_DIR}/${DISTRO}_${DIST}_${ARCH_LOWER}_sysroot.tar.xz"
++
++  if ! mkdir -p "${INSTALL_ROOT}" ; then
++    echo "ERROR: ${INSTALL_ROOT} can't be created."
++    exit 1
++  fi
++}
++
++
++ChangeDirectory() {
++  # Change directory to where this script is.
++  cd ${SCRIPT_DIR}
++}
++
++
++ClearInstallDir() {
++  Banner "Clearing dirs in ${INSTALL_ROOT}"
++  rm -rf ${INSTALL_ROOT}/*
++}
++
++
++CreateTarBall() {
++  Banner "Creating tarball ${TARBALL}"
++  tar -I "xz -9 -T0" -cf ${TARBALL} -C ${INSTALL_ROOT} .
++}
++
++ExtractPackageXz() {
++  local src_file="$1"
++  local dst_file="$2"
++  local repo="$3"
++  xzcat "${src_file}" | egrep '^(Package:|Filename:|SHA256:) ' |
++    sed "s|Filename: |Filename: ${repo}|" > "${dst_file}"
++}
++
++GeneratePackageListDist() {
++  local arch="$1"
++  set -- $2
++  local repo="$1"
++  local dist="$2"
++  local repo_name="$3"
++
++  TMP_PACKAGE_LIST="${BUILD_DIR}/Packages.${dist}_${repo_name}_${arch}"
++  local repo_basedir="${repo}/dists/${dist}"
++  local package_list="${BUILD_DIR}/Packages.${dist}_${repo_name}_${arch}.${PACKAGES_EXT}"
++  local package_file_arch="${repo_name}/binary-${arch}/Packages.${PACKAGES_EXT}"
++  local package_list_arch="${repo_basedir}/${package_file_arch}"
++
++  DownloadOrCopyNonUniqueFilename "${package_list_arch}" "${package_list}"
++  VerifyPackageListing "${package_file_arch}" "${package_list}" ${repo} ${dist}
++  ExtractPackageXz "${package_list}" "${TMP_PACKAGE_LIST}" ${repo}
++}
++
++GeneratePackageListCommon() {
++  local output_file="$1"
++  local arch="$2"
++  local packages="$3"
++
++  local dists="${DIST} ${DIST_UPDATES:-}"
++
++  local list_base="${BUILD_DIR}/Packages.${DIST}_${arch}"
++  > "${list_base}"  # Create (or truncate) a zero-length file.
++  echo "${APT_SOURCES_LIST}" | while read source; do
++    GeneratePackageListDist "${arch}" "${source}"
++    cat "${TMP_PACKAGE_LIST}" | ./merge-package-lists.py "${list_base}"
++  done
++
++  GeneratePackageList "${list_base}" "${output_file}" "${packages}"
++}
++
++GeneratePackageListRiscv64() {
++  GeneratePackageListCommon "$1" riscv64 "${DEBIAN_PACKAGES}
++  ${DEBIAN_PACKAGES_RISCV64:=}"
++}
++
++StripChecksumsFromPackageList() {
++  local package_file="$1"
++  sed -i 's/ [a-f0-9]\{64\}$//' "$package_file"
++}
++
++######################################################################
++#
++######################################################################
++
++HacksAndPatchesCommon() {
++  local arch=$1
++  local os=$2
++  local strip=$3
++  Banner "Misc Hacks & Patches"
++  # these are linker scripts with absolute pathnames in them
++  # which we rewrite here
++  lscripts="${INSTALL_ROOT}/usr/lib/${arch}-${os}/libpthread.so \
++            ${INSTALL_ROOT}/usr/lib/${arch}-${os}/libc.so"
++
++  # Rewrite linker scripts
++  sed -i -e 's|/usr/lib/${arch}-${os}/||g'  ${lscripts}
++  sed -i -e 's|/lib/${arch}-${os}/||g' ${lscripts}
++
++  # Unversion libdbus and libxkbcommon symbols.  This is required because
++  # libdbus-1-3 and libxkbcommon0 switched from unversioned symbols to versioned
++  # ones, and we must still support distros using the unversioned library.  This
++  # hack can be removed once support for Ubuntu Trusty and Debian Jessie are
++  # dropped.
++  ${strip} -R .gnu.version_d -R .gnu.version \
++    "${INSTALL_ROOT}/lib/${arch}-${os}/libdbus-1.so.3"
++  cp "${SCRIPT_DIR}/libdbus-1-3-symbols" \
++    "${INSTALL_ROOT}/debian/libdbus-1-3/DEBIAN/symbols"
++
++  ${strip} -R .gnu.version_d -R .gnu.version \
++    "${INSTALL_ROOT}/usr/lib/${arch}-${os}/libxkbcommon.so.0.0.0"
++  cp "${SCRIPT_DIR}/libxkbcommon0-symbols" \
++    "${INSTALL_ROOT}/debian/libxkbcommon0/DEBIAN/symbols"
++
++  # libxcomposite1 is missing a symbols file.
++  cp "${SCRIPT_DIR}/libxcomposite1-symbols" \
++    "${INSTALL_ROOT}/debian/libxcomposite1/DEBIAN/symbols"
++
++  # Shared objects depending on libdbus-1.so.3 have unsatisfied undefined
++  # versioned symbols. To avoid LLD --no-allow-shlib-undefined errors, rewrite
++  # DT_NEEDED entries from libdbus-1.so.3 to a different string. LLD will
++  # suppress --no-allow-shlib-undefined diagnostics for such shared objects.
++  set +e
++  for f in "${INSTALL_ROOT}/lib/${arch}-${os}"/*.so \
++           "${INSTALL_ROOT}/usr/lib/${arch}-${os}"/*.so; do
++    echo "$f" | grep -q 'libdbus-1.so$' && continue
++    # In a dependent shared object, the only occurrence of "libdbus-1.so.3" is
++    # the string referenced by the DT_NEEDED entry.
++    offset=$(LANG=C grep -abo libdbus-1.so.3 "$f")
++    [ -n "$offset" ] || continue
++    echo -n 'libdbus-1.so.0' | dd of="$f" conv=notrunc bs=1 \
++      seek="$(echo -n "$offset" | cut -d : -f 1)" status=none
++  done
++  set -e
++
++  # Avoid requiring unsupported glibc versions.
++  "${SCRIPT_DIR}/reversion_glibc.py" \
++    "${INSTALL_ROOT}/lib/${arch}-${os}/libc.so.6"
++  "${SCRIPT_DIR}/reversion_glibc.py" \
++    "${INSTALL_ROOT}/lib/${arch}-${os}/libm.so.6"
++
++  # fcntl64() was introduced in glibc 2.28.  Make sure to use fcntl() instead.
++  local fcntl_h="${INSTALL_ROOT}/usr/include/fcntl.h"
++  sed -i '{N; s/#ifndef __USE_FILE_OFFSET64\(\nextern int fcntl\)/#if 1\1/}' \
++      "${fcntl_h}"
++
++  # __GLIBC_MINOR__ is used as a feature test macro.  Replace it with the
++  # earliest supported version of glibc (2.17, https://crbug.com/376567).
++  local features_h="${INSTALL_ROOT}/usr/include/features.h"
++  sed -i 's|\(#define\s\+__GLIBC_MINOR__\)|\1 17 //|' "${features_h}"
++
++  # This is for chrome's ./build/linux/pkg-config-wrapper
++  # which overwrites PKG_CONFIG_LIBDIR internally
++  SubBanner "Move pkgconfig scripts"
++  mkdir -p ${INSTALL_ROOT}/usr/lib/pkgconfig
++  mv ${INSTALL_ROOT}/usr/lib/${arch}-${os}/pkgconfig/* \
++      ${INSTALL_ROOT}/usr/lib/pkgconfig
++}
++
++
++HacksAndPatchesRiscv64() {
++  HacksAndPatchesCommon riscv64 linux-gnu riscv64-linux-gnu-strip
++}
++
++
++InstallIntoSysroot() {
++  Banner "Install Libs And Headers Into Jail"
++
++  mkdir -p ${BUILD_DIR}/debian-packages
++  # The /debian directory is an implementation detail that's used to cd into
++  # when running dpkg-shlibdeps.
++  mkdir -p ${INSTALL_ROOT}/debian
++  # An empty control file is necessary to run dpkg-shlibdeps.
++  touch ${INSTALL_ROOT}/debian/control
++  while (( "$#" )); do
++    local file="$1"
++    local package="${BUILD_DIR}/debian-packages/${file##*/}"
++    shift
++    local sha256sum="$1"
++    shift
++    if [ "${#sha256sum}" -ne "64" ]; then
++      echo "Bad sha256sum from package list"
++      # exit 1
++    fi
++
++    Banner "Installing $(basename ${file})"
++    DownloadOrCopy ${file} ${package}
++    if [ ! -s "${package}" ] ; then
++      echo
++      echo "ERROR: bad package ${package}"
++      exit 1
++    fi
++    echo "${sha256sum}  ${package}" | sha256sum --quiet -c
++
++    SubBanner "Extracting to ${INSTALL_ROOT}"
++    dpkg-deb -x ${package} ${INSTALL_ROOT}
++
++    base_package=$(dpkg-deb --field ${package} Package)
++    mkdir -p ${INSTALL_ROOT}/debian/${base_package}/DEBIAN
++    dpkg-deb -e ${package} ${INSTALL_ROOT}/debian/${base_package}/DEBIAN
++  done
++
++  # Prune /usr/share, leaving only pkgconfig.
++  ls -d ${INSTALL_ROOT}/usr/share/* | grep -v "/pkgconfig$" | xargs rm -r
++}
++
++
++CleanupJailSymlinks() {
++  Banner "Jail symlink cleanup"
++
++  SAVEDPWD=$(pwd)
++  cd ${INSTALL_ROOT}
++  local libdirs="lib usr/lib"
++  libdirs="${libdirs} lib64"
++
++  find $libdirs -type l -printf '%p %l\n' | while read link target; do
++    # skip links with non-absolute paths
++    echo "${target}" | grep -qs ^/ || continue
++    echo "${link}: ${target}"
++    # Relativize the symlink.
++    prefix=$(echo "${link}" | sed -e 's/[^/]//g' | sed -e 's|/|../|g')
++    ln -snfv "${prefix}${target}" "${link}"
++  done
++
++  find $libdirs -type l -printf '%p %l\n' | while read link target; do
++    # Make sure we catch new bad links.
++    if [ ! -r "${link}" ]; then
++      echo "ERROR: FOUND BAD LINK ${link}"
++      ls -l ${link}
++      exit 1
++    fi
++  done
++  cd "$SAVEDPWD"
++}
++
++
++VerifyLibraryDepsCommon() {
++  local arch=$1
++  local os=$2
++  local find_dirs=(
++    "${INSTALL_ROOT}/lib/"
++    "${INSTALL_ROOT}/lib/${arch}-${os}/"
++    "${INSTALL_ROOT}/usr/lib/${arch}-${os}/"
++  )
++  local needed_libs="$(
++    find ${find_dirs[*]} -name "*\.so*" -type f -exec file {} \; | \
++      grep ': ELF' | sed 's/^\(.*\): .*$/\1/' | xargs readelf -d | \
++      grep NEEDED | sort | uniq | sed 's/^.*Shared library: \[\(.*\)\]$/\1/g')"
++  local all_libs="$(find ${find_dirs[*]} -printf '%f\n')"
++  # Ignore missing libdbus-1.so.0
++  all_libs+="$(echo -e '\nlibdbus-1.so.0')"
++  local missing_libs="$(grep -vFxf <(echo "${all_libs}") \
++    <(echo "${needed_libs}"))"
++  if [ ! -z "${missing_libs}" ]; then
++    echo "Missing libraries:"
++    echo "${missing_libs}"
++    exit 1
++  fi
++}
++
++VerifyLibraryDepsRiscv64() {
++  VerifyLibraryDepsCommon riscv64 linux-gnu
++}
++
++#@
++#@ BuildSysrootRiscv64
++#@
++#@    Build everything and package it
++BuildSysrootRiscv64() {
++  if [ "$HAS_ARCH_RISCV64" = "0" ]; then
++    return
++  fi
++  ClearInstallDir
++  local package_file="${DEBIAN_DEP_LIST_RISCV64}"
++  # GeneratePackageListRiscv64 "$package_file"
++  local files_and_sha256sums="$(cat ${package_file})"
++  StripChecksumsFromPackageList "$package_file"
++  InstallIntoSysroot ${files_and_sha256sums}
++  CleanupJailSymlinks
++  HacksAndPatchesRiscv64
++  VerifyLibraryDepsRiscv64
++  CreateTarBall
++}
++
++#
++# CheckForDebianGPGKeyring
++#
++#     Make sure the Debian GPG keys exist. Otherwise print a helpful message.
++#
++CheckForDebianGPGKeyring() {
++  if [ ! -e "$KEYRING_FILE" ]; then
++    echo "KEYRING_FILE not found: ${KEYRING_FILE}"
++    echo "Debian GPG keys missing. Install the debian-archive-keyring package."
++    exit 1
++  fi
++}
++
++#
++# VerifyPackageListing
++#
++#     Verifies the downloaded Packages.xz file has the right checksums.
++#
++VerifyPackageListing() {
++  local file_path="$1"
++  local output_file="$2"
++  local repo="$3"
++  local dist="$4"
++
++  local repo_basedir="${repo}/dists/${dist}"
++  local release_list="${repo_basedir}/${RELEASE_FILE}"
++  local release_list_gpg="${repo_basedir}/${RELEASE_FILE_GPG}"
++
++  local release_file="${BUILD_DIR}/${dist}-${RELEASE_FILE}"
++  local release_file_gpg="${BUILD_DIR}/${dist}-${RELEASE_FILE_GPG}"
++
++  CheckForDebianGPGKeyring
++
++  DownloadOrCopyNonUniqueFilename ${release_list} ${release_file}
++  DownloadOrCopyNonUniqueFilename ${release_list_gpg} ${release_file_gpg}
++  echo "Verifying: ${release_file} with ${release_file_gpg}"
++  set -x
++  gpgv --keyring "${KEYRING_FILE}" "${release_file_gpg}" "${release_file}"
++  set +x
++
++  echo "Verifying: ${output_file}"
++  local sha256sum=$(grep -E "${file_path}\$|:\$" "${release_file}" | \
++    grep "SHA256:" -A 1 | xargs echo | awk '{print $2;}')
++
++  if [ "${#sha256sum}" -ne "64" ]; then
++    echo "Bad sha256sum from ${release_list}"
++    exit 1
++  fi
++
++  echo "${sha256sum}  ${output_file}" | sha256sum --quiet -c
++}
++
++#
++# GeneratePackageList
++#
++#     Looks up package names in ${BUILD_DIR}/Packages and write list of URLs
++#     to output file.
++#
++GeneratePackageList() {
++  local input_file="$1"
++  local output_file="$2"
++  echo "Updating: ${output_file} from ${input_file}"
++  /bin/rm -f "${output_file}"
++  shift
++  shift
++  for pkg in $@ ; do
++    local pkg_full=$(grep -A 1 " ${pkg}\$" "$input_file" | \
++      egrep "debian-ports/.*" | sed 's/.*Filename: //')
++    if [ -z "${pkg_full}" ]; then
++        echo "ERROR: missing package: $pkg"
++        exit 1
++    fi
++    local sha256sum=$(grep -A 4 " ${pkg}\$" "$input_file" | \
++      grep ^SHA256: | sed 's/^SHA256: //')
++    if [ "${#sha256sum}" -ne "64" ]; then
++      echo "Bad sha256sum from Packages"
++      exit 1
++    fi
++    echo $pkg_full $sha256sum >> "$output_file"
++  done
++  # sort -o does an in-place sort of this file
++  sort "$output_file" -o "$output_file"
++}
++
++#@
++#@ PrintArchitectures
++#@
++#@    Prints supported architectures.
++PrintArchitectures() {
++  if [ "$HAS_ARCH_RISCV64" = "1" ]; then
++    echo Riscv64
++  fi
++}
++
++#@
++#@ PrintDistro
++#@
++#@    Prints distro.  eg: ubuntu
++PrintDistro() {
++  echo ${DISTRO}
++}
++
++#@
++#@ DumpRelease
++#@
++#@    Prints disto release.  eg: jessie
++PrintRelease() {
++  echo ${DIST}
++}
++
++RunCommand() {
++  SetEnvironmentVariables "$1"
++  SanityCheck
++  "$@"
++}
++
++if [ $# -eq 0 ] ; then
++  echo "ERROR: you must specify a mode on the commandline"
++  echo
++  Usage
++  exit 1
++elif [ "$(type -t $1)" != "function" ]; then
++  echo "ERROR: unknown function '$1'." >&2
++  echo "For help, try:"
++  echo "    $0 help"
++  exit 1
++else
++  ChangeDirectory
++  if echo $1 | grep -qs --regexp='\(^Print\)\|\(All$\)'; then
++    "$@"
++  else
++    RunCommand "$@"
++  fi
++fi
+diff --git a/build/linux/sysroot_scripts/sysroot-creator-riscv64.sh b/build/linux/sysroot_scripts/sysroot-creator-riscv64.sh
+new file mode 100755
+index 0000000000000..aa4a34c04988e
+--- /dev/null
++++ b/build/linux/sysroot_scripts/sysroot-creator-riscv64.sh
+@@ -0,0 +1,400 @@
++#!/bin/bash
++# Copyright 2017 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
++
++DISTRO=debian
++DIST=sid
++
++# Keep the "experimental" repo before the "sid" repo.  There are some packages
++# that are currently only available in experimental like libgtk-4-1, but if it
++# were to be placed first, experimental (unreleased) versions of other packages
++# like libc6 would take precedence over the sid (released) versions.  While this
++# may be useful for certain kinds of development, the standard sysroots should
++# continue to be shipped only with released packages.
++# Also keep "stretch" before "sid".  For now, it's needed to bring back
++# libgnome-keyring-dev which has since been deprecated and removed from sid.
++# It will be needed until gnome keyring is removed (http://crbug.com/466975 and
++# http://crbug.com/355223).
++ARCHIVE_URL="http://ftp.ports.debian.org/debian-ports"
++APT_SOURCES_LIST="${ARCHIVE_URL}/ unstable main
++${ARCHIVE_URL}/ experimental main
++${ARCHIVE_URL}/ sid main"
++
++# gpg keyring file generated using generate_debian_archive_unstable.sh
++KEYRING_FILE="/etc/apt/trusted.gpg.d/debian-ports-archive-2022.gpg"
++
++HAS_ARCH_RISCV64=1
++
++# Sysroot packages: these are the packages needed to build chrome.
++# NOTE: When DEBIAN_PACKAGES is modified, the packagelist files must be updated
++# by running this script in GeneratePackageList mode.
++# comerr-dev
++# krb5-multidev
++# libappindicator-dev libappindicator1 libappindicator3-1 libappindicator3-dev
++# libffi6 libffi7
++# libgcc1
++# libgnome-keyring-dev libgnome-keyring0
++# libindicator3-7 libindicator7
++# libpango-1.0-0 libpango1.0-dev
++# libpangox-1.0-0
++DEBIAN_PACKAGES="\
++  libasound2
++  libasound2-dev
++  libasyncns0
++  libatk-bridge2.0-0
++  libatk-bridge2.0-dev
++  libatk1.0-0
++  libatk1.0-dev
++  libatomic1
++  libatspi2.0-0
++  libatspi2.0-dev
++  libattr1
++  libaudit1
++  libavahi-client3
++  libavahi-common3
++  libblkid-dev
++  libblkid1
++  libbluetooth-dev
++  libbluetooth3
++  libbrotli-dev
++  libbrotli1
++  libbsd0
++  libc6
++  libc6-dev
++  libcairo-gobject2
++  libcairo-script-interpreter2
++  libcairo2
++  libcairo2-dev
++  libcap-dev
++  libcap-ng0
++  libcap2
++  libcloudproviders0
++  libcolord2
++  libcom-err2
++  libcups2
++  libcups2-dev
++  libcupsimage2
++  libcupsimage2-dev
++  libdatrie-dev
++  libcurl3-gnutls
++  libcurl4-gnutls-dev
++  libdatrie1
++  libdb5.3
++  libdbus-1-3
++  libdbus-1-dev
++  libdbus-glib-1-2
++  libdbusmenu-glib-dev
++  libdbusmenu-glib4
++  libdbusmenu-gtk3-4
++  libdbusmenu-gtk4
++  libdeflate-dev
++  libdeflate0
++  libdrm-amdgpu1
++  libdrm-dev
++  libdrm-nouveau2
++  libdrm-radeon1
++  libdrm2
++  libegl-dev
++  libegl1
++  libegl1-mesa
++  libegl1-mesa-dev
++  libelf-dev
++  libelf1
++  libepoxy-dev
++  libepoxy0
++  libevdev-dev
++  libevdev2
++  libevent-2.1-7
++  libexpat1
++  libexpat1-dev
++  libffi-dev
++  libffi8
++  libflac-dev
++  libflac8
++  libfontconfig-dev
++  libfontconfig1
++  libfreetype-dev
++  libfreetype6
++  libfribidi-dev
++  libfribidi0
++  libgbm-dev
++  libgbm1
++  libgcc-10-dev
++  libgcc-s1
++  libgcrypt20
++  libgcrypt20-dev
++  libgdk-pixbuf-2.0-0
++  libgdk-pixbuf-2.0-dev
++  libgl-dev
++  libgl1
++  libgl1-mesa-dev
++  libgl1-mesa-glx
++  libglapi-mesa
++  libgles-dev
++  libgles1
++  libgles2
++  libglib2.0-0
++  libglib2.0-dev
++  libglvnd-dev
++  libglvnd0
++  libglx-dev
++  libglx0
++  libgmp10
++  libgnutls-dane0
++  libgnutls-openssl27
++  libgnutls28-dev
++  libgnutls30
++  libgnutlsxx28
++  libgomp1
++  libgpg-error-dev
++  libgpg-error0
++  libgraphene-1.0-0
++  libgraphene-1.0-dev
++  libgraphite2-3
++  libgraphite2-dev
++  libgssapi-krb5-2
++  libgssrpc4
++  libgtk-3-0
++  libgtk-3-dev
++  libgtk2.0-0
++  libgudev-1.0-0
++  libharfbuzz-dev
++  libharfbuzz-gobject0
++  libharfbuzz-icu0
++  libharfbuzz0b
++  libhogweed6
++  libice6
++  libicu-le-hb0
++  libicu67
++  libidl-2-0
++  libidn12
++  libidn2-0
++  libinput-dev
++  libinput10
++  libjbig-dev
++  libjbig0
++  libjpeg62-turbo
++  libjpeg62-turbo-dev
++  libjson-glib-1.0-0
++  libjsoncpp-dev
++  libjsoncpp25
++  libk5crypto3
++  libkadm5clnt-mit12
++  libkadm5srv-mit12
++  libkdb5-10
++  libkeyutils1
++  libkrb5-3
++  libkrb5-dev
++  libkrb5support0
++  liblcms2-2
++  libldap-2.5-0
++  libltdl7
++  liblz4-1
++  liblzma5
++  liblzo2-2
++  libmd0
++  libminizip-dev
++  libminizip1
++  libmount-dev
++  libmount1
++  libmtdev1
++  libncurses-dev
++  libncurses6
++  libncursesw6
++  libnettle8
++  libnghttp2-14
++  libnsl2
++  libnspr4
++  libnspr4-dev
++  libnss-db
++  libnss3
++  libnss3-dev
++  libogg-dev
++  libogg0
++  libopengl0
++  libopus-dev
++  libopus0
++  libp11-kit0
++  libpam0g
++  libpam0g-dev
++  libpangocairo-1.0-0
++  libpangoft2-1.0-0
++  libpangoxft-1.0-0
++  libpci-dev
++  libpci3
++  libpciaccess0
++  libpcre16-3
++  libpcre2-16-0
++  libpcre2-32-0
++  libpcre2-8-0
++  libpcre2-dev
++  libpcre2-posix3
++  libpcre3
++  libpcre3-dev
++  libpcre32-3
++  libpcrecpp0v5
++  libpipewire-0.3-0
++  libpipewire-0.3-dev
++  libpixman-1-0
++  libpixman-1-dev
++  libpng-dev
++  libpng16-16
++  libpsl5
++  libpthread-stubs0-dev
++  libpulse-dev
++  libpulse-mainloop-glib0
++  libpulse0
++  libre2-9
++  libre2-dev
++  librest-0.7-0
++  librtmp1
++  libsasl2-2
++  libselinux1
++  libselinux1-dev
++  libsepol2
++  libsepol-dev
++  libsm6
++  libsnappy-dev
++  libsnappy1v5
++  libsndfile1
++  libsoup-gnome2.4-1
++  libsoup2.4-1
++  libspa-0.2-dev
++  libspeechd-dev
++  libspeechd2
++  libsqlite3-0
++  libssh2-1
++  libssl-dev
++  libssl1.1
++  libstdc++-10-dev
++  libstdc++6
++  libsystemd0
++  libtasn1-6
++  libthai-dev
++  libthai0
++  libtiff-dev
++  libtiff5
++  libtiffxx5
++  libtinfo6
++  libtirpc3
++  libudev-dev
++  libudev1
++  libunbound8
++  libunistring2
++  libutempter-dev
++  libutempter0
++  libuuid1
++  libva-dev
++  libva-drm2
++  libva-glx2
++  libva-wayland2
++  libva-x11-2
++  libva2
++  libvorbis0a
++  libvorbisenc2
++  libvulkan-dev
++  libvulkan1
++  libwacom9
++  libwayland-client0
++  libwayland-cursor0
++  libwayland-dev
++  libwayland-egl1
++  libwayland-egl1-mesa
++  libwayland-server0
++  libwebp-dev
++  libwebp7
++  libwebpdemux2
++  libwebpmux3
++  libwrap0
++  libx11-6
++  libx11-dev
++  libx11-xcb-dev
++  libx11-xcb1
++  libxau-dev
++  libxau6
++  libxcb-dri2-0
++  libxcb-dri2-0-dev
++  libxcb-dri3-0
++  libxcb-dri3-dev
++  libxcb-glx0
++  libxcb-glx0-dev
++  libxcb-present-dev
++  libxcb-present0
++  libxcb-render0
++  libxcb-render0-dev
++  libxcb-shm0
++  libxcb-shm0-dev
++  libxcb-sync1
++  libxcb-xfixes0
++  libxcb1
++  libxcb1-dev
++  libxcomposite-dev
++  libxcomposite1
++  libxcursor-dev
++  libxcursor1
++  libxdamage-dev
++  libxdamage1
++  libxdmcp-dev
++  libxdmcp6
++  libxext-dev
++  libxext6
++  libxfixes-dev
++  libxfixes3
++  libxft-dev
++  libxft2
++  libxi-dev
++  libxi6
++  libxinerama-dev
++  libxinerama1
++  libxkbcommon-dev
++  libxkbcommon0
++  libxml2
++  libxml2-dev
++  libxrandr-dev
++  libxrandr2
++  libxrender-dev
++  libxrender1
++  libxshmfence-dev
++  libxshmfence1
++  libxslt1-dev
++  libxslt1.1
++  libxss-dev
++  libxss1
++  libxt-dev
++  libxt6
++  libxtst-dev
++  libxtst6
++  libxxf86vm-dev
++  libxxf86vm1
++  libzstd1
++  linux-libc-dev
++  mesa-common-dev
++  shared-mime-info
++  uuid-dev
++  wayland-protocols
++  x11proto-core-dev
++  x11proto-dev
++  x11proto-input-dev
++  x11proto-kb-dev
++  x11proto-randr-dev
++  x11proto-record-dev
++  x11proto-render-dev
++  x11proto-scrnsaver-dev
++  x11proto-xext-dev
++  x11proto-xinerama-dev
++  zlib1g
++  zlib1g-dev
++"
++
++DEBIAN_PACKAGES_RISCV64="
++  libasan6
++  libgmp10
++  libgtk-4-1
++  libgtk-4-dev
++  libthai0
++"
++
++. "${SCRIPT_DIR}/sysroot-builder-riscv64.sh"
+-- 
+2.25.1
+

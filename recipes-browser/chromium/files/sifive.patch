@@ -1,0 +1,256 @@
+diff --git a/base/allocator/partition_allocator/starscan/stack/asm/riscv64/push_registers_asm.cc b/base/allocator/partition_allocator/starscan/stack/asm/riscv64/push_registers_asm.cc
+index 2d90aab182988..7c1735ead356e 100644
+--- a/base/allocator/partition_allocator/starscan/stack/asm/riscv64/push_registers_asm.cc
++++ b/base/allocator/partition_allocator/starscan/stack/asm/riscv64/push_registers_asm.cc
+@@ -10,10 +10,10 @@
+ //
+ // Calling convention source:
+ // https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf Table 18.2
+-asm(".global PushAllRegistersAndIterateStack             \n"
+-    ".type PushAllRegistersAndIterateStack, %function    \n"
+-    ".hidden PushAllRegistersAndIterateStack             \n"
+-    "PushAllRegistersAndIterateStack:                    \n"
++asm(".global PAPushAllRegistersAndIterateStack             \n"
++    ".type PAPushAllRegistersAndIterateStack, %function    \n"
++    ".hidden PAPushAllRegistersAndIterateStack             \n"
++    "PAPushAllRegistersAndIterateStack:                    \n"
+     // Push all callee-saved registers and save return address.
+     "  addi sp, sp, -112                                 \n"
+     // Save return address.
+diff --git a/buildtools/third_party/libc++/BUILD.gn b/buildtools/third_party/libc++/BUILD.gn
+index cf7ad5b2f8426..886245570d6af 100644
+--- a/buildtools/third_party/libc++/BUILD.gn
++++ b/buildtools/third_party/libc++/BUILD.gn
+@@ -25,7 +25,7 @@ config("config") {
+   } else {
+     cflags += [
+       "-fPIC",
+-      "-isystem../../build/linux/debian_sid_riscv64-sysroot/usr/include",
++#      "-isystem../../build/linux/debian_sid_riscv64-sysroot/usr/include",
+     ]
+     cflags_cc = [ "-std=c++20" ]
+   }
+diff --git a/chrome/browser/new_tab_page/chrome_colors/BUILD.gn b/chrome/browser/new_tab_page/chrome_colors/BUILD.gn
+index fee3f960829e8..8a26aa0d14ab7 100644
+--- a/chrome/browser/new_tab_page/chrome_colors/BUILD.gn
++++ b/chrome/browser/new_tab_page/chrome_colors/BUILD.gn
+@@ -9,6 +9,9 @@ executable("generate_colors_info") {
+     "generate_colors_info.cc",
+     "selected_colors_info.h",
+   ]
++  ldflags = [
++    "-Wl,-rpath-link=../../build/linux/debian_sid_riscv64-sysroot/lib/riscv64-linux-gnu",
++  ]
+   deps = [
+     # Avoid adding big generic deps as this target is build for host
+     # toolchain. For example, see the problem with adding //chrome in
+diff --git a/components/crash/core/app/BUILD.gn b/components/crash/core/app/BUILD.gn
+index 7a5e5244cfdcc..d69e0f2fe0a3e 100644
+--- a/components/crash/core/app/BUILD.gn
++++ b/components/crash/core/app/BUILD.gn
+@@ -222,6 +222,9 @@ if (is_mac || is_android || is_linux || is_chromeos) {
+       "//third_party/crashpad/crashpad/handler",
+     ]
++    ldflags = [
++      "-Wl,-rpath-link=../../build/linux/debian_sid_riscv64-sysroot/lib/riscv64-linux-gnu",
++    ]
+ 
+     if (is_mac && (is_component_build || is_asan)) {
+       ldflags = [
+         # The handler is in
+diff --git a/content/common/child_process_host_impl.cc b/content/common/child_process_host_impl.cc
+index 6a2971e66094d..182518d9c43fb 100644
+--- a/content/common/child_process_host_impl.cc
++++ b/content/common/child_process_host_impl.cc
+@@ -12,6 +12,7 @@
+ #include "base/command_line.h"
+ #include "base/files/file.h"
+ #include "base/files/file_path.h"
++#include "base/files/file_util.h"
+ #include "base/hash/hash.h"
+ #include "base/logging.h"
+ #include "base/memory/ptr_util.h"
+@@ -74,8 +75,12 @@ base::FilePath ChildProcessHost::GetChildPath(int flags) {
+ #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+   // Use /proc/self/exe rather than our known binary path so updates
+   // can't swap out the binary from underneath us.
+-  if (child_path.empty() && flags & CHILD_ALLOW_SELF)
+-    child_path = base::FilePath(base::kProcSelfExe);
++  if (child_path.empty() && flags & CHILD_ALLOW_SELF) {
++    if (!base::ReadSymbolicLink(base::FilePath(base::kProcSelfExe), &child_path)) {
++      NOTREACHED() << "Unable to resolve " << base::kProcSelfExe << ".";
++      child_path = base::FilePath(base::kProcSelfExe);
++    }
++  }
+ #endif
+ 
+   // On most platforms, the child executable is the same as the current
+diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
+index 906b798b5c04e..f44fd63dd330e 100644
+--- a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
++++ b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
+@@ -136,7 +136,7 @@ bool SyscallSets::IsFileSystem(int sysno) {
+     case __NR_faccessat2:
+     case __NR_fchmodat:
+     case __NR_fchownat:  // Should be called chownat ?
+-#if defined(__x86_64__) || defined(__aarch64__) || && defined(__riscv)
++#if defined(__x86_64__) || defined(__aarch64__) || defined(__riscv)
+     case __NR_newfstatat:  // fstatat(). EPERM not a valid errno.
+ #elif defined(__i386__) || defined(__arm__) || \
+     (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_32_BITS))
+@@ -245,7 +245,7 @@ bool SyscallSets::IsDeniedFileSystemAccessViaFd(int sysno) {
+ #if defined(__i386__) || defined(__arm__)
+     case __NR_fchown32:
+ #endif
+-#if !defined(__aarch64__) || defined(__riscv)
++#if !defined(__aarch64__) && !defined(__riscv)
+     case __NR_getdents:    // EPERM not a valid errno.
+ #endif
+     case __NR_getdents64:  // EPERM not a valid errno.
+diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
+index dd7cb8ca17ecf..7110d3f6999cf 100644
+--- a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
++++ b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
+@@ -92,7 +92,8 @@ class SANDBOX_EXPORT SyscallSets {
+ #endif
+ 
+ #if defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || \
+-    (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_64_BITS))
++    (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_64_BITS)) || \
++    defined(__riscv)
+   static bool IsSystemVMessageQueue(int sysno);
+ #endif
+ 
+diff --git a/third_party/crashpad/crashpad/snapshot/capture_memory.cc b/third_party/crashpad/crashpad/snapshot/capture_memory.cc
+index a8b52d11b9b53..616b985a912b4 100644
+--- a/third_party/crashpad/crashpad/snapshot/capture_memory.cc
++++ b/third_party/crashpad/crashpad/snapshot/capture_memory.cc
+@@ -114,11 +114,11 @@ void CaptureMemory::PointedToByContext(const CPUContext& context,
+   }
+ #elif defined(ARCH_CPU_RISCV_FAMILY)
+   if (context.architecture == kCPUArchitectureRISCV) {
+-    for (size_t i = 0; i < base::size(context.riscv->regs); ++i) {
++    for (size_t i = 0; i < std::size(context.riscv->regs); ++i) {
+       MaybeCaptureMemoryAround(delegate, context.riscv->regs[i]);
+     }
+   } else {
+-    for (size_t i = 0; i < base::size(context.riscv64->regs); ++i) {
++    for (size_t i = 0; i < std::size(context.riscv64->regs); ++i) {
+       MaybeCaptureMemoryAround(delegate, context.riscv64->regs[i]);
+     }
+   }
+diff --git a/third_party/webrtc/webrtc.gni b/third_party/webrtc/webrtc.gni
+index 264f0d6863..78d1e07f16 100644
+--- a/third_party/webrtc/webrtc.gni
++++ b/third_party/webrtc/webrtc.gni
+@@ -226,7 +226,7 @@ declare_args() {
+   rtc_enable_win_wgc = is_win
+ 
+   # Includes the dav1d decoder in the internal decoder factory when set to true.
+-  rtc_include_dav1d_in_internal_decoder_factory = true
++  rtc_include_dav1d_in_internal_decoder_factory = false
+ }
+ 
+ if (!build_with_mozilla) {
+diff --git a/third_party/angle/BUILD.gn b/third_party/angle/BUILD.gn
+index b92e52fc2..5a6b5dac9 100644
+--- a/third_party/angle/BUILD.gn
++++ b/third_party/angle/BUILD.gn
+@@ -235,10 +235,10 @@
+       "-Wshorten-64-to-32",
+ 
+       # Workaround for clang unable to locate pci/pci.h header
+-      "-I../../build/linux/debian_sid_riscv64-sysroot/usr/include/riscv64-linux-gnu",
++      #"-I../../build/linux/debian_sid_riscv64-sysroot/usr/include/riscv64-linux-gnu",
+     ]
+     # Workaround for linker unable to locate X11 related header
+-    ldflags = [ "-Wl,-L../../build/linux/debian_sid_riscv64-sysroot/usr/lib/riscv64-linux-gnu" ]
++    #ldflags = [ "-Wl,-L../../build/linux/debian_sid_riscv64-sysroot/usr/lib/riscv64-linux-gnu" ]
+   }
+ 
+   if (is_gcc) {
+diff --git a/tools/v8_context_snapshot/BUILD.gn b/tools/v8_context_snapshot/BUILD.gn
+index a06eae4ab3217..e28266aef18ef 100644
+--- a/tools/v8_context_snapshot/BUILD.gn
++++ b/tools/v8_context_snapshot/BUILD.gn
+@@ -133,5 +133,8 @@ if (use_v8_context_snapshot) {
+     } else if (use_gold || use_lld) {
+       ldflags = [ "-Wl,--icf=none" ]
+     }
++    if (use_lld) {
++      ldflags += [ "-fuse-ld=lld" ]
++    }
+   }
+ }
+diff --git a/sandbox/linux/syscall_broker/broker_process.cc b/sandbox/linux/syscall_broker/broker_process.cc
+index 6feb09aeedf2b..11422693463df 100644
+--- a/sandbox/linux/syscall_broker/broker_process.cc
++++ b/sandbox/linux/syscall_broker/broker_process.cc
+@@ -145,7 +145,7 @@ bool BrokerProcess::IsSyscallBrokerable(int sysno, bool fast_check) const {
+ #if !defined(__aarch64__) && !BUILDFLAG(IS_ANDROID) && !defined(__riscv)
+     case __NR_rename:
+ #endif
+-#ifdef __NR_renameat:
++#ifdef __NR_renameat
+     case __NR_renameat:
+ #endif
+     case __NR_renameat2:
+diff --git a/build/config/BUILD.gn b/build/config/BUILD.gn
+index 627b01b3c9859..4c9610973946d 100644
+--- a/build/config/BUILD.gn
++++ b/build/config/BUILD.gn
+@@ -223,8 +223,10 @@ config("default_libs") {
+       "dl",
+       "pthread",
+       "rt",
+-      "atomic",
+     ]
++    if (current_toolchain != host_toolchain) {
++      libs += [ "atomic" ]
++    }
+   }
+ }
+
+diff --git a/chrome/browser/chrome_browser_main_extra_parts_linux.cc b/chrome/browser/chrome_browser_main
+_extra_parts_linux.cc
+index 71dda5e680653..fd14c1652185d 100644
+--- a/chrome/browser/chrome_browser_main_extra_parts_linux.cc
++++ b/chrome/browser/chrome_browser_main_extra_parts_linux.cc
+@@ -10,8 +10,8 @@
+ #include "ui/ozone/buildflags.h"
+ #include "ui/ozone/public/ozone_switches.h"
+ 
+-#if BUILDFLAG(OZONE_PLATFORM_WAYLAND)
+ #include "base/environment.h"
++#if BUILDFLAG(OZONE_PLATFORM_WAYLAND)
+ #include "base/files/file_path.h"
+ #include "base/files/file_util.h"
+ #include "base/nix/xdg_util.h"
+diff --git a/chrome/installer/linux/common/desktop.template b/chrome/installer/linux/common/desktop.template
+index 2eb13ee1aba46..8154da5def56f 100644
+--- a/chrome/installer/linux/common/desktop.template
++++ b/chrome/installer/linux/common/desktop.template
+@@ -105,7 +105,7 @@ Comment[vi]=Truy cập Internet
+ Comment[zh_CN]=访问互联网
+ Comment[zh_HK]=連線到網際網路
+ Comment[zh_TW]=連線到網際網路
+-Exec=/usr/bin/@@USR_BIN_SYMLINK_NAME@@ %U
++Exec=/usr/bin/@@USR_BIN_SYMLINK_NAME@@ --no-sandbox %U
+ StartupNotify=true
+ Terminal=false
+ Icon=@@PACKAGE@@
+@@ -166,7 +166,7 @@ Name[uk]=Нове вікно
+ Name[vi]=Cửa sổ Mới
+ Name[zh_CN]=新建窗口
+ Name[zh_TW]=開新視窗
+-Exec=/usr/bin/@@USR_BIN_SYMLINK_NAME@@
++Exec=/usr/bin/@@USR_BIN_SYMLINK_NAME@@ --no-sandbox
+ 
+ [Desktop Action new-private-window]
+ Name=New Incognito Window
+@@ -218,4 +218,4 @@ Name[uk]=Нове вікно в режимі анонімного перегля
+ Name[vi]=Cửa sổ ẩn danh mới
+ Name[zh_CN]=新建隐身窗口
+ Name[zh_TW]=新增無痕式視窗
+-Exec=/usr/bin/@@USR_BIN_SYMLINK_NAME@@ --incognito
++Exec=/usr/bin/@@USR_BIN_SYMLINK_NAME@@ --no-sandbox --incognito

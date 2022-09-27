@@ -1,0 +1,35 @@
+From 00827741648ebd7d5f98e5f9fd718ad2f7435785 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Thu, 28 Apr 2022 01:04:59 +0000
+Subject: [PATCH 22/23] compiler workaround
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ build/config/compiler/BUILD.gn | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 429943e426ef3..0ccc0035434f3 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -1154,6 +1154,7 @@ config("compiler_cpu_abi") {
+       }
+     } else if (current_cpu == "riscv64") {
+       cflags += [
++        "--target=riscv64-linux-gnu",
+         "-m64",
+         "-march=rv64gc",
+         "-mabi=lp64d",
+@@ -1627,7 +1628,8 @@ config("chromium_code") {
+ 
+     if (!is_debug && !using_sanitizer && current_cpu != "s390x" &&
+         current_cpu != "s390" && current_cpu != "ppc64" &&
+-        current_cpu != "mips" && current_cpu != "mips64") {
++        current_cpu != "mips" && current_cpu != "mips64" &&
++        current_cpu != "riscv64") {
+       # Non-chromium code is not guaranteed to compile cleanly with
+       # _FORTIFY_SOURCE. Also, fortified build may fail when optimizations are
+       # disabled, so only do that for Release build.
+-- 
+2.25.1
+

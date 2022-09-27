@@ -1,0 +1,27 @@
+From 6ca882e4e194fdddac7c66bc2dee2907093a3796 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Thu, 28 Apr 2022 01:04:27 +0000
+Subject: [PATCH 21/23] v8 settings
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ build/config/v8_target_cpu.gni | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/build/config/v8_target_cpu.gni b/build/config/v8_target_cpu.gni
+index 305981f3fa538..44b7700935cc6 100644
+--- a/build/config/v8_target_cpu.gni
++++ b/build/config/v8_target_cpu.gni
+@@ -49,6 +49,9 @@ if (v8_target_cpu == "") {
+     # code that will be run under a simulator, then the generated code
+     # also gets the benefits of the sanitizer.
+     v8_target_cpu = "arm64"
++  } else if (current_toolchain ==
++             "//build/toolchain/linux:clang_x86_v8_riscv64") {
++    v8_target_cpu = "riscv64"
+   } else {
+     v8_target_cpu = target_cpu
+   }
+-- 
+2.25.1
+

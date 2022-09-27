@@ -1,0 +1,77 @@
+diff --git a/third_party/webrtc/audio/utility/channel_mixer.cc b/third_party/webrtc/audio/utility/channel_mixer.cc
+index 0f1e663873..8e66f90498 100644
+--- a/third_party/webrtc/audio/utility/channel_mixer.cc
++++ b/third_party/webrtc/audio/utility/channel_mixer.cc
+@@ -8,6 +8,8 @@
+  *  be found in the AUTHORS file in the root of the source tree.
+  */
+ 
++#include <cstring>
++
+ #include "audio/utility/channel_mixer.h"
+ 
+ #include "audio/utility/channel_mixing_matrix.h"
+diff --git a/third_party/webrtc/common_video/h264/sps_parser.h b/third_party/webrtc/common_video/h264/sps_parser.h
+index da328b48b0..719da297a9 100644
+--- a/third_party/webrtc/common_video/h264/sps_parser.h
++++ b/third_party/webrtc/common_video/h264/sps_parser.h
+@@ -11,6 +11,7 @@
+ #ifndef COMMON_VIDEO_H264_SPS_PARSER_H_
+ #define COMMON_VIDEO_H264_SPS_PARSER_H_
+ 
++#include <cstdint>
+ #include "absl/types/optional.h"
+ #include "rtc_base/bitstream_reader.h"
+ 
+diff --git a/third_party/webrtc/modules/include/module_common_types_public.h b/third_party/webrtc/modules/include/module_common_types_public.h
+index 345e45ce12..8338a51462 100644
+--- a/third_party/webrtc/modules/include/module_common_types_public.h
++++ b/third_party/webrtc/modules/include/module_common_types_public.h
+@@ -11,6 +11,7 @@
+ #ifndef MODULES_INCLUDE_MODULE_COMMON_TYPES_PUBLIC_H_
+ #define MODULES_INCLUDE_MODULE_COMMON_TYPES_PUBLIC_H_
+ 
++#include <cstdint>
+ #include <limits>
+ 
+ #include "absl/types/optional.h"
+diff --git a/third_party/webrtc/modules/video_coding/codecs/av1/BUILD.gn b/third_party/webrtc/modules/video_coding/codecs/av1/BUILD.gn
+index 73b22d46dc..e24f9cc473 100644
+--- a/third_party/webrtc/modules/video_coding/codecs/av1/BUILD.gn
++++ b/third_party/webrtc/modules/video_coding/codecs/av1/BUILD.gn
+@@ -38,7 +38,6 @@ rtc_library("dav1d_decoder") {
+     "../../../../api/video_codecs:video_codecs_api",
+     "../../../../common_video",
+     "../../../../rtc_base:logging",
+-    "//third_party/dav1d",
+     "//third_party/libyuv",
+   ]
+   absl_deps = [ "//third_party/abseil-cpp/absl/types:optional" ]
+diff --git a/third_party/webrtc/modules/video_coding/utility/ivf_file_reader.cc b/third_party/webrtc/modules/video_coding/utility/ivf_file_reader.cc
+index 85d1fa00d7..262b141b93 100644
+--- a/third_party/webrtc/modules/video_coding/utility/ivf_file_reader.cc
++++ b/third_party/webrtc/modules/video_coding/utility/ivf_file_reader.cc
+@@ -10,6 +10,7 @@
+ 
+ #include "modules/video_coding/utility/ivf_file_reader.h"
+ 
++#include <cstring>
+ #include <string>
+ #include <vector>
+ 
+diff --git a/third_party/webrtc/rtc_base/system/arch.h b/third_party/webrtc/rtc_base/system/arch.h
+index be2367b85f..dfff855bae 100644
+--- a/third_party/webrtc/rtc_base/system/arch.h
++++ b/third_party/webrtc/rtc_base/system/arch.h
+@@ -68,9 +68,11 @@
+ #endif
+ #define WEBRTC_ARCH_BIG_ENDIAN
+ #elif defined(__riscv) && __riscv_xlen == 64
++#define WEBRTC_ARCH_RISCV_FAMILY
+ #define WEBRTC_ARCH_64_BITS
+ #define WEBRTC_ARCH_LITTLE_ENDIAN
+ #elif defined(__riscv) && __riscv_xlen == 32
++#define WEBRTC_ARCH_RISCV_FAMILY
+ #define WEBRTC_ARCH_32_BITS
+ #define WEBRTC_ARCH_LITTLE_ENDIAN
+ #elif defined(__pnacl__)

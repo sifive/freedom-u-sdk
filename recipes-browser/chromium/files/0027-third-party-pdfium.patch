@@ -1,0 +1,13 @@
+diff --git a/third_party/pdfium/third_party/base/allocator/partition_allocator/spin_lock.cc b/third_party/pdfium/third_party/base/allocator/partition_allocator/spin_lock.cc
+index d7cdd15e2..ab9182608 100644
+--- a/third_party/pdfium/third_party/base/allocator/partition_allocator/spin_lock.cc
++++ b/third_party/pdfium/third_party/base/allocator/partition_allocator/spin_lock.cc
+@@ -45,6 +45,8 @@
+ #define YIELD_PROCESSOR __asm__ __volatile__("pause")
+ #elif defined(ARCH_CPU_PPC64_FAMILY)
+ #define YIELD_PROCESSOR __asm__ __volatile__("or 31,31,31")
++#elif defined(ARCH_CPU_RISCV_FAMILY)
++#define YIELD_PROCESSOR __asm__ __volatile__("FENCE")
+ #elif defined(ARCH_CPU_S390_FAMILY)
+ // just do nothing
+ #define YIELD_PROCESSOR ((void)0)

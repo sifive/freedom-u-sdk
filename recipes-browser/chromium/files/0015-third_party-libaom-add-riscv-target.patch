@@ -1,0 +1,26 @@
+From 7c1c6ca12315892184dcdc154e0f1254dbf7b062 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Wed, 30 Mar 2022 11:24:25 +0000
+Subject: [PATCH 15/23] third_party: libaom: add riscv target
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ third_party/libaom/BUILD.gn | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/third_party/libaom/BUILD.gn b/third_party/libaom/BUILD.gn
+index 49dbee305c6d5..4f5b56c7e7f0e 100644
+--- a/third_party/libaom/BUILD.gn
++++ b/third_party/libaom/BUILD.gn
+@@ -36,6 +36,8 @@ if (current_cpu == "x86") {
+   } else {
+     cpu_arch_full = "arm"
+   }
++} else if (current_cpu == "riscv64") {
++  cpu_arch_full = "generic"
+ } else {
+   cpu_arch_full = current_cpu
+ }
+-- 
+2.25.1
+

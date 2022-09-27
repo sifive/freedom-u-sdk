@@ -49,6 +49,7 @@ IMAGE_INSTALL += "\
     x11perf \
     xdotool \
     glmark2 \
+    chromium-x11 \
     "
 
 inherit features_check
