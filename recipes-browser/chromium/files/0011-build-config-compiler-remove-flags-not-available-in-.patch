@@ -1,0 +1,66 @@
+From 1cce24d3de450d4ea65b66886f64b3a769d119d3 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Mon, 17 Jan 2022 08:15:52 +0000
+Subject: [PATCH 11/23] build: config: compiler: remove flags not available in
+ custom clang
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ build/config/compiler/BUILD.gn | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index c90821ecde179..79710a677bcfe 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -345,7 +345,6 @@ config("compiler") {
+     }
+ 
+     if (use_lld) {
+-      ldflags += [ "-fuse-ld=lld" ]
+       if (lld_path != "") {
+         ldflags += [ "-B$lld_path" ]
+       }
+@@ -478,10 +477,6 @@ config("compiler") {
+     #}
+   }
+ 
+-  if (use_icf && (!is_apple || use_lld)) {
+-    ldflags += [ "-Wl,--icf=all" ]
+-  }
+-
+   if (is_linux || is_chromeos) {
+     cflags += [ "-pthread" ]
+     # Do not use the -pthread ldflag here since it becomes a no-op
+@@ -492,8 +487,6 @@ config("compiler") {
+   # Clang-specific compiler flags setup.
+   # ------------------------------------
+   if (is_clang) {
+-    cflags += [ "-fcolor-diagnostics" ]
+-
+     # Enable -fmerge-all-constants. This used to be the default in clang
+     # for over a decade. It makes clang non-conforming, but is fairly safe
+     # in practice and saves some binary size. We might want to consider
+@@ -511,8 +504,6 @@ config("compiler") {
+       # On Windows, we call the linker directly, instead of calling it through
+       # the driver.
+       ldflags += [ "--color-diagnostics" ]
+-    } else {
+-      ldflags += [ "-Wl,--color-diagnostics" ]
+     }
+   }
+ 
+@@ -749,10 +740,6 @@ config("compiler") {
+   if (use_lld && !enable_call_graph_profile_sort) {
+     if (is_win) {
+       ldflags += [ "/call-graph-profile-sort:no" ]
+-    } else if (!is_apple) {
+-      # TODO(thakis): Once LLD's Mach-O port basically works, implement call
+-      # graph profile sorting for it, add an opt-out flag, and pass it here.
+-      ldflags += [ "-Wl,--no-call-graph-profile-sort" ]
+     }
+   }
+ 
+-- 
+2.25.1
+

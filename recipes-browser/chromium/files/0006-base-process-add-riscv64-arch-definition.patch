@@ -1,0 +1,27 @@
+From 87a9190952f0cd3b47d55c37e6125a95028aa4a1 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Tue, 10 May 2022 02:21:16 +0000
+Subject: [PATCH 06/23] base: process: add riscv64 arch definition
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ base/process/launch_posix.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/base/process/launch_posix.cc b/base/process/launch_posix.cc
+index c5eb76eba5a7c..96df11f406f41 100644
+--- a/base/process/launch_posix.cc
++++ b/base/process/launch_posix.cc
+@@ -706,7 +706,8 @@ NOINLINE pid_t CloneAndLongjmpInChild(unsigned long flags,
+   alignas(16) char stack_buf[PTHREAD_STACK_MIN];
+ #if defined(ARCH_CPU_X86_FAMILY) || defined(ARCH_CPU_ARM_FAMILY) ||   \
+     defined(ARCH_CPU_MIPS_FAMILY) || defined(ARCH_CPU_S390_FAMILY) || \
+-    defined(ARCH_CPU_PPC64_FAMILY) || defined(ARCH_CPU_LOONG_FAMILY)
++    defined(ARCH_CPU_PPC64_FAMILY) || defined(ARCH_CPU_LOONG_FAMILY) || \
++    defined(ARCH_CPU_RISCV_FAMILY)
+   // The stack grows downward.
+   void* stack = stack_buf + sizeof(stack_buf);
+ #else
+-- 
+2.25.1
+

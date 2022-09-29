@@ -1,0 +1,607 @@
+From 89e1e2acf8c1c57d5f833b60a5f40a9b89440e51 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Wed, 18 May 2022 06:00:28 +0000
+Subject: [PATCH 01/23] linux: sysroot: script to create riscv sysroot from
+ Debian ports
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ .../sysroot_scripts/sysroot-creator-sid.sh    | 416 ++++++++++++++++++
+ .../linux/sysroot_scripts/sysroot-creator.sh  |  52 ++-
+ 2 files changed, 459 insertions(+), 9 deletions(-)
+ create mode 100755 build/linux/sysroot_scripts/sysroot-creator-sid.sh
+
+diff --git a/build/linux/sysroot_scripts/sysroot-creator-sid.sh b/build/linux/sysroot_scripts/sysroot-creator-sid.sh
+new file mode 100755
+index 0000000000000..f8c01b96256d5
+--- /dev/null
++++ b/build/linux/sysroot_scripts/sysroot-creator-sid.sh
+@@ -0,0 +1,416 @@
++#!/bin/bash
++# Copyright 2022 The Chromium Authors. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
++
++DISTRO=debian
++DIST=sid
++
++ARCHIVE_URL="http://ftp.ports.debian.org/debian-ports/"
++APT_SOURCES_LIST=(
++  "${ARCHIVE_URL} experimental main"
++  "${ARCHIVE_URL} unreleased main"
++  "${ARCHIVE_URL} unstable main"
++  "${ARCHIVE_URL} sid main"
++)
++
++# gpg keyring file generated using generate_keyring.sh
++KEYRING_FILE="/etc/apt/trusted.gpg.d/debian-ports-archive-2022.gpg"
++
++HAS_ARCH_RISCV64=1
++
++# Sysroot packages: these are the packages needed to build chrome.
++DEBIAN_PACKAGES="\
++  comerr-dev
++  krb5-multidev
++  libasound2
++  libasound2-dev
++  libasyncns0
++  libatk-bridge2.0-0
++  libatk-bridge2.0-dev
++  libatk1.0-0
++  libatk1.0-dev
++  libatomic1
++  libatspi2.0-0
++  libatspi2.0-dev
++  libattr1
++  libaudit1
++  libavahi-client3
++  libavahi-common3
++  libblkid-dev
++  libblkid1
++  libbluetooth-dev
++  libbluetooth3
++  libbrotli-dev
++  libbrotli1
++  libbsd0
++  libc6
++  libc6-dev
++  libcairo-gobject2
++  libcairo-script-interpreter2
++  libcairo2
++  libcairo2-dev
++  libcap-dev
++  libcap-ng0
++  libcap2
++  libcloudproviders0
++  libcolord2
++  libcom-err2
++  libcups2
++  libcups2-dev
++  libcupsimage2
++  libcupsimage2-dev
++  libcurl3-gnutls
++  libcurl4-gnutls-dev
++  libdatrie-dev
++  libdatrie1
++  libdb5.3
++  libdbus-1-3
++  libdbus-1-dev
++  libdbus-glib-1-2
++  libdbusmenu-glib-dev
++  libdbusmenu-glib4
++  libdbusmenu-gtk3-4
++  libdbusmenu-gtk4
++  libdeflate-dev
++  libdeflate0
++  libdouble-conversion3
++  libdrm-amdgpu1
++  libdrm-dev
++  libdrm-nouveau2
++  libdrm-radeon1
++  libdrm2
++  libegl-dev
++  libegl1
++  libegl1-mesa
++  libegl1-mesa-dev
++  libelf-dev
++  libelf1
++  libepoxy-dev
++  libepoxy0
++  libevdev-dev
++  libevdev2
++  libevent-2.1-7
++  libexpat1
++  libexpat1-dev
++  libffi-dev
++  libffi8
++  libflac-dev
++  libflac8
++  libfontconfig-dev
++  libfontconfig1
++  libfreetype-dev
++  libfreetype6
++  libfribidi-dev
++  libfribidi0
++  libgbm-dev
++  libgbm1
++  libgcc-10-dev
++  libgcc-s1
++  libgcrypt20
++  libgcrypt20-dev
++  libgdk-pixbuf-2.0-0
++  libgdk-pixbuf-2.0-dev
++  libgl-dev
++  libgl1
++  libgl1-mesa-dev
++  libgl1-mesa-glx
++  libglapi-mesa
++  libgles-dev
++  libgles1
++  libgles2
++  libglib2.0-0
++  libglib2.0-dev
++  libglvnd-dev
++  libglvnd0
++  libglx-dev
++  libglx0
++  libgmp10
++  libgnutls-dane0
++  libgnutls-openssl27
++  libgnutls28-dev
++  libgnutls30
++  libgnutlsxx30
++  libgomp1
++  libgpg-error-dev
++  libgpg-error0
++  libgraphene-1.0-0
++  libgraphene-1.0-dev
++  libgraphite2-3
++  libgraphite2-dev
++  libgssapi-krb5-2
++  libgssrpc4
++  libgtk-3-0
++  libgtk-3-dev
++  libgtk-4-1
++  libgtk-4-dev
++  libgtk2.0-0
++  libgudev-1.0-0
++  libharfbuzz-dev
++  libharfbuzz-gobject0
++  libharfbuzz-icu0
++  libharfbuzz0b
++  libhogweed6
++  libice6
++  libicu-le-hb0
++  libicu71
++  libidl-2-0
++  libidn12
++  libidn2-0
++  libinput-dev
++  libinput10
++  libjbig-dev
++  libjbig0
++  libjpeg62-turbo
++  libjpeg62-turbo-dev
++  libjson-glib-1.0-0
++  libjsoncpp-dev
++  libjsoncpp25
++  libk5crypto3
++  libkadm5clnt-mit12
++  libkadm5srv-mit12
++  libkdb5-10
++  libkeyutils1
++  libkrb5-3
++  libkrb5-dev
++  libkrb5support0
++  liblcms2-2
++  libldap-2.5-0
++  libltdl7
++  liblz4-1
++  liblzma5
++  liblzo2-2
++  libmd0
++  libmd4c0
++  libminizip-dev
++  libminizip1
++  libmount-dev
++  libmount1
++  libmtdev1
++  libncurses-dev
++  libncurses6
++  libncursesw6
++  libnettle8
++  libnghttp2-14
++  libnsl2
++  libnspr4
++  libnspr4-dev
++  libnss-db
++  libnss3
++  libnss3-dev
++  libogg-dev
++  libogg0
++  libopengl0
++  libopus-dev
++  libopus0
++  libp11-kit0
++  libpam0g
++  libpam0g-dev
++  libpango-1.0-0
++  libpango1.0-dev
++  libpangocairo-1.0-0
++  libpangoft2-1.0-0
++  libpangoxft-1.0-0
++  libpci-dev
++  libpci3
++  libpciaccess0
++  libpcre16-3
++  libpcre2-16-0
++  libpcre2-32-0
++  libpcre2-8-0
++  libpcre2-dev
++  libpcre2-posix3
++  libpcre3
++  libpcre3-dev
++  libpcre32-3
++  libpcrecpp0v5
++  libpipewire-0.3-0
++  libpipewire-0.3-dev
++  libpixman-1-0
++  libpixman-1-dev
++  libpng-dev
++  libpng16-16
++  libpsl5
++  libpthread-stubs0-dev
++  libpulse-dev
++  libpulse-mainloop-glib0
++  libpulse0
++  libqt5concurrent5
++  libqt5core5a
++  libqt5dbus5
++  libqt5gui5
++  libqt5network5
++  libqt5printsupport5
++  libqt5sql5
++  libqt5test5
++  libqt5widgets5
++  libqt5xml5
++  libre2-9
++  libre2-dev
++  librest-0.7-0
++  librtmp1
++  libsasl2-2
++  libselinux1
++  libselinux1-dev
++  libsepol2
++  libsepol-dev
++  libsm6
++  libsnappy-dev
++  libsnappy1v5
++  libsndfile1
++  libsoup-gnome2.4-1
++  libsoup2.4-1
++  libspa-0.2-dev
++  libspeechd-dev
++  libspeechd2
++  libsqlite3-0
++  libssh2-1
++  libssl-dev
++  libssl1.1
++  libstdc++-10-dev
++  libstdc++6
++  libsystemd0
++  libtasn1-6
++  libthai-dev
++  libthai0
++  libtiff-dev
++  libtiff5
++  libtiffxx5
++  libtinfo6
++  libtirpc3
++  libudev-dev
++  libudev1
++  libunbound8
++  libunistring2
++  libutempter-dev
++  libutempter0
++  libuuid1
++  libva-dev
++  libva-drm2
++  libva-glx2
++  libva-wayland2
++  libva-x11-2
++  libva2
++  libvorbis0a
++  libvorbisenc2
++  libvulkan-dev
++  libvulkan1
++  libwacom9
++  libwayland-client0
++  libwayland-cursor0
++  libwayland-dev
++  libwayland-egl1
++  libwayland-egl1-mesa
++  libwayland-server0
++  libwebp-dev
++  libwebp7
++  libwebpdemux2
++  libwebpmux3
++  libwrap0
++  libx11-6
++  libx11-dev
++  libx11-xcb-dev
++  libx11-xcb1
++  libxau-dev
++  libxau6
++  libxcb-dri2-0
++  libxcb-dri2-0-dev
++  libxcb-dri3-0
++  libxcb-dri3-dev
++  libxcb-glx0
++  libxcb-glx0-dev
++  libxcb-icccm4
++  libxcb-image0
++  libxcb-keysyms1
++  libxcb-present-dev
++  libxcb-present0
++  libxcb-randr0
++  libxcb-render-util0
++  libxcb-render0
++  libxcb-render0-dev
++  libxcb-shape0
++  libxcb-shm0
++  libxcb-shm0-dev
++  libxcb-sync1
++  libxcb-util1
++  libxcb-xfixes0
++  libxcb-xinerama0
++  libxcb-xinput0
++  libxcb-xkb1
++  libxcb1
++  libxcb1-dev
++  libxcomposite-dev
++  libxcomposite1
++  libxcursor-dev
++  libxcursor1
++  libxdamage-dev
++  libxdamage1
++  libxdmcp-dev
++  libxdmcp6
++  libxext-dev
++  libxext6
++  libxfixes-dev
++  libxfixes3
++  libxft-dev
++  libxft2
++  libxi-dev
++  libxi6
++  libxinerama-dev
++  libxinerama1
++  libxkbcommon-dev
++  libxkbcommon-x11-0
++  libxkbcommon0
++  libxml2
++  libxml2-dev
++  libxrandr-dev
++  libxrandr2
++  libxrender-dev
++  libxrender1
++  libxshmfence-dev
++  libxshmfence1
++  libxslt1-dev
++  libxslt1.1
++  libxss-dev
++  libxss1
++  libxt-dev
++  libxt6
++  libxtst-dev
++  libxtst6
++  libxxf86vm-dev
++  libxxf86vm1
++  libzstd1
++  linux-libc-dev
++  mesa-common-dev
++  qtbase5-dev
++  qtbase5-dev-tools
++  shared-mime-info
++  uuid-dev
++  wayland-protocols
++  x11proto-dev
++  zlib1g
++  zlib1g-dev
++"
++
++DEBIAN_PACKAGES_RISCV64="
++  libtsan0
++  liblsan0
++  libasan6
++  libdrm-intel1
++  libitm1
++  libquadmath0
++  libdrm-etnaviv1
++  libdrm-exynos1
++  libdrm-freedreno1
++  libdrm-omap1
++  libdrm-tegra0
++  libgmp10
++  liblsan0
++  libthai0
++  libtsan0
++  libubsan1
++  valgrind
++"
++
++. "${SCRIPT_DIR}/sysroot-creator.sh"
+diff --git a/build/linux/sysroot_scripts/sysroot-creator.sh b/build/linux/sysroot_scripts/sysroot-creator.sh
+index bde29db92ba02..b252c28a166a4 100644
+--- a/build/linux/sysroot_scripts/sysroot-creator.sh
++++ b/build/linux/sysroot_scripts/sysroot-creator.sh
+@@ -51,6 +51,7 @@ readonly HAS_ARCH_ARM64=${HAS_ARCH_ARM64:=0}
+ readonly HAS_ARCH_ARMEL=${HAS_ARCH_ARMEL:=0}
+ readonly HAS_ARCH_MIPS=${HAS_ARCH_MIPS:=0}
+ readonly HAS_ARCH_MIPS64EL=${HAS_ARCH_MIPS64EL:=0}
++readonly HAS_ARCH_RISCV64=${HAS_ARCH_RISCV64:=0}
+ 
+ readonly REQUIRED_TOOLS="curl xzcat"
+ 
+@@ -69,6 +70,7 @@ readonly DEBIAN_DEP_LIST_ARM64="generated_package_lists/${DIST}.arm64"
+ readonly DEBIAN_DEP_LIST_ARMEL="generated_package_lists/${DIST}.armel"
+ readonly DEBIAN_DEP_LIST_MIPS="generated_package_lists/${DIST}.mipsel"
+ readonly DEBIAN_DEP_LIST_MIPS64EL="generated_package_lists/${DIST}.mips64el"
++readonly DEBIAN_DEP_LIST_RISCV64="generated_package_lists/${DIST}.riscv64"
+ 
+ 
+ ######################################################################
+@@ -171,6 +173,9 @@ SetEnvironmentVariables() {
+     *ARMEL)
+       ARCH=ARMEL
+       ;;
++    *Riscv*)
++      ARCH=RISCV64
++      ;;
+     *)
+       echo "ERROR: Unable to determine architecture based on: $1"
+       exit 1
+@@ -312,6 +317,10 @@ GeneratePackageListMips64el() {
+   ${DEBIAN_PACKAGES_MIPS64EL:=}"
+ }
+ 
++GeneratePackageListRiscv64() {
++  GeneratePackageListCommon "$1" riscv64 "${DEBIAN_PACKAGES}"
++}
++
+ StripChecksumsFromPackageList() {
+   local package_file="$1"
+   sed -i 's/ [a-f0-9]\{64\}$//' "$package_file"
+@@ -402,13 +411,11 @@ HacksAndPatchesAmd64() {
+   ReversionGlibc x86_64 linux-gnu
+ }
+ 
+-
+ HacksAndPatchesI386() {
+   HacksAndPatchesCommon i386 linux-gnu strip
+   ReversionGlibc i386 linux-gnu
+ }
+ 
+-
+ HacksAndPatchesARM() {
+   HacksAndPatchesCommon arm linux-gnueabihf arm-linux-gnueabihf-strip
+   ReversionGlibc arm linux-gnueabihf
+@@ -433,12 +440,15 @@ HacksAndPatchesMips() {
+   ReversionGlibc mipsel linux-gnu
+ }
+ 
+-
+ HacksAndPatchesMips64el() {
+   HacksAndPatchesCommon mips64el linux-gnuabi64 mips64el-linux-gnuabi64-strip
+   ReversionGlibc mips64el linux-gnuabi64
+ }
+ 
++HacksAndPatchesRiscv64() {
++  HacksAndPatchesCommon riscv64 linux-gnu true
++   ReversionGlibc riscv64 linux-gnu
++}
+ 
+ InstallIntoSysroot() {
+   Banner "Install Libs And Headers Into Jail"
+@@ -489,7 +499,7 @@ CleanupJailSymlinks() {
+   cd ${INSTALL_ROOT}
+   local libdirs="lib usr/lib"
+   if [ "${ARCH}" != "MIPS" ]; then
+-    libdirs="${libdirs} lib64"
++    libdirs="${libdirs}"
+   fi
+ 
+   find $libdirs -type l -printf '%p %l\n' | while read link target; do
+@@ -532,6 +542,7 @@ VerifyLibraryDepsCommon() {
+   local all_libs="$(find ${find_dirs[*]} -printf '%f\n')"
+   # Ignore missing libdbus-1.so.0
+   all_libs+="$(echo -e '\nlibdbus-1.so.0')"
++  all_libs+="$(echo -e '\nlibicuuc.so.67')"
+   local missing_libs="$(grep -vFxf <(echo "${all_libs}") \
+     <(echo "${needed_libs}"))"
+   if [ ! -z "${missing_libs}" ]; then
+@@ -546,17 +557,14 @@ VerifyLibraryDepsAmd64() {
+   VerifyLibraryDepsCommon x86_64 linux-gnu
+ }
+ 
+-
+ VerifyLibraryDepsI386() {
+   VerifyLibraryDepsCommon i386 linux-gnu
+ }
+ 
+-
+ VerifyLibraryDepsARM() {
+   VerifyLibraryDepsCommon arm linux-gnueabihf
+ }
+ 
+-
+ VerifyLibraryDepsARM64() {
+   VerifyLibraryDepsCommon aarch64 linux-gnu
+ }
+@@ -569,11 +577,14 @@ VerifyLibraryDepsMips() {
+   VerifyLibraryDepsCommon mipsel linux-gnu
+ }
+ 
+-
+ VerifyLibraryDepsMips64el() {
+   VerifyLibraryDepsCommon mips64el linux-gnuabi64
+ }
+ 
++VerifyLibraryDepsRiscv64() {
++  VerifyLibraryDepsCommon riscv64 linux-gnu
++}
++
+ 
+ #@
+ #@ BuildSysrootAmd64
+@@ -715,6 +726,26 @@ BuildSysrootMips64el() {
+   CreateTarBall
+ }
+ 
++#@
++#@ BuildSysrootRiscv64
++#@
++#@    Build everything and package it
++BuildSysrootRiscv64() {
++  if [ "$HAS_ARCH_RISCV64" = "0" ]; then
++    return
++  fi
++  ClearInstallDir
++  local package_file="${DEBIAN_DEP_LIST_RISCV64}"
++  GeneratePackageListRiscv64 "$package_file"
++  local files_and_sha256sums="$(cat ${package_file})"
++  StripChecksumsFromPackageList "$package_file"
++  InstallIntoSysroot ${files_and_sha256sums}
++  HacksAndPatchesRiscv64
++  CleanupJailSymlinks
++  VerifyLibraryDepsRiscv64
++  CreateTarBall
++}
++
+ #@
+ #@ BuildSysrootAll
+ #@
+@@ -890,7 +921,7 @@ GeneratePackageList() {
+   local failed=0
+   for pkg in $@ ; do
+     local pkg_full=$(grep -A 1 " ${pkg}\$" "$input_file" | \
+-      egrep "pool/.*" | sed 's/.*Filename: //')
++      egrep "debian-ports/.*" | sed 's/.*Filename: //')
+     if [ -z "${pkg_full}" ]; then
+       echo "ERROR: missing package: $pkg"
+       local failed=1
+@@ -937,6 +968,9 @@ PrintArchitectures() {
+   if [ "$HAS_ARCH_MIPS64EL" = "1" ]; then
+     echo Mips64el
+   fi
++  if [ "$HAS_ARCH_RISCV64" = "1" ]; then
++    echo Riscv64
++  fi
+ }
+ 
+ #@
+-- 
+2.25.1
+

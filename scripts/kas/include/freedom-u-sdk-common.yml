@@ -49,6 +49,12 @@ repos:
     layers:
       .:
 
+  meta-browser:
+    url: https://github.com/OSSystems/meta-browser.git
+    refspec: 1f3ccca5678d7cbb221645227ec403aa767c16dd
+    layers:
+      meta-chromium:
+
 distro: freedom-u-sdk
 
 env:

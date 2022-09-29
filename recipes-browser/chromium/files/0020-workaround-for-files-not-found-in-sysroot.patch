@@ -1,0 +1,29 @@
+From 69881d81443cd78aa9aca83ffc15298325ab9bdc Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Thu, 28 Apr 2022 01:03:56 +0000
+Subject: [PATCH 20/23] workaround for files not found in sysroot
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ buildtools/third_party/libc++/BUILD.gn | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/buildtools/third_party/libc++/BUILD.gn b/buildtools/third_party/libc++/BUILD.gn
+index 74b6ad644d49c..cf7ad5b2f8426 100644
+--- a/buildtools/third_party/libc++/BUILD.gn
++++ b/buildtools/third_party/libc++/BUILD.gn
+@@ -23,7 +23,10 @@ config("config") {
+       "-std:c++20",
+     ]
+   } else {
+-    cflags += [ "-fPIC" ]
++    cflags += [
++      "-fPIC",
++      "-isystem../../build/linux/debian_sid_riscv64-sysroot/usr/include",
++    ]
+     cflags_cc = [ "-std=c++20" ]
+   }
+ 
+-- 
+2.25.1
+

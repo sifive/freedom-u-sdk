@@ -1,0 +1,26 @@
+From 47d5b9768c18033ff740de7e2c072b247bfe2852 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Fri, 14 Jan 2022 01:04:19 +0000
+Subject: [PATCH 04/23] skia: add riscv64
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ skia/BUILD.gn | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/skia/BUILD.gn b/skia/BUILD.gn
+index 5c3a90ee7fcdc..daea4ff50a4b3 100644
+--- a/skia/BUILD.gn
++++ b/skia/BUILD.gn
+@@ -809,6 +809,8 @@ skia_source_set("skia_opts") {
+     sources = skia_opts.none_sources
+   } else if (current_cpu == "s390x") {
+     sources = skia_opts.none_sources
++  } else if (current_cpu == "riscv64") {
++    sources = skia_opts.none_sources
+   } else {
+     assert(false, "Need to port cpu specific stuff from skia_library_opts.gyp")
+   }
+-- 
+2.25.1
+

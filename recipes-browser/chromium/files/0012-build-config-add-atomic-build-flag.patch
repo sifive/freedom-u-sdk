@@ -1,0 +1,25 @@
+From d20f32720eac124195f162317c8187ce0670f21d Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Wed, 30 Mar 2022 05:43:35 +0000
+Subject: [PATCH 12/23] build: config: add atomic build flag
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ build/config/BUILD.gn | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/build/config/BUILD.gn b/build/config/BUILD.gn
+index 79f1b1aebe9a5..627b01b3c9859 100644
+--- a/build/config/BUILD.gn
++++ b/build/config/BUILD.gn
+@@ -223,6 +223,7 @@ config("default_libs") {
+       "dl",
+       "pthread",
+       "rt",
++      "atomic",
+     ]
+   }
+ }
+-- 
+2.25.1
+

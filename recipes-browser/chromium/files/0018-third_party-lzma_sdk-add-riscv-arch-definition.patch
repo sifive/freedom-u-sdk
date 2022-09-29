@@ -1,0 +1,31 @@
+From bdd1bde72c2c366d2e2a3effc6ddabb2db714f28 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Fri, 14 Jan 2022 05:07:31 +0000
+Subject: [PATCH 18/23] third_party: lzma_sdk: add riscv arch definition
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ third_party/lzma_sdk/CpuArch.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/third_party/lzma_sdk/CpuArch.h b/third_party/lzma_sdk/CpuArch.h
+index bd429388024d7..5a6306641b92f 100644
+--- a/third_party/lzma_sdk/CpuArch.h
++++ b/third_party/lzma_sdk/CpuArch.h
+@@ -107,6 +107,13 @@ MY_CPU_LE_UNALIGN means that CPU is LITTLE ENDIAN and CPU supports unaligned mem
+ #endif
+ 
+ 
++#if defined(__riscv) && (__riscv_xlen == 64)
++  #define MY_CPU_NAME "riscv64"
++  #define MY_CPU_64BIT
++  #define MY_CPU_LE
++#endif
++
++
+ #if defined(MY_CPU_X86) || defined(MY_CPU_AMD64)
+ #define MY_CPU_X86_OR_AMD64
+ #endif
+-- 
+2.25.1
+

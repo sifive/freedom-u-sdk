@@ -1,0 +1,17 @@
+diff --git a/third_party/perfetto/gn/standalone/BUILD.gn b/third_party/perfetto/gn/standalone/BUILD.gn
+index ab21e5877..d63efe924 100644
+--- a/third_party/perfetto/gn/standalone/BUILD.gn
++++ b/third_party/perfetto/gn/standalone/BUILD.gn
+@@ -252,6 +252,12 @@ config("default") {
+         "-msse4.2",
+       ]
+     }
++  } else if (target_cpu == "riscv64") {
++      cflags += [
++        "-m64",
++        "-march=rv64gc",
++        "-mabi=lp64d",
++      ]
+   }
+ 
+   if (is_linux) {

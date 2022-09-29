@@ -1,0 +1,116 @@
+From 796fe4577f25873b97485b430b1fd17d72d4fcea Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Thu, 13 Jan 2022 08:57:34 +0000
+Subject: [PATCH 14/23] chrome: common: remove unrar code
+
+Upstream-status: Inappropriate
+
+unrar code is non-free. This might not be suitable for
+distributing as third_party. Hence we disabled it from
+our build.
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ chrome/common/safe_browsing/BUILD.gn          | 34 -------------------
+ chrome/common/safe_browsing/DEPS              |  1 -
+ chrome/services/file_util/BUILD.gn            |  1 -
+ .../file_util/safe_archive_analyzer.cc        |  4 +++
+ 4 files changed, 4 insertions(+), 36 deletions(-)
+
+diff --git a/chrome/common/safe_browsing/BUILD.gn b/chrome/common/safe_browsing/BUILD.gn
+index dbd1ae28552ce..b67ca3bf09031 100644
+--- a/chrome/common/safe_browsing/BUILD.gn
++++ b/chrome/common/safe_browsing/BUILD.gn
+@@ -58,39 +58,6 @@ if (safe_browsing_mode == 1) {
+     public_deps = [ "//components/safe_browsing/core/common/proto:csd_proto" ]
+   }
+ 
+-  source_set("rar_analyzer") {
+-    sources = [
+-      "rar_analyzer.cc",
+-      "rar_analyzer.h",
+-    ]
+-
+-    deps = [
+-      ":archive_analyzer_results",
+-      ":download_type_util",
+-      "//base",
+-      "//base:i18n",
+-      "//components/safe_browsing/content/common:file_type_policies",
+-      "//components/safe_browsing/core/common",
+-      "//third_party/unrar:unrar",
+-    ]
+-
+-    defines = [
+-      "_FILE_OFFSET_BITS=64",
+-      "LARGEFILE_SOURCE",
+-      "RAR_SMP",
+-      "SILENT",
+-
+-      # The following is set to disable certain macro definitions in the unrar
+-      # source code.
+-      "CHROMIUM_UNRAR",
+-
+-      # Disables exceptions in unrar, replaces them with process termination.
+-      "UNRAR_NO_EXCEPTIONS",
+-    ]
+-
+-    public_deps = [ "//components/safe_browsing/core/common/proto:csd_proto" ]
+-  }
+-
+   if (is_linux || is_win) {
+     source_set("document_analyzer") {
+       sources = [
+@@ -189,7 +156,6 @@ source_set("safe_browsing") {
+       ":archive_analyzer_results",
+       ":binary_feature_extractor",
+       ":download_type_util",
+-      ":rar_analyzer",
+       "//components/safe_browsing/core/common",
+     ]
+ 
+diff --git a/chrome/common/safe_browsing/DEPS b/chrome/common/safe_browsing/DEPS
+index b8f7708dcef7b..28723c2e64728 100644
+--- a/chrome/common/safe_browsing/DEPS
++++ b/chrome/common/safe_browsing/DEPS
+@@ -3,6 +3,5 @@ include_rules = [
+   "+components/safe_browsing/core/common",
+   "+third_party/maldoca",
+   "+third_party/protobuf",
+-  "+third_party/unrar",
+   "+third_party/zlib",
+ ]
+diff --git a/chrome/services/file_util/BUILD.gn b/chrome/services/file_util/BUILD.gn
+index 8a50b0932e0bc..85ec598cf712a 100644
+--- a/chrome/services/file_util/BUILD.gn
++++ b/chrome/services/file_util/BUILD.gn
+@@ -60,7 +60,6 @@ source_set("file_util") {
+     deps += [
+       "//chrome/common/safe_browsing",
+       "//chrome/common/safe_browsing:archive_analyzer_results",
+-      "//chrome/common/safe_browsing:rar_analyzer",
+     ]
+ 
+     if (is_linux || is_win) {
+diff --git a/chrome/services/file_util/safe_archive_analyzer.cc b/chrome/services/file_util/safe_archive_analyzer.cc
+index 3b647cd93546f..d29f46c473bee 100644
+--- a/chrome/services/file_util/safe_archive_analyzer.cc
++++ b/chrome/services/file_util/safe_archive_analyzer.cc
+@@ -44,10 +44,14 @@ void SafeArchiveAnalyzer::AnalyzeDmgFile(base::File dmg_file,
+ void SafeArchiveAnalyzer::AnalyzeRarFile(base::File rar_file,
+                                          base::File temporary_file,
+                                          AnalyzeRarFileCallback callback) {
++#if 0
+   DCHECK(rar_file.IsValid());
+ 
+   safe_browsing::ArchiveAnalyzerResults results;
+   safe_browsing::rar_analyzer::AnalyzeRarFile(
+       std::move(rar_file), std::move(temporary_file), &results);
+   std::move(callback).Run(results);
++#else
++  NOTREACHED();
++#endif
+ }
+-- 
+2.25.1
+

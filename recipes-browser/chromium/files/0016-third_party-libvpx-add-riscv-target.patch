@@ -1,0 +1,35 @@
+From 81299de9e6388b34a00e8731dab6b5081a3b2214 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Wed, 30 Mar 2022 11:26:18 +0000
+Subject: [PATCH 16/23] third_party: libvpx: add riscv target
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ third_party/libvpx/BUILD.gn | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/libvpx/BUILD.gn b/third_party/libvpx/BUILD.gn
+index a972e1f18b700..0af79ee63344a 100644
+--- a/third_party/libvpx/BUILD.gn
++++ b/third_party/libvpx/BUILD.gn
+@@ -35,6 +35,8 @@ if (current_cpu == "x86") {
+   } else {
+     cpu_arch_full = current_cpu
+   }
++} else if (current_cpu == "riscv64") {
++  cpu_arch_full = "generic"
+ } else {
+   cpu_arch_full = current_cpu
+ }
+@@ -360,7 +362,7 @@ static_library("libvpx") {
+     configs += [ "//build/config/compiler:optimize_max" ]
+   }
+ 
+-  if (is_nacl) {
++  if (is_nacl || current_cpu == "riscv64") {
+     sources = libvpx_srcs_generic
+     public_deps = [ ":libvpx_generic_headers" ]
+   } else if (current_cpu == "x86") {
+-- 
+2.25.1
+

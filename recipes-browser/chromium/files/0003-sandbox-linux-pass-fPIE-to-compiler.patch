@@ -1,0 +1,34 @@
+From 8f7c059991efa63ee7037a91427aab1235ec627f Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Thu, 13 Jan 2022 03:50:24 +0000
+Subject: [PATCH 03/23] sandbox: linux: pass -fPIE to compiler
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ sandbox/linux/BUILD.gn | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/sandbox/linux/BUILD.gn b/sandbox/linux/BUILD.gn
+index ec24cd81e2748..60c60d741bf6d 100644
+--- a/sandbox/linux/BUILD.gn
++++ b/sandbox/linux/BUILD.gn
+@@ -292,11 +292,16 @@ if (is_linux || is_chromeos) {
+     cflags = [
+       # For ULLONG_MAX
+       "-std=gnu99",
++      "-fPIE",
+ 
+       # These files have a suspicious comparison.
+       # TODO fix this and re-enable this warning.
+       "-Wno-sign-compare",
+     ]
++
++    ldflags = [
++      "-pie",
++    ]
+   }
+ }
+ 
+-- 
+2.25.1
+

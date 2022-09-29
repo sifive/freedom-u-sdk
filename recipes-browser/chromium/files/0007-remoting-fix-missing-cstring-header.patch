@@ -1,0 +1,81 @@
+From 583d891f4642244c5249065bdde985aa9940d4f0 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Thu, 13 Jan 2022 09:44:47 +0000
+Subject: [PATCH 07/23] remoting: fix missing cstring header
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ remoting/base/util.cc                      | 2 +-
+ remoting/client/display/gl_helpers.cc      | 2 +-
+ remoting/host/fake_mouse_cursor_monitor.cc | 2 +-
+ remoting/host/host_config_unittest.cc      | 1 +
+ remoting/host/host_secret.cc               | 2 +-
+ 5 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/remoting/base/util.cc b/remoting/base/util.cc
+index 20eedfb3a34cb..4c1fdcc75ca7d 100644
+--- a/remoting/base/util.cc
++++ b/remoting/base/util.cc
+@@ -3,7 +3,7 @@
+ // found in the LICENSE file.
+ 
+ #include "remoting/base/util.h"
+-
++#include <cstring>
+ #include <math.h>
+ 
+ #include "base/logging.h"
+diff --git a/remoting/client/display/gl_helpers.cc b/remoting/client/display/gl_helpers.cc
+index bce438b7625e3..5215980462f8a 100644
+--- a/remoting/client/display/gl_helpers.cc
++++ b/remoting/client/display/gl_helpers.cc
+@@ -5,7 +5,7 @@
+ #include "remoting/client/display/gl_helpers.h"
+ 
+ #include "base/logging.h"
+-
++#include <cstring>
+ namespace remoting {
+ 
+ GLuint CompileShader(GLenum shader_type, const char* shader_source) {
+diff --git a/remoting/host/fake_mouse_cursor_monitor.cc b/remoting/host/fake_mouse_cursor_monitor.cc
+index 0f8b6c72fd422..a7c499b85d055 100644
+--- a/remoting/host/fake_mouse_cursor_monitor.cc
++++ b/remoting/host/fake_mouse_cursor_monitor.cc
+@@ -3,7 +3,7 @@
+ // found in the LICENSE file.
+ 
+ #include "remoting/host/fake_mouse_cursor_monitor.h"
+-
++#include <cstring>
+ #include <memory>
+ 
+ #include "base/check.h"
+diff --git a/remoting/host/host_config_unittest.cc b/remoting/host/host_config_unittest.cc
+index 31a9bcb7ae779..9c7c176721d76 100644
+--- a/remoting/host/host_config_unittest.cc
++++ b/remoting/host/host_config_unittest.cc
+@@ -10,6 +10,7 @@
+ #include "base/values.h"
+ #include "testing/gtest/include/gtest/gtest.h"
+ #include "third_party/abseil-cpp/absl/types/optional.h"
++#include <cstring>
+ 
+ namespace remoting {
+ 
+diff --git a/remoting/host/host_secret.cc b/remoting/host/host_secret.cc
+index c70c9c211c061..dc2f697b5ae26 100644
+--- a/remoting/host/host_secret.cc
++++ b/remoting/host/host_secret.cc
+@@ -6,7 +6,7 @@
+ 
+ #include <stdint.h>
+ 
+-#include <string>
++#include <cstring>
+ 
+ #include "base/rand_util.h"
+ #include "base/strings/string_number_conversions.h"
+-- 
+2.25.1
+

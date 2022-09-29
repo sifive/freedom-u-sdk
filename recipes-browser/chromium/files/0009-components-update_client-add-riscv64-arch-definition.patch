@@ -1,0 +1,49 @@
+From b919c1f1a31b647ef3f5f124c22f5ee0b5950f08 Mon Sep 17 00:00:00 2001
+From: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+Date: Tue, 5 Apr 2022 02:27:27 +0000
+Subject: [PATCH 09/23] components: update_client: add riscv64 arch definition
+
+Signed-off-by: Rebecca Chang Swee Fun <rebecca.chang@starfivetech.com>
+---
+ components/update_client/update_query_params.cc | 4 ++++
+ components/update_client/update_query_params.h  | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/components/update_client/update_query_params.cc b/components/update_client/update_query_params.cc
+index a707c0ea2ca62..29136a51488cf 100644
+--- a/components/update_client/update_query_params.cc
++++ b/components/update_client/update_query_params.cc
+@@ -63,6 +63,8 @@ const char kArch[] =
+     "loong32";
+ #elif defined(__loongarch64)
+     "loong64";
++#elif defined(__riscv) && (__riscv_xlen == 64)
++    "riscv64";
+ #else
+ #error "unknown arch"
+ #endif
+@@ -136,6 +138,8 @@ const char* UpdateQueryParams::GetNaclArch() {
+   return "loong32";
+ #elif defined(ARCH_CPU_LOONG64)
+   return "loong64";
++#elif defined(ARCH_CPU_RISCV64)
++  return "riscv64";
+ #else
+ // NOTE: when adding new values here, please remember to update the
+ // comment in the .h file about possible return values from this function.
+diff --git a/components/update_client/update_query_params.h b/components/update_client/update_query_params.h
+index a22f8b85bc0d9..969582bf92289 100644
+--- a/components/update_client/update_query_params.h
++++ b/components/update_client/update_query_params.h
+@@ -44,7 +44,7 @@ class UpdateQueryParams {
+   // Returns the value we use for the "nacl_arch" parameter. Note that this may
+   // be different from the "arch" parameter above (e.g. one may be 32-bit and
+   // the other 64-bit). Possible return values include: "x86-32", "x86-64",
+-  // "arm", "mips32", and "ppc64".
++  // "arm", "mips32", "ppc64", and "riscv64".
+   static const char* GetNaclArch();
+ 
+   // Returns the current version of Chrome/Chromium.
+-- 
+2.25.1
+
