@@ -1,0 +1,30 @@
+From c722f68575070e284f1ee282d918ea65bf7b7459 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Sat, 15 Oct 2022 10:36:34 +0200
+Subject: [PATCH] Revert "libx11: upgrade 1.8 -> 1.8.1"
+
+This reverts commit 7918a25736a7f04755d8b4b2497abe7967e4544c.
+---
+ .../xorg-lib/{libx11_1.8.1.bb => libx11_1.8.bb}                 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ rename meta/recipes-graphics/xorg-lib/{libx11_1.8.1.bb => libx11_1.8.bb} (94%)
+
+diff --git a/meta/recipes-graphics/xorg-lib/libx11_1.8.1.bb b/meta/recipes-graphics/xorg-lib/libx11_1.8.bb
+similarity index 94%
+rename from meta/recipes-graphics/xorg-lib/libx11_1.8.1.bb
+rename to meta/recipes-graphics/xorg-lib/libx11_1.8.bb
+index 1dcc3abee968..6d5a8626d6c2 100644
+--- a/meta/recipes-graphics/xorg-lib/libx11_1.8.1.bb
++++ b/meta/recipes-graphics/xorg-lib/libx11_1.8.bb
+@@ -16,7 +16,7 @@ SRC_URI = "${XORG_MIRROR}/individual/lib/${XORG_PN}-${PV}.tar.xz"
+ 
+ SRC_URI += "file://disable_tests.patch \
+            "
+-SRC_URI[sha256sum] = "1bc41aa1bbe01401f330d76dfa19f386b79c51881c7bbfee9eb4e27f22f2d9f7"
++SRC_URI[sha256sum] = "081bf42ebab023aa92cfdb20c7af8c5ae13d13e88a5e22f90f4453ef80bbdde4"
+ 
+ PROVIDES = "virtual/libx11"
+ 
+-- 
+2.37.3
+

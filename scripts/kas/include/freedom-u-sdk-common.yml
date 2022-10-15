@@ -18,6 +18,10 @@ repos:
     refspec: c419bd4537756e9f6c2fe6da3a9b798526e27eca
     layers:
       meta:
+    patches:
+      quilt:
+        repo: freedom-u-sdk
+        path: scripts/kas/patches/openembedded-core/
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
