@@ -47,6 +47,12 @@ repos:
       meta-oe:
       meta-xfce:
 
+  meta-sifive-fpga:
+    url: git@github.com:sifive/meta-sifive-fpga.git
+    refspec: 3c8f0a0e48cdc31f66cc5f8a228f629259b988f2
+    layers:
+      .:
+
 distro: freedom-u-sdk
 
 env:
