@@ -20,12 +20,15 @@ PV = "1.0.1+git${SRCREV}"
 S = "${WORKDIR}/git"
 
 do_compile() {
+    oe_runmake XCFLAGS="-DPERFORMANCE_RUN=1 -DITERATIONS=5000 -DMTIME_RATE_HZ_DEF=32768" OUTNAME=coremark link
+
     oe_runmake XCFLAGS="-DPERFORMANCE_RUN=1" OUTNAME=coremark_st link
 
     oe_runmake XCFLAGS="-DPERFORMANCE_RUN=1 -DMULTITHREAD=4 -DUSE_FORK=1" OUTNAME=coremark_mt4 link
 }
 
 do_install() {
+    install -D -p -m 755 coremark ${D}${bindir}/coremark
     install -D -p -m 755 coremark_st ${D}${bindir}/coremark_st
     install -D -p -m 755 coremark_mt4 ${D}${bindir}/coremark_mt4
 }
