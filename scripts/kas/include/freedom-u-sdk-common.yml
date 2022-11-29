@@ -49,7 +49,7 @@ repos:
 
   meta-sifive-fpga:
     url: git@github.com:sifive/meta-sifive-fpga.git
-    refspec: 3c8f0a0e48cdc31f66cc5f8a228f629259b988f2
+    refspec: f51abdbf7a77722d30beeaea055c508cb4bafee0
     layers:
       .:
 
