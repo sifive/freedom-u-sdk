@@ -1,3 +1,3 @@
-require demo-coreip-cli.inc
+require recipes-sifive/images/demo-coreip-cli.inc
 
 IMAGE_FEATURES += "dbg-pkgs"

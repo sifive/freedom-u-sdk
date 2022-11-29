@@ -174,6 +174,8 @@ IMAGE_INSTALL += "\
     tensorflow-lite-label-image \
     tensorflow-lite-minimal \
     coremark \
+    trace-cmd \
+    opencv \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
