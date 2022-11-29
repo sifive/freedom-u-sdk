@@ -4,7 +4,7 @@ header:
     - scripts/kas/include/freedom-u-sdk-common.yml
 
 target:
+ - demo-coreip-cli
  - demo-coreip-xfce4
- - buildtools-extended-tarball
 
 machine: unmatched

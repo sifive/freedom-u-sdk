@@ -49,13 +49,23 @@ repos:
     layers:
       .:
 
+  meta-virtualization:
+    url: https://git.yoctoproject.org/meta-virtualization
+    refspec: 3626f2c9ccd56c6a3ee51304a7da7aafb395a588
+    layers:
+      .:
+
 distro: freedom-u-sdk
 
 env:
     TEMPLATECONF: freedom-u-sdk/conf
 
 local_conf_header:
-  freedom-u-sdk: |
+  freedom-u-sdk-common: |
     USER_CLASSES:append = " buildhistory buildstats buildstats-summary"
     INHERIT:append = " rm_work"
     RM_OLD_IMAGE = "1"
+
+  qemu-native: |
+    PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
+    PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
