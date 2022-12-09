@@ -1,0 +1,9 @@
+header:
+  version: 11
+  includes:
+    - scripts/kas/include/freedom-u-sdk-common.yml
+
+target:
+ - demo-coreip-cli
+
+machine: sifive-fpga
