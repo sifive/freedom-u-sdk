@@ -176,6 +176,7 @@ IMAGE_INSTALL += "\
     coremark \
     trace-cmd \
     opencv \
+    kvmtool \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
