@@ -10,8 +10,9 @@ Common targets are:
     meta-ide-support
 
 Buildable machine info:
- - unmatched         : The SiFive HiFive Unmatched board
  - freedom-u540      : The SiFive HiFive Unleashed board
+ - qemuriscv64       : The Qemu RISC-V 64bits
+ - unmatched         : The SiFive HiFive Unmatched board
 You can also run generated qemu images with a command like 'runqemu qemuriscv64'.
 
 Other commonly useful commands are:

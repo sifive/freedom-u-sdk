@@ -58,7 +58,7 @@ repos:
 distro: freedom-u-sdk
 
 env:
-    TEMPLATECONF: freedom-u-sdk/conf
+    TEMPLATECONF: ../freedom-u-sdk/conf/templates/default
 
 local_conf_header:
   freedom-u-sdk-common: |

@@ -1,2 +1,2 @@
 # Template settings
-TEMPLATECONF=${TEMPLATECONF:-freedom-u-sdk/conf}
+TEMPLATECONF=${TEMPLATECONF:-freedom-u-sdk/conf/templates/default}
