@@ -127,13 +127,13 @@ images for writing to uSD card.
 Images built can be flashed with `bmaptool` (faster), for example:
 
 ```bash
-sudo bmaptool copy ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.wic.xz /dev/mmcblk0
+sudo bmaptool copy ../build/tmp/deploy/images/unmatched/demo-coreip-xfce4-unmatched.wic.xz /dev/mmcblk0
 ```
 
 Otherwise, you can also use the `dd` command, for example:
 
 ```bash
-xzcat ../build/tmp-glibc/deploy/images/unmatched/core-image-minimal-unmatched.wic.xz | sudo dd of=/dev/mmcblk0 bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
+xzcat ../build/tmp/deploy/images/unmatched/demo-coreip-xfce4-unmatched.wic.xz | sudo dd of=/dev/mmcblk0 bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
 ```
 
 ### MSEL for Unleashed
@@ -302,7 +302,7 @@ python3 python3 mnist.py
 
 If you want to file issues, send patches and make feature/enhancement requests
 use [freedom-u-sdk](https://github.com/sifive/freedom-u-sdk) repository on
-GitHub.
+GitHub. So that the maintainer can process your request.
 
 You are also welcome to join [SiFive Forums ](https://forums.sifive.com/)
 where we have [HiFive Unleashed](https://forums.sifive.com/c/hifive-unleashed/12)
