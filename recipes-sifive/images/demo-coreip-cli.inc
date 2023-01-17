@@ -24,7 +24,6 @@ IMAGE_INSTALL += "\
     iperf2 \
     fio \
     tinymembench \
-    sysbench \
     memtester \
     lmbench \
     vim \
