@@ -1,0 +1,30 @@
+From 53f7cb957c3c547100ad13e71e5550ce7b29ffb1 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Wed, 15 Mar 2023 10:22:51 +0100
+Subject: [PATCH] layer.conf: Update LAYERSERIES_COMPAT for mickledore
+
+oe-core switched to mickedore [1]
+
+[1] https://git.openembedded.org/openembedded-core/commit/?id=57239d66b933c4313cf331d35d13ec2d0661c38f
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ conf/layer.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/conf/layer.conf b/conf/layer.conf
+index eba5ef2dbf79..20dfc8e46daa 100644
+--- a/conf/layer.conf
++++ b/conf/layer.conf
+@@ -11,7 +11,7 @@ BBFILE_PRIORITY_meta-tensorflow = "10"
+ 
+ LAYERVERSION_meta-tensorflow = "1"
+ 
+-LAYERSERIES_COMPAT_meta-tensorflow = "kirkstone langdale"
++LAYERSERIES_COMPAT_meta-tensorflow = "mickledore"
+ 
+ LAYERDEPENDS_meta-tensorflow = " \
+     core \
+-- 
+2.39.2
+

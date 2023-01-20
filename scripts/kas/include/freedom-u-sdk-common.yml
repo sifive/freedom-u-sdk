@@ -7,7 +7,7 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: b986eac18b6a8bf633f5ef15f32f68de4c86173b
+    refspec: b29f6e04091b6bfe697dc41c76880de466736fc3
     layers:
       .: excluded
 
@@ -15,25 +15,25 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: dd137feabdad2e7a2b3d107c703aad577a2e79c7
+    refspec: 5560a0e15bd860a59671a66cc76ad1bb7e07c9d1
     layers:
       meta:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 36d2b65f81542ea5e36664cfdc4d1b5763b9ba4b
+    refspec: 204dadaf378e44d6c53d3bee1c2a54aaf38d666c
     layers:
       .:
 
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: 0cf45af2861140a11a3655b6c1185a1b781420a0
+    refspec: eef39efef97627ba5730cc06674b7b0e698d3438
     layers:
       .:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: 84247e2e6fbcf622f945082e6cc6da2ded6086d9
+    refspec: 0c9700a01f0592de51fcc2e173b4f4dee5f5ccfd
     layers:
       meta-filesystems:
       meta-gnome:
@@ -43,15 +43,19 @@ repos:
       meta-oe:
       meta-xfce:
 
-  meta-tensorflow-lite:
-    url: https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
-    refspec: 56a64f71c509928369e700987dcca1ea02b48710
+  meta-tensorflow:
+    url: https://git.yoctoproject.org/meta-tensorflow
+    refspec: 2397d484c6b16340fd94640644a9221d2ad9ad6d
     layers:
       .:
+    patches:
+      quilt:
+        repo: freedom-u-sdk
+        path: scripts/kas/patches/meta-tensorflow/
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization
-    refspec: 543f4e6b5f6be0d397bcc78e22d5ca9a970b7111
+    refspec: d2a630ce6cf67a145f218012fbf02e4d0d9648df
     layers:
       .:
 
@@ -69,3 +73,9 @@ local_conf_header:
   qemu-native: |
     PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
     PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
+
+  sdk: |
+    CONF_VERSION = "2"
+
+  tensorflow: |
+    BAZEL_TARGET_CPU = "riscv64"

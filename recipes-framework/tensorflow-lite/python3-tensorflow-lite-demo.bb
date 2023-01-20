@@ -1,10 +1,7 @@
 DESCRIPTION = "A Sample of testing Tensorflow-lite with MNIST handwritten digits."
 LICENSE = "CLOSED"
 
-RDEPENDS:${PN} += " \
-    python3-tensorflow-lite \
-    python3-numpy \
-"
+RDEPENDS:${PN} = "tensorflow-lite python3-numpy"
 
 SRC_URI = "\
     file://demo/digit5.txt \

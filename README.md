@@ -78,6 +78,8 @@ for example:
 kas build --update ./freedom-u-sdk/scripts/kas/unmatched.yml --target core-image-weston
 kas build --update ./freedom-u-sdk/scripts/kas/unmatched.yml --target buildtools-extended-tarball
 kas build --update ./freedom-u-sdk/scripts/kas/unmatched.yml --target busybox
+kas shell --update ./freedom-u-sdk/scripts/kas/unmatched.yml -c "bitbake core-image-minimal -c populate_sdk"
+kas shell --update ./freedom-u-sdk/scripts/kas/unmatched.yml -c "bitbake core-image-minimal -c populate_sdk_ext"
 ```
 
 ## Running in QEMU
@@ -95,11 +97,13 @@ kas shell ./freedom-u-sdk/scripts/kas/qemuriscv64.yml -E -c "runqemu slirp demo-
 
 The OpenEmbedded/Yocto framework provides also provides tools to implement and to run tests.
 
-These tests can be executed automatically, on Qemu RISC-V,  using the
-following command:
+These tests can be executed on all supported targets, using the following commands:
 
 ```bash
-kas shell ./freedom-u-sdk/scripts/kas/qemuriscv64.yml -c "bitbake core-image-minimal -c testimage"
+kas build --update ./freedom-u-sdk/scripts/kas/qemuriscv64.yml:./freedom-u-sdk/scripts/kas/include/test.yml
+kas shell --update ./freedom-u-sdk/scripts/kas/qemuriscv64.yml:./freedom-u-sdk/scripts/kas/include/test.yml -c "bitbake demo-coreip-cli -c populate_sdk && bitbake demo-coreip-cli -c testsdk"
+kas shell --update ./freedom-u-sdk/scripts/kas/qemuriscv64.yml:./freedom-u-sdk/scripts/kas/include/test.yml -c "bitbake demo-coreip-cli -c populate_sdk_ext && bitbake demo-coreip-cli -c testsdkext"
+kas shell --update ./freedom-u-sdk/scripts/kas/qemuriscv64.yml:./freedom-u-sdk/scripts/kas/include/test.yml -c "resulttool report  ./tmp/log/oeqa"
 ```
 
 ## Running on Hardware

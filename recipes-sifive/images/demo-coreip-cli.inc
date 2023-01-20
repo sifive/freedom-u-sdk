@@ -166,12 +166,8 @@ IMAGE_INSTALL += "\
     btrfs-tools \
     perf-python \
     vmtouch \
-    libtensorflow-lite \
-    python3-tensorflow-lite \
-    python3-tensorflow-lite-example \
+    tensorflow-lite \
     python3-tensorflow-lite-demo \
-    tensorflow-lite-label-image \
-    tensorflow-lite-minimal \
     coremark \
     trace-cmd \
     opencv \
