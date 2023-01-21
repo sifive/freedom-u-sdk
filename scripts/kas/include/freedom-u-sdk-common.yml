@@ -45,13 +45,9 @@ repos:
 
   meta-tensorflow-lite:
     url: https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
-    refspec: 6ebb60d30f5e72fee39a1fd23f99efad1b7f9b37
+    refspec: 56a64f71c509928369e700987dcca1ea02b48710
     layers:
       .:
-    patches:
-      quilt:
-        repo: freedom-u-sdk
-        path: scripts/kas/patches/meta-tensorflow-lite/
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization
