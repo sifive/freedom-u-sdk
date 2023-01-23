@@ -5,7 +5,7 @@ umask 022
 BDIR=${BDIR:-build}
 export BDIR=${BDIR}
 
-DISTRO=${DISTRO:-nodistro}
+DISTRO=${DISTRO:-freedom-u-sdk}
 export DISTRO=${DISTRO}
 
 TEMPLATECONF=${TEMPLATECONF:-freedom-u-sdk/conf}
