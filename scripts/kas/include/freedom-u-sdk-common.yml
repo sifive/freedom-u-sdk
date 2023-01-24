@@ -33,7 +33,7 @@ repos:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: ca7082caa800124b4e0a7b36175f60387d1e3f8c
+    refspec: 84247e2e6fbcf622f945082e6cc6da2ded6086d9
     layers:
       meta-filesystems:
       meta-gnome:
