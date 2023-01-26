@@ -27,7 +27,7 @@ repos:
 
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: 3e841bf1bdca682b1e32be7fe687f557dad68c02
+    refspec: 0cf45af2861140a11a3655b6c1185a1b781420a0
     layers:
       .:
 
