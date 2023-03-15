@@ -1,0 +1,16 @@
+BBLAYERS ?= " \
+    ##OEROOT##/freedom-u-sdk \
+    ##OEROOT##/meta-clang \
+    ##OEROOT##/meta-openembedded/meta-filesystems \
+    ##OEROOT##/meta-openembedded/meta-gnome \
+    ##OEROOT##/meta-openembedded/meta-multimedia \
+    ##OEROOT##/meta-openembedded/meta-networking \
+    ##OEROOT##/meta-openembedded/meta-oe \
+    ##OEROOT##/meta-openembedded/meta-python \
+    ##OEROOT##/meta-openembedded/meta-xfce \
+    ##OEROOT##/meta-sifive \
+    ##OEROOT##/meta-tensorflow \
+    ##OEROOT##/meta-virtualization \
+    ##OEROOT##/openembedded-core/meta"
+BBPATH ?= "${TOPDIR}"
+BBFILES ??= ""

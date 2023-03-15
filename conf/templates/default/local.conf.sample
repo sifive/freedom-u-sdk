@@ -1,0 +1,18 @@
+# freedom-u-sdk-common
+USER_CLASSES:append = " buildhistory buildstats buildstats-summary"
+INHERIT:append = " rm_work"
+RM_OLD_IMAGE = "1"
+
+# qemu-native
+PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
+PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
+
+# sdk
+CONF_VERSION = "2"
+
+# tensorflow
+BAZEL_TARGET_CPU = "riscv64"
+
+MACHINE ??= "qemuriscv64"
+DISTRO ??= "freedom-u-sdk"
+BBMULTICONFIG ?= ""
