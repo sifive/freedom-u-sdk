@@ -1,0 +1,11 @@
+header:
+  version: 11
+
+local_conf_header:
+
+  container: |
+    BB_NUMBER_THREADS = "4"
+    PARALLEL_MAKE = "-j 4"
+    ZSTD_THREADS = "4"
+    XZ_THREADS = "4"
+    XZ_MEMLIMIT = "20%"

@@ -89,7 +89,7 @@ The OpenEmbedded/Yocto framework provides a wrapper for QEMU, named `runqemu` in
 Below examples to use this Qemu over a Kas shell:
 
 ```bash
-kas shell ./freedom-u-sdk/scripts/kas/qemuriscv64.yml -E -c "runqemu nographic slirp demo-coreip-cli"
+kas shell ./freedom-u-sdk/scripts/kas/qemuriscv64.yml -E -c "runqemu slirp nographic demo-coreip-cli"
 kas shell ./freedom-u-sdk/scripts/kas/qemuriscv64.yml -E -c "runqemu slirp demo-coreip-xfce4"
 ```
 
