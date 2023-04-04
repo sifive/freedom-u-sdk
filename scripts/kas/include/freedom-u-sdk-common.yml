@@ -21,7 +21,7 @@ repos:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 204dadaf378e44d6c53d3bee1c2a54aaf38d666c
+    refspec: e7b3acb82f4c4422e57884ad9427fba6bd020e8b
     layers:
       .:
 
