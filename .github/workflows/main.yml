@@ -1,0 +1,27 @@
+name: CI freedom-u-sdk
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-images:
+    strategy:
+      matrix:
+        target: [freedom-u540, qemuriscv64, unmatched]
+    name: Build images for ${{ matrix.target }}
+    runs-on: self-hosted
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          path: freedom-u-sdk
+      - name: Build images
+        run: kas build --update ./freedom-u-sdk/scripts/kas/${{ matrix.target }}.yml
+      - name: Upload images
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.run_number }}-${{ matrix.target }}
+          path: |
+            ${{ github.workspace }}/build/tmp-glibc/deploy/images/${{ matrix.target }}/
