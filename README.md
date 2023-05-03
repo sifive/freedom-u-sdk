@@ -25,7 +25,7 @@ This layer depends on:
 * https://git.yoctoproject.org/meta-virtualization
 * https://github.com/sifive/meta-sifive.git
 * https://github.com/kraj/meta-clang.git
-* https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
+* https://git.yoctoproject.org/meta-tensorflow
 
 ## Prerequisites for the build host
 
