@@ -7,7 +7,7 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: b29f6e04091b6bfe697dc41c76880de466736fc3
+    refspec: 893f3b116b628457fe0bfaf4b8394b1cd05a90a5
     layers:
       .: excluded
 
@@ -15,25 +15,25 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: 5560a0e15bd860a59671a66cc76ad1bb7e07c9d1
+    refspec: 7ef0ce88e23c7ca138bc4041931d9bfe1d85dfc0
     layers:
       meta:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 204dadaf378e44d6c53d3bee1c2a54aaf38d666c
+    refspec: d9585f0acaec960b69ce1e7931894eb312abfddd
     layers:
       .:
 
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: eef39efef97627ba5730cc06674b7b0e698d3438
+    refspec: c135a9d7a28a30787ef490ecf3f575d5fb9554d9
     layers:
       .:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: 0c9700a01f0592de51fcc2e173b4f4dee5f5ccfd
+    refspec: d3bfe80601963cf8c41d67e0eba299b37beec9a5
     layers:
       meta-filesystems:
       meta-gnome:
@@ -45,7 +45,7 @@ repos:
 
   meta-tensorflow:
     url: https://git.yoctoproject.org/meta-tensorflow
-    refspec: 2397d484c6b16340fd94640644a9221d2ad9ad6d
+    refspec: e870f2b84433910b9d01152965c1d83ac6f5b060
     layers:
       .:
     patches:
@@ -55,7 +55,7 @@ repos:
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization
-    refspec: d2a630ce6cf67a145f218012fbf02e4d0d9648df
+    refspec: 876a9da42acde2a72ad1e052df4f565d15160e54
     layers:
       .:
 
