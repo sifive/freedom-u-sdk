@@ -1,0 +1,29 @@
+From 6a82d6b1443e94d0e485ee5adcf178084c46298e Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Tue, 30 May 2023 16:39:03 +0200
+Subject: [PATCH] Fix undeclared uint32_t
+
+Add the cstdint header.
+
+Upstream-Status: Submitted
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ tensorflow/lite/kernels/internal/spectrogram.cc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tensorflow/lite/kernels/internal/spectrogram.cc b/tensorflow/lite/kernels/internal/spectrogram.cc
+index a832962a38df..387007166470 100644
+--- a/tensorflow/lite/kernels/internal/spectrogram.cc
++++ b/tensorflow/lite/kernels/internal/spectrogram.cc
+@@ -16,6 +16,7 @@ limitations under the License.
+ #include "tensorflow/lite/kernels/internal/spectrogram.h"
+ 
+ #include <assert.h>
++#include <cstdint>
+ #include <math.h>
+ 
+ #include "third_party/fft2d/fft.h"
+-- 
+2.40.1
+
