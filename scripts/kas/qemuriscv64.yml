@@ -3,6 +3,9 @@ header:
   includes:
     - scripts/kas/include/freedom-u-sdk-common.yml
 
+env:
+    DISPLAY: "${DISPLAY:-:0}"
+
 target:
  - demo-coreip-cli
  - demo-coreip-xfce4
