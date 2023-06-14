@@ -1,4 +1,4 @@
-From 53f7cb957c3c547100ad13e71e5550ce7b29ffb1 Mon Sep 17 00:00:00 2001
+From 35254dd6606a8f908f526bfab854e1d0cc31527e Mon Sep 17 00:00:00 2001
 From: Thomas Perrot <thomas.perrot@bootlin.com>
 Date: Wed, 15 Mar 2023 10:22:51 +0100
 Subject: [PATCH] layer.conf: Update LAYERSERIES_COMPAT for mickledore
@@ -13,18 +13,18 @@ Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/conf/layer.conf b/conf/layer.conf
-index eba5ef2dbf79..20dfc8e46daa 100644
+index 822e4baf1ac0..03c88c013700 100644
 --- a/conf/layer.conf
 +++ b/conf/layer.conf
 @@ -11,7 +11,7 @@ BBFILE_PRIORITY_meta-tensorflow = "10"
  
  LAYERVERSION_meta-tensorflow = "1"
  
--LAYERSERIES_COMPAT_meta-tensorflow = "kirkstone langdale"
+-LAYERSERIES_COMPAT_meta-tensorflow = "kirkstone langdale kirkstone"
 +LAYERSERIES_COMPAT_meta-tensorflow = "mickledore"
  
  LAYERDEPENDS_meta-tensorflow = " \
      core \
 -- 
-2.39.2
+2.40.1
 
