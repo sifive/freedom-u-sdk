@@ -7,7 +7,7 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: 6abdc81dec06a362bfbcc06d69b90b96bd9bef01
+    refspec: d1779e2f7789e516efae434b3781c981d0ef4ded
     layers:
       .: excluded
 
@@ -15,13 +15,13 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: 893846ead7ee54d53e9076150cd655e0c8bca5db
+    refspec: 4c6d0f3ddbb76bde7f35edeb280fe56a9a00f91b
     layers:
       meta:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 6ecaea06d5e6e7ed0a39b4c019fc485f18e1ce55
+    refspec: cae721a06a666e764dfa79c620403a418f660a58
     layers:
       .:
 
@@ -33,7 +33,7 @@ repos:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: 54885a5af2da26d7c84f8aff6fc845c2681b2890
+    refspec: 39dfcaceba360374ada6aac7d8979c67752e9ba3
     layers:
       meta-filesystems:
       meta-gnome:
@@ -55,7 +55,7 @@ repos:
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization
-    refspec: 28eda60a5228143014a4fc5d0ee9f4253047237c
+    refspec: d61d6cff9c8722343656af3c7e3cc61e85e01424
     layers:
       .:
 
