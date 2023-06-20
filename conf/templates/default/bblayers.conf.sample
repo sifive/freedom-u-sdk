@@ -9,7 +9,7 @@ BBLAYERS ?= " \
     ##OEROOT##/meta-openembedded/meta-python \
     ##OEROOT##/meta-openembedded/meta-xfce \
     ##OEROOT##/meta-sifive \
-    ##OEROOT##/meta-tensorflow \
+    ##OEROOT##/meta-tensorflow-lite \
     ##OEROOT##/meta-virtualization \
     ##OEROOT##/openembedded-core/meta"
 BBPATH ?= "${TOPDIR}"

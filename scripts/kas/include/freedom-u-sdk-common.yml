@@ -43,15 +43,9 @@ repos:
       meta-oe:
       meta-xfce:
 
-  meta-tensorflow:
-    url: https://git.yoctoproject.org/meta-tensorflow
-    refspec: 89bb76dc673a0c022fcc136714f955a9de4d3c5a
-    layers:
-      .:
-    patches:
-      quilt:
-        repo: freedom-u-sdk
-        path: scripts/kas/patches/meta-tensorflow/
+  meta-tensorflow-lite:
+    url: https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
+    refspec: 0205ea18d86bc6a7d18fa9a4b11c74f64c98bab7
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization
