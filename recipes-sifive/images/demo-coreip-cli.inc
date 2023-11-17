@@ -41,6 +41,7 @@ IMAGE_INSTALL += "\
     libgpiod \
     libgpiod-tools \
     libgpiod-dev \
+    linux-firmware \
     i2c-tools \
     i2c-tools-misc \
     spitools \

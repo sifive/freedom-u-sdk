@@ -30,7 +30,6 @@ IMAGE_INSTALL += "\
     xf86-video-amdgpu \
     xf86-video-modesetting  \
     xf86-video-fbdev \
-    linux-firmware \
     quake2 \
     epiphany \
     evince \
