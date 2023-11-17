@@ -116,7 +116,7 @@ You will find all available build fragments (incl. disk images) in
 
 Disk images files use `<image>-<machine>.<output_format>` format, for example,
 
-`demo-coreip-cli-unmatched.wic.xz`. We are interested in `.wic.xz` disk
+`demo-coreip-cli-unmatched.rootfs.wic.xz`. We are interested in `.wic.xz` disk
 images for writing to uSD card.
 
 > Be very careful while picking /dev/sdX device! Look at dmesg, lsblk, blkid,
@@ -131,13 +131,13 @@ images for writing to uSD card.
 Images built can be flashed with `bmaptool` (faster), for example:
 
 ```bash
-sudo bmaptool copy ../build/tmp/deploy/images/unmatched/demo-coreip-xfce4-unmatched.wic.xz /dev/mmcblk0
+sudo bmaptool copy ../build/tmp/deploy/images/unmatched/demo-coreip-xfce4-unmatched.rootfs.wic.xz /dev/mmcblk0
 ```
 
 Otherwise, you can also use the `dd` command, for example:
 
 ```bash
-xzcat ../build/tmp/deploy/images/unmatched/demo-coreip-xfce4-unmatched.wic.xz | sudo dd of=/dev/mmcblk0 bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
+xzcat ../build/tmp/deploy/images/unmatched/demo-coreip-xfce4-unmatched.rootfs.wic.xz | sudo dd of=/dev/mmcblk0 bs=512K iflag=fullblock oflag=direct conv=fsync status=progress
 ```
 
 ### MSEL for Unleashed
