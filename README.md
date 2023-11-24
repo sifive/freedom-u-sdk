@@ -29,7 +29,7 @@ This layer depends on:
 
 ## Prerequisites for the build host
 
-* [Yocto](https://www.yoctoproject.org/docs/latest/ref-manual/ref-manual.html#required-packages-for-the-build-host)
+* [Yocto](https://docs.yoctoproject.org/singleindex.html#compatible-linux-distribution)
 * [kas](https://kas.readthedocs.io/en/latest/userguide.html#dependencies-installation)
 
 ### Create the build environment
