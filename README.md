@@ -33,7 +33,7 @@ This needs to be done every time you want a clean setup based on the latest laye
 
 ```bash
 mkdir riscv-sifive && cd riscv-sifive
-repo init -u git://github.com/sifive/freedom-u-sdk -b 2021.10 -m tools/manifests/sifive.xml
+repo init -u git@github.com:sifive/freedom-u-sdk.git -b 2021.10 -m tools/manifests/sifive.xml
 repo sync
 ```
 
@@ -125,7 +125,7 @@ There are several machine targets defined:
 
 The QEMU machines with the additional extensions (i.e. beyond RV64GC) do not affect how packages or/and disk images are built. This means the toolchain might not provide support for the new extensions. By default packages are not built with the new instructions enabled.
 
-> 
+>
 > Building disk images is CPU intensive, could require <10GB of sources downloaded over the Internet and <200GB of local storage.
 
 Building disk image takes a single command which may take anything from 30 minutes to several hours depending on your hardware. Examples:
@@ -153,9 +153,9 @@ Disk images files use `<image>-<machine>.<output_format>` format, for example,
 `demo-coreip-cli-freedom-u540.wic.xz`. We are interested in `.wic.xz` disk images for writing to uSD card.
 
 > Be very careful while picking /dev/sdX device! Look at dmesg, lsblk, blkid, GNOME Disks, etc. before and after plugging in your uSD card to find a proper device. Double check it to avoid overwriting any of system disks/partitions!
-> 
+>
 > Unmount any mounted partitions from uSD card before writing!
-> 
+>
 > We advice to use 32GB uSD cards. 8GB cards (shipped with HiFive Unleashed) can still be used with `demo-coreip-cli` CLI images.
 
 Finally write uSD card:
@@ -272,7 +272,7 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) where 
 2. OpenEmbedded Core (and thus FUSDK) does not support eCryptFS or any other file system without long file names support. File systems must support filenames up to 200 characters in length.
 
 3. BitBake requires UTF-8 based locale (e.g. `en_US.UTF-8`). You can choose any locale as long as it is UTF-8. This usually happens in containers (e.g. ubuntu:18.04). You can verify your locale by running `locale` command. On Ubuntu 18.04 you can change locale following these instructions:
-   
+
    ```bash
    apt update
    apt install locales
@@ -281,5 +281,5 @@ You are also welcome to join [SiFive Forums ](https://forums.sifive.com/) where 
    export LANG="en_US.UTF-8"
    locale
    ```
-   
+
    You can change system default locale with `dpkg-reconfigure locales` command.
