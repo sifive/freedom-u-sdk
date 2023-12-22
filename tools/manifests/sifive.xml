@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <manifest>
-  <remote name="openembedded" fetch="git://github.com/openembedded/" />
-  <remote name="riscv" fetch="git://github.com/riscv/" />
-  <remote name="sifive" fetch="git://github.com/sifive/" />
-  <remote name="kraj" fetch="git://github.com/kraj/" />
-  <remote name="NobuoTsukamoto" fetch="git://github.com/NobuoTsukamoto/" />
-  <remote name="davidlt" fetch="git://github.com/davidlt/" />
+  <remote name="openembedded" fetch="https://github.com/openembedded/" />
+  <remote name="riscv" fetch="https://github.com/riscv/" />
+  <remote name="sifive" fetch="https://github.com/sifive/" />
+  <remote name="kraj" fetch="https://github.com/kraj/" />
+  <remote name="NobuoTsukamoto" fetch="https://github.com/NobuoTsukamoto/" />
+  <remote name="davidlt" fetch="https://github.com/davidlt/" />
   <default remote="openembedded" revision="master" />
 
   <project name="freedom-u-sdk" remote="sifive" path="freedom-u-sdk" revision="8e6c6766d582d91492a7ef2f34b8405ee4731857" />
@@ -18,4 +18,3 @@
   <project name="meta-clang" remote="kraj" path="meta-clang" revision="826f7287ffb8ae87bd843ecfe4a21a661bb03294" />
   <project name="meta-tensorflow-lite" remote="davidlt" path="meta-tensorflow-lite" revision="1135f8bb469f1b7e36390c338dea9e62592daa49" />
 </manifest>
-
