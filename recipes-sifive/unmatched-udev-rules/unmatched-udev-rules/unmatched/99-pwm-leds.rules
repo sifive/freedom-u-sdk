@@ -1,0 +1,5 @@
+# D12 LED: heartbeat
+SUBSYSTEM=="leds", KERNEL=="d12", ACTION=="add", ATTR{trigger}="heartbeat", ATTR{brightness}="25"
+
+# D12 RGB LED: boot status
+SUBSYSTEM=="leds", KERNEL=="d2", ACTION=="add", ATTR{trigger}="default-on", ATTR{multi_intensity}="25 25 25"
