@@ -46,6 +46,7 @@ IMAGE_INSTALL += "\
     i2c-tools-misc \
     spitools \
     networkmanager \
+    bluez5 \
     networkmanager-nmcli \
     networkmanager-nmtui \
     haveged \
