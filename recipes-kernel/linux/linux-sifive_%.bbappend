@@ -1,5 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
+SRC_URI:append:riscv64 = " file://0001-riscv-dts-sifive-unmatched-keep-leds-settings.patch"
+
 KERNEL_FEATURES:append:riscv64 = " \
     cfg/sound.scc \
     cfg/usb-mass-storage.scc \

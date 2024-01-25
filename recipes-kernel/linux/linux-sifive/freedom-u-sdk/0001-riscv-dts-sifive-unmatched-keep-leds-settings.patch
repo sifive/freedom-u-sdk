@@ -1,0 +1,35 @@
+From f8cf2c39a5a047d5fa5db4e566c023dbebd5e9d7 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Thu, 25 Jan 2024 10:55:49 +0100
+Subject: [PATCH] riscv: dts: sifive unmatched: keep leds settings
+
+Upstream-Status: Inappropriate [FUSDK only]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
+index 07387f9c135c..d7c8794b2936 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
+@@ -56,6 +56,7 @@ led-d12 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			max-brightness = <255>;
+ 			label = "d12";
++			linux,default-trigger = "keep";
+ 		};
+ 	};
+ 
+@@ -66,6 +67,7 @@ multi-led {
+ 			color = <LED_COLOR_ID_RGB>;
+ 			max-brightness = <255>;
+ 			label = "d2";
++			linux,default-trigger = "keep";
+ 
+ 			led-red {
+ 				pwms = <&pwm0 2 7812500 PWM_POLARITY_INVERTED>;
+-- 
+2.43.0
+
