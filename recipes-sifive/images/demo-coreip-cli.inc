@@ -187,7 +187,6 @@ IMAGE_INSTALL:append:freedom-u540 = " \
 
 IMAGE_INSTALL:append:unmatched = " \
     unmatched-udev-rules \
-    unmatched-systemd-units \
     "
 
 inherit core-image
