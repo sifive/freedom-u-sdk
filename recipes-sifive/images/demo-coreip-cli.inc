@@ -178,6 +178,7 @@ IMAGE_INSTALL += "\
     trace-cmd \
     opencv \
     kvmtool \
+    qemu-system-riscv64 \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     "
 
