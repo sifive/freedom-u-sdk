@@ -18,7 +18,6 @@ IMAGE_INSTALL += "\
     vulkan-loader \
     vulkan-headers \
     xserver-xorg-utils \
-    xserver-xorg-xvfb \
     xserver-xorg-extension-dbe \
     xserver-xorg-extension-dri \
     xserver-xorg-extension-dri2 \
