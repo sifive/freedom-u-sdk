@@ -15,6 +15,7 @@ local_conf_header:
     TEST_SERVER_IP = "127.0.0.1"
     TEST_SUITES = "ping date df ssh scp perl oe_syslog"
     TEST_QEMUBOOT_TIMEOUT = "240"
+    TEST_RUNQEMUPARAMS = "slirp"
 
     INHERIT:append = " report-error"
     ERR_REPORT_SERVER = "errors.yoctoproject.org"
