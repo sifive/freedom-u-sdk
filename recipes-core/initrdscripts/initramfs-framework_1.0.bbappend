@@ -4,7 +4,7 @@ SRC_URI += "file://nbdrootfs"
 
 do_install:append() {
     # base
-    install -m 0755 ${WORKDIR}/nbdrootfs ${D}/init.d/86-nbdrootfs
+    install -m 0755 ${UNPACKDIR}/nbdrootfs ${D}/init.d/86-nbdrootfs
 }
 
 PACKAGES += "initramfs-module-nbdrootfs"
