@@ -11,7 +11,7 @@ SRC_URI = "\
 
 INHIBIT_DEFAULT_DEPS = "1"
 
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 do_configure[noexec] = "1"
 
@@ -19,9 +19,9 @@ do_compile[noexec] = "1"
 
 do_install() {
     install -d ${D}${datadir}/tensorflow/lite/examples/python
-    install ${WORKDIR}/demo/digit5.txt ${D}${datadir}/tensorflow/lite/examples/python/digit5.txt
-    install ${WORKDIR}/demo/mnist.py ${D}${datadir}/tensorflow/lite/examples/python/mnist.py
-    install ${WORKDIR}/demo/mnist.tflite ${D}${datadir}/tensorflow/lite/examples/python/mnist.tflite
+    install ${UNPACKDIR}/demo/digit5.txt ${D}${datadir}/tensorflow/lite/examples/python/digit5.txt
+    install ${UNPACKDIR}/demo/mnist.py ${D}${datadir}/tensorflow/lite/examples/python/mnist.py
+    install ${UNPACKDIR}/demo/mnist.tflite ${D}${datadir}/tensorflow/lite/examples/python/mnist.tflite
 }
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
