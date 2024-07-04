@@ -1,0 +1,28 @@
+From 7daa1da975c62a775f2916cd6a4d617478daa804 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Thu, 4 Jul 2024 16:12:53 +0200
+Subject: [PATCH] sensors.conf.default: add tmp451
+
+Upstream-Status: Inappropriate [FUSDK only]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ etc/sensors.conf.default | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/etc/sensors.conf.default b/etc/sensors.conf.default
+index 693a66b4..05ab6307 100644
+--- a/etc/sensors.conf.default
++++ b/etc/sensors.conf.default
+@@ -534,3 +534,8 @@ chip "adt7476-*" "adt7490-*"
+ #    set in4_max 12.0 * 1.10
+ 
+     label temp2 "M/B Temp"
++
++chip "tmp451-*"
++
++    label temp1 "M/B Temp"
++    label temp2 "CPU Temp"
+-- 
+2.25.1
+
