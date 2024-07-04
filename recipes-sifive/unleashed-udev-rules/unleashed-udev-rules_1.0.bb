@@ -10,7 +10,7 @@ inherit allarch
 
 SRC_URI = "file://99-pwm-leds.rules"
 
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 do_configure[noexec] = "1"
 
@@ -18,7 +18,7 @@ do_compile[noexec] = "1"
 
 do_install() {
     install -d ${D}${sysconfdir}/udev/rules.d
-    install -m 644 ${B}/99-pwm-leds.rules ${D}${sysconfdir}/udev/rules.d/99-pwm-leds.rules
+    install -m 644 ${UNPACKDIR}/99-pwm-leds.rules ${D}${sysconfdir}/udev/rules.d/99-pwm-leds.rules
 }
 
 INHIBIT_DEFAULT_DEPS = "1"
