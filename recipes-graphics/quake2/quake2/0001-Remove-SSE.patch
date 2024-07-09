@@ -1,3 +1,15 @@
+From d15e8c4b117b047efe04a81e107677554e16a41c Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Tue, 9 Jul 2024 11:22:03 +0200
+Subject: [PATCH 1/5] Remove SSE
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ Makefile | 6 ------
+ 1 file changed, 6 deletions(-)
+
 diff --git a/Makefile b/Makefile
 index d34e54bd..45b9f478 100755
 --- a/Makefile
@@ -15,3 +27,6 @@ index d34e54bd..45b9f478 100755
  # ----------
  
  # Systemwide installation.
+-- 
+2.25.1
+

@@ -1,5 +1,17 @@
+From 99155acff8d79e4ae810f67beb5c8f170af68393 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Tue, 9 Jul 2024 11:28:39 +0200
+Subject: [PATCH 5/5] Use pkgconfig
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 diff --git a/Makefile b/Makefile
-index 0aac105..a66d227 100755
+index 0aac1056..a66d227a 100755
 --- a/Makefile
 +++ b/Makefile
 @@ -215,7 +215,7 @@ ZIPCFLAGS += -DNOUNCRYPT
@@ -20,3 +32,6 @@ index 0aac105..a66d227 100755
  endif # Darwin
  
  # The renderer libs don't need libSDL2main, libmingw32 or -mwindows.
+-- 
+2.25.1
+

@@ -14,11 +14,11 @@ DEPENDS = "mesa libsdl2 libogg libvorbis zlib curl openal-soft"
 RDEPENDS:${PN} = " alsa-lib libcurl openal-soft"
 
 SRC_URI = "git://github.com/yquake2/yquake2.git;protocol=https;branch=master \
-           file://remove-sse.patch \
-           file://disable-unsafe-includes.patch \
-           file://fix-unsafe-ldflags.patch \
-           file://remove-root-protections.patch \
-           file://use-pkg-config.patch"
+    file://0001-Remove-SSE.patch \
+    file://0002-Disable-unsafe-includes.patch \
+    file://0003-Fix-unsafe-ldflags.patch \
+    file://0004-Remove-root-protections.patch \
+    file://0005-Use-pkgconfig.patch"
 
 # Tag: QUAKE2_7_43
 SRCREV = "d08cf04d2d5d3ffa0b10eee2e300094571423031"

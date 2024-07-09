@@ -1,3 +1,15 @@
+From 63a113ad959485a6943acd2217c483554bccaba6 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Tue, 9 Jul 2024 11:23:13 +0200
+Subject: [PATCH 2/5] Disable unsafe includes
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ Makefile | 11 -----------
+ 1 file changed, 11 deletions(-)
+
 diff --git a/Makefile b/Makefile
 index 45b9f478..1d7841a4 100755
 --- a/Makefile
@@ -20,3 +32,6 @@ index 45b9f478..1d7841a4 100755
  # ----------
  
  # Local includes for GLAD.
+-- 
+2.25.1
+

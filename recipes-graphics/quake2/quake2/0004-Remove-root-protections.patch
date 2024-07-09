@@ -1,8 +1,20 @@
+From 1bbef354c6535844ad90e3311e7aadd60984ffc0 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Tue, 9 Jul 2024 11:27:27 +0200
+Subject: [PATCH 4/5] Remove root protections
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ src/backends/unix/main.c | 22 ----------------------
+ 1 file changed, 22 deletions(-)
+
 diff --git a/src/backends/unix/main.c b/src/backends/unix/main.c
-index 1201e1f0..e8003359 100644
+index c763dbad..5ecbb805 100644
 --- a/src/backends/unix/main.c
 +++ b/src/backends/unix/main.c
-@@ -85,28 +85,6 @@ main(int argc, char **argv)
+@@ -90,28 +90,6 @@ main(int argc, char **argv)
  		}
  	}
  
@@ -31,3 +43,6 @@ index 1201e1f0..e8003359 100644
  	// enforce C locale
  	setenv("LC_ALL", "C", 1);
  
+-- 
+2.25.1
+

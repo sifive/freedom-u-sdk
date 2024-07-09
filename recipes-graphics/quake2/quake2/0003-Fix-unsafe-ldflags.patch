@@ -1,3 +1,15 @@
+From 4fd129a9f21faa3b745edf534e93c529c72c3dd2 Mon Sep 17 00:00:00 2001
+From: Thomas Perrot <thomas.perrot@bootlin.com>
+Date: Tue, 9 Jul 2024 11:25:52 +0200
+Subject: [PATCH 3/5] Fix unsafe ldflags
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 diff --git a/Makefile b/Makefile
 index 1d7841a4..0aac1056 100755
 --- a/Makefile
@@ -20,3 +32,6 @@ index 1d7841a4..0aac1056 100755
  else ifeq ($(YQ2_OSTYPE),FreeBSD)
  LDFLAGS := -L/usr/local/lib -lm
  else ifeq ($(YQ2_OSTYPE),OpenBSD)
+-- 
+2.25.1
+
