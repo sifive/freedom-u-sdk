@@ -190,4 +190,20 @@ IMAGE_INSTALL:append:unmatched = " \
     unmatched-udev-rules \
     "
 
+IMAGE_INSTALL:remove:hifive-premier-p550 = " \
+    wireless-regdb \
+    "
+
+IMAGE_INSTALL:append:hifive-premier-p550 = " \
+    alsa-lib \
+    alsa-utils \
+    dhcpcd \
+    hostapd \
+    lsscsi \
+    lmsensors \
+    lmsensors-config-fancontrol \
+    wireless-regdb-static \
+    es-bmcd \
+    "
+
 inherit core-image
