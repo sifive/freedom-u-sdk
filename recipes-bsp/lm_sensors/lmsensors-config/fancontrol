@@ -1,0 +1,11 @@
+INTERVAL=5
+DEVPATH=hwmon2=devices/platform/soc/50b00000.pvt hwmon1=devices/platform/soc/50b50000.fan_control
+DEVNAME=hwmon2=pvt hwmon1=eswin_fan_control
+FCTEMPS=hwmon1/pwm1=hwmon2/temp1_input
+FCFANS=hwmon1/pwm1=hwmon1/fan1_input
+MINTEMP=hwmon1/pwm1=25
+MAXTEMP=hwmon1/pwm1=45
+MINSTART=hwmon1/pwm1=75
+MINSTOP=hwmon1/pwm1=75
+MINPWM=hwmon1/pwm1=75
+MAXPWM=hwmon1/pwm1=99

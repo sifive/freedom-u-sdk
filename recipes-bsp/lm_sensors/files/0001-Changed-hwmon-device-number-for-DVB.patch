@@ -1,0 +1,32 @@
+From e3fe5888360457e0d164407f6142243cdc79b1c5 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Fri, 17 May 2024 10:27:01 +0000
+Subject: [PATCH] Changed hwmon device number for DVB
+
+Upstream-Status: Inappropriate [Board specific]
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+---
+ prog/pwm/fancontrol | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/prog/pwm/fancontrol b/prog/pwm/fancontrol
+index b0464a5a..f6a838ea 100755
+--- a/prog/pwm/fancontrol
++++ b/prog/pwm/fancontrol
+@@ -44,9 +44,9 @@ PIDFILE="/var/run/fancontrol.pid"
+ MAX=99
+ 
+ # free pwm device
+-echo 1 > /sys/class/hwmon/hwmon0/fan_pwm_free
+-# Set fan pwm period 
+-echo 3000000 > /sys/class/hwmon/hwmon0/fan_pwm_period
++echo 1 > /sys/class/hwmon/hwmon1/fan_pwm_free
++# Set fan pwm period
++echo 3000000 > /sys/class/hwmon/hwmon1/fan_pwm_period
+ 
+ function LoadConfig
+ {
+-- 
+2.25.1
+
