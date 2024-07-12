@@ -1,0 +1,9 @@
+First, please ensure that your GCC toolchain and its sysroot are working correctly.For example, use the following command to set an environment variable
+	export PATH= your gcc dir/riscv64-unknown-linux-gnu-toolsuite-13.0.0-2021.11.5-x86_64-linux-ubuntu14/bin:$PATH
+	export SYSROOT= your gcc dir/riscv64-unknown-linux-gnu-toolsuite-13.0.0-2021.11.5-x86_64-linux-ubuntu14/sysroot
+
+Then, As an example, compile using the following command
+	make CC=riscv64-unknown-linux-gnu-gcc
+
+Finally, please place the es-bmcd in usr/local/bin/ directory
+            place S60es-bmcd file in the /etc/init.d/ directory to ensure the daemon program starts automatically
