@@ -1,0 +1,10 @@
+[Unit]
+Description=es-bmcd to communicate with MCU over UART
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/es-bmcd.sh start
+ExecStop=/usr/bin/es-bmcd.sh stop
+
+[Install]
+WantedBy=multi-user.target
