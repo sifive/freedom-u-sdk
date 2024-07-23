@@ -8,7 +8,7 @@ SiFive Freedom Unleashed SDK (FUSDK) layer for OpenEmbedded/Yocto
 FUSDK is based on OpenEmbedded/Yocto framework, allowing to build custom Linux distributions:
 - build predefined disk images for [SiFive HiFive Premier P550](https://www.sifive.com/boards/hifive-premier-p550) development board
 - build custom disk images with additional software packages from various third-party OE layers;
-- build bootchain binary (combination of DDR Firmware, Second Boot Firmware, OpenSBI and U-Boot); 
+- build bootchain binary (combination of DDR Firmware, Second Boot Firmware, OpenSBI and U-Boot);
 - build Device Tree Binary (DTB);
 - build Linux kernel images.
 
@@ -44,7 +44,7 @@ It uses machine provides by the `meta-sifive` layer.
 
 ## Available distribution
 
-This layer provides a distribution, named `freedom-u-sdk-hf-premier-p550` for the following machine:
+This layer provides a distribution, named `freedom-u-sdk` for the following machine:
 * `hifive-premier-p550`: The SiFive HiFive Premier P550 board
 
 It also provides below disk image:

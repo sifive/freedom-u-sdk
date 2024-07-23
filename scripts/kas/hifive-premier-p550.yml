@@ -10,7 +10,7 @@ repos:
     layers:
       .:
 
-distro: freedom-u-sdk-hf-premier-p550
+distro: freedom-u-sdk
 
 target:
  - demo-coreip-xfce4
