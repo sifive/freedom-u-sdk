@@ -52,3 +52,4 @@ IMAGE_INSTALL += "\
 inherit features_check
 
 REQUIRED_DISTRO_FEATURES = "x11 systemd"
+IMAGE_ROOTFS_ALIGNMENT:hifive-premier-p550 = "4096"
