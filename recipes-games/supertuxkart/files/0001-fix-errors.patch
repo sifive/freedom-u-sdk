@@ -1,0 +1,192 @@
+From 34fc195861b48e8dafea4f9c05ad3af2d0b76e70 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Thu, 25 Jul 2024 12:46:47 +0000
+Subject: [PATCH] fix errors
+
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+---
+ lib/graphics_engine/include/vk_mem_alloc.h               | 2 +-
+ lib/graphics_engine/src/ge_spm_buffer.cpp                | 2 +-
+ lib/graphics_engine/src/ge_vulkan_array_texture.cpp      | 2 +-
+ lib/graphics_engine/src/ge_vulkan_command_loader.cpp     | 2 +-
+ lib/graphics_engine/src/ge_vulkan_depth_texture.cpp      | 2 +-
+ lib/graphics_engine/src/ge_vulkan_draw_call.cpp          | 2 +-
+ lib/graphics_engine/src/ge_vulkan_fbo_texture.cpp        | 2 +-
+ lib/graphics_engine/src/ge_vulkan_mesh_cache.cpp         | 2 +-
+ lib/graphics_engine/src/ge_vulkan_skybox_renderer.cpp    | 2 +-
+ lib/graphics_engine/src/ge_vulkan_texture.cpp            | 2 +-
+ lib/graphics_engine/src/ge_vulkan_texture_descriptor.cpp | 2 +-
+ lib/wiiuse/src/io.c                                      | 7 +++----
+ 12 files changed, 14 insertions(+), 15 deletions(-)
+
+diff --git a/lib/graphics_engine/include/vk_mem_alloc.h b/lib/graphics_engine/include/vk_mem_alloc.h
+index bdb4ff5..c8576ca 100644
+--- a/lib/graphics_engine/include/vk_mem_alloc.h
++++ b/lib/graphics_engine/include/vk_mem_alloc.h
+@@ -22,7 +22,7 @@
+ 
+ #ifndef AMD_VULKAN_MEMORY_ALLOCATOR_H
+ #define AMD_VULKAN_MEMORY_ALLOCATOR_H
+-
++#include <cstdio>
+ /** \mainpage Vulkan Memory Allocator
+ 
+ <b>Version 3.0.1 (2022-05-26)</b>
+diff --git a/lib/graphics_engine/src/ge_spm_buffer.cpp b/lib/graphics_engine/src/ge_spm_buffer.cpp
+index 0dfa282..624e78e 100644
+--- a/lib/graphics_engine/src/ge_spm_buffer.cpp
++++ b/lib/graphics_engine/src/ge_spm_buffer.cpp
+@@ -1,5 +1,5 @@
+ #include "ge_spm_buffer.hpp"
+-
++#include <stdexcept>
+ #include "ge_main.hpp"
+ #include "ge_vulkan_driver.hpp"
+ #include "ge_vulkan_features.hpp"
+diff --git a/lib/graphics_engine/src/ge_vulkan_array_texture.cpp b/lib/graphics_engine/src/ge_vulkan_array_texture.cpp
+index f336147..094dcea 100644
+--- a/lib/graphics_engine/src/ge_vulkan_array_texture.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_array_texture.cpp
+@@ -9,7 +9,7 @@
+ #include "ge_vulkan_command_loader.hpp"
+ #include "ge_vulkan_driver.hpp"
+ #include "ge_vulkan_features.hpp"
+-
++#include <stdexcept>
+ #include <IImageLoader.h>
+ #include <cassert>
+ 
+diff --git a/lib/graphics_engine/src/ge_vulkan_command_loader.cpp b/lib/graphics_engine/src/ge_vulkan_command_loader.cpp
+index 358cf9a..bb8b797 100644
+--- a/lib/graphics_engine/src/ge_vulkan_command_loader.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_command_loader.cpp
+@@ -9,7 +9,7 @@
+ #include <memory>
+ #include <mutex>
+ #include <thread>
+-
++#include <stdexcept>
+ #include "../source/Irrlicht/os.h"
+ 
+ #ifndef thread_local
+diff --git a/lib/graphics_engine/src/ge_vulkan_depth_texture.cpp b/lib/graphics_engine/src/ge_vulkan_depth_texture.cpp
+index 25cb242..563982a 100644
+--- a/lib/graphics_engine/src/ge_vulkan_depth_texture.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_depth_texture.cpp
+@@ -2,7 +2,7 @@
+ 
+ #include "ge_main.hpp"
+ #include "ge_vulkan_driver.hpp"
+-
++#include <stdexcept>
+ namespace GE
+ {
+ GEVulkanDepthTexture::GEVulkanDepthTexture(GEVulkanDriver* vk,
+diff --git a/lib/graphics_engine/src/ge_vulkan_draw_call.cpp b/lib/graphics_engine/src/ge_vulkan_draw_call.cpp
+index ee8fd08..82d2c6c 100644
+--- a/lib/graphics_engine/src/ge_vulkan_draw_call.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_draw_call.cpp
+@@ -25,7 +25,7 @@
+ #include <algorithm>
+ #include <cmath>
+ #include <limits>
+-
++#include <stdexcept>
+ #include "../source/Irrlicht/os.h"
+ #include "quaternion.h"
+ 
+diff --git a/lib/graphics_engine/src/ge_vulkan_fbo_texture.cpp b/lib/graphics_engine/src/ge_vulkan_fbo_texture.cpp
+index 9413a04..c8bc5d7 100644
+--- a/lib/graphics_engine/src/ge_vulkan_fbo_texture.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_fbo_texture.cpp
+@@ -3,7 +3,7 @@
+ #include "ge_main.hpp"
+ #include "ge_vulkan_depth_texture.hpp"
+ #include "ge_vulkan_driver.hpp"
+-
++#include <stdexcept>
+ #include <array>
+ #include <exception>
+ 
+diff --git a/lib/graphics_engine/src/ge_vulkan_mesh_cache.cpp b/lib/graphics_engine/src/ge_vulkan_mesh_cache.cpp
+index 380f348..4a40b04 100644
+--- a/lib/graphics_engine/src/ge_vulkan_mesh_cache.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_mesh_cache.cpp
+@@ -11,7 +11,7 @@
+ #include <algorithm>
+ #include <cassert>
+ #include <vector>
+-
++#include <stdexcept>
+ namespace GE
+ {
+ // ----------------------------------------------------------------------------
+diff --git a/lib/graphics_engine/src/ge_vulkan_skybox_renderer.cpp b/lib/graphics_engine/src/ge_vulkan_skybox_renderer.cpp
+index 2543b16..948a515 100644
+--- a/lib/graphics_engine/src/ge_vulkan_skybox_renderer.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_skybox_renderer.cpp
+@@ -8,7 +8,7 @@
+ #include "ge_vulkan_features.hpp"
+ #include "ge_vulkan_fbo_texture.hpp"
+ #include "ge_vulkan_shader_manager.hpp"
+-
++#include <stdexcept>
+ #include <array>
+ #include <cstdint>
+ #include <unordered_map>
+diff --git a/lib/graphics_engine/src/ge_vulkan_texture.cpp b/lib/graphics_engine/src/ge_vulkan_texture.cpp
+index 500eb65..b898f8e 100644
+--- a/lib/graphics_engine/src/ge_vulkan_texture.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_texture.cpp
+@@ -1,5 +1,5 @@
+ #include "ge_vulkan_texture.hpp"
+-
++#include <stdexcept>
+ #include "ge_main.hpp"
+ #include "ge_mipmap_generator.hpp"
+ #include "ge_compressor_astc_4x4.hpp"
+diff --git a/lib/graphics_engine/src/ge_vulkan_texture_descriptor.cpp b/lib/graphics_engine/src/ge_vulkan_texture_descriptor.cpp
+index 4fd8a2e..4519718 100644
+--- a/lib/graphics_engine/src/ge_vulkan_texture_descriptor.cpp
++++ b/lib/graphics_engine/src/ge_vulkan_texture_descriptor.cpp
+@@ -3,7 +3,7 @@
+ #include "ge_main.hpp"
+ #include "ge_vulkan_driver.hpp"
+ #include "ge_vulkan_texture.hpp"
+-
++#include <stdexcept>
+ #include <algorithm>
+ #include <exception>
+ 
+diff --git a/lib/wiiuse/src/io.c b/lib/wiiuse/src/io.c
+index d81fa99..8848717 100644
+--- a/lib/wiiuse/src/io.c
++++ b/lib/wiiuse/src/io.c
+@@ -250,7 +250,8 @@ void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
+     /* send request to wiimote for accelerometer calibration */
+     byte buf[MAX_PAYLOAD];
+     int i;
+-
++	(void)(*data);
++	(void)(len);
+     /* step 0 - Reset wiimote */
+     {
+         // wiiuse_set_leds(wm, WIIMOTE_LED_NONE);
+@@ -320,13 +321,11 @@ void wiiuse_handshake(struct wiimote_t *wm, byte *data, uint16_t len)
+          */
+         for (i = 0; i < 3; ++i)
+         {
+-            int rc = 0;
+-
+             WIIUSE_DEBUG("Asking for status, attempt %d ...\n", i);
+             wm->event = WIIUSE_CONNECT;
+ 
+             wiiuse_status(wm);
+-            rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
++            // rc = wiiuse_wait_report(wm, WM_RPT_CTRL_STATUS, buf, MAX_PAYLOAD, WIIUSE_READ_TIMEOUT);
+ 
+             if (buf[3] != 0)
+                 break;
+-- 
+2.25.1
+
