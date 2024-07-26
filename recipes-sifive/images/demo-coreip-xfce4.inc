@@ -47,6 +47,7 @@ IMAGE_INSTALL += "\
     glmark2 \
     phoronix-test-suite \
     php \
+    supertuxkart \
     "
 
 inherit features_check
