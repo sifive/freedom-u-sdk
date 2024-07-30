@@ -1,4 +1,5 @@
 # To use NetworkManager instead
 PACKAGECONFIG:remove = "networkd nss-resolve resolved"
 
-PACKAGECONFIG:append = " cgroupv2"
+# Temporary build issue workaround
+PACKAGECONFIG:remove = "cgroupv2"
