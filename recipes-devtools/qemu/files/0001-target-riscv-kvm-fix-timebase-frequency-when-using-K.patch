@@ -1,0 +1,74 @@
+From a5b949484c8b1644cbd9b2b455a6642b34134171 Mon Sep 17 00:00:00 2001
+From: Pritesh Patel <pritesh.patel@einfochips.com>
+Date: Mon, 12 Aug 2024 14:55:27 +0000
+Subject: [PATCH] target/riscv/kvm: fix timebase-frequency when using KVM
+ acceleration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The timebase-frequency of guest OS should be the same with host
+machine. The timebase-frequency value in DTS should be got from
+hypervisor when using KVM acceleration.
+
+Upstream-Status: Submitted [alistair23@github.com]
+
+Signed-off-by: Yong-Xuan Wang <yongxuan.wang@sifive.com>
+Message-ID: <20240314061510.9800-1-yongxuan.wang@sifive.com>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Reviewed-by: Alistair Francis <alistair.francis@wdc.com>
+Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+---
+ hw/riscv/virt.c              |  1 +
+ target/riscv/kvm/kvm-cpu.c   | 10 ++++++++++
+ target/riscv/kvm/kvm_riscv.h |  1 +
+ 3 files changed, 12 insertions(+)
+
+diff --git a/hw/riscv/virt.c b/hw/riscv/virt.c
+index d2eac24..8f86982 100644
+--- a/hw/riscv/virt.c
++++ b/hw/riscv/virt.c
+@@ -743,6 +743,7 @@ static void create_fdt_sockets(RISCVVirtState *s, const MemMapEntry *memmap,
+ 
+     qemu_fdt_add_subnode(ms->fdt, "/cpus");
+     qemu_fdt_setprop_cell(ms->fdt, "/cpus", "timebase-frequency",
++                          kvm_enabled() ? kvm_riscv_get_timebase_frequency(first_cpu) :
+                           RISCV_ACLINT_DEFAULT_TIMEBASE_FREQ);
+     qemu_fdt_setprop_cell(ms->fdt, "/cpus", "#size-cells", 0x0);
+     qemu_fdt_setprop_cell(ms->fdt, "/cpus", "#address-cells", 0x1);
+diff --git a/target/riscv/kvm/kvm-cpu.c b/target/riscv/kvm/kvm-cpu.c
+index 117e33c..edd6bd3 100644
+--- a/target/riscv/kvm/kvm-cpu.c
++++ b/target/riscv/kvm/kvm-cpu.c
+@@ -631,6 +631,16 @@ static int kvm_riscv_put_regs_fp(CPUState *cs)
+     return ret;
+ }
+ 
++uint64_t kvm_riscv_get_timebase_frequency(CPUState *cs)
++{
++	uint64_t reg;
++	CPURISCVState *env = &RISCV_CPU(cs)->env;
++
++	KVM_RISCV_GET_TIMER(cs, env, frequency, reg);
++
++	return reg;
++}
++
+ static void kvm_riscv_get_regs_timer(CPUState *cs)
+ {
+     CPURISCVState *env = &RISCV_CPU(cs)->env;
+diff --git a/target/riscv/kvm/kvm_riscv.h b/target/riscv/kvm/kvm_riscv.h
+index 8329cfa..4728281 100644
+--- a/target/riscv/kvm/kvm_riscv.h
++++ b/target/riscv/kvm/kvm_riscv.h
+@@ -27,5 +27,6 @@ void kvm_riscv_aia_create(MachineState *machine, uint64_t group_shift,
+                           uint64_t guest_num);
+ void riscv_kvm_aplic_request(void *opaque, int irq, int level);
+ int kvm_riscv_sync_mpstate_to_kvm(RISCVCPU *cpu, int state);
++uint64_t kvm_riscv_get_timebase_frequency(CPUState *cs);
+ 
+ #endif
+-- 
+2.25.1
+
