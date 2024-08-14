@@ -45,9 +45,6 @@ IMAGE_INSTALL += "\
     x11perf \
     xdotool \
     glmark2 \
-    phoronix-test-suite \
-    php \
-    supertuxkart \
     "
 
 inherit features_check

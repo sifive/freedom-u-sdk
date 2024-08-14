@@ -204,6 +204,9 @@ IMAGE_INSTALL:append:hifive-premier-p550 = " \
     lmsensors-config-fancontrol \
     wireless-regdb-static \
     es-bmcd \
+    phoronix-test-suite \
+    php \
+    supertuxkart \
     "
 
 inherit core-image
