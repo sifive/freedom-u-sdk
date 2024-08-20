@@ -1,0 +1,14 @@
+[Unit]
+Description=Xserver startup without a display manager
+StartLimitIntervalSec=60s
+StartLimitBurst=10
+
+[Service]
+EnvironmentFile=/etc/default/xserver-nodm
+User=@USER@
+ExecStart=/etc/xserver-nodm/Xserver
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+Alias=display-manager.service
