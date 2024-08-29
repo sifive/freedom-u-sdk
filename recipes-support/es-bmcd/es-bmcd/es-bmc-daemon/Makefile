@@ -3,7 +3,7 @@ CFLAGS := -O2 -Wall
 LDFLAGS :=  -lpthread
 
 TARGET := es-bmcd
-SRCS := es-bmc-deamon.c ring.c
+SRCS := es-bmc-daemon.c ring.c
 OBJS := $(SRCS:.c=.o)
 
 all: $(TARGET)

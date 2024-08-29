@@ -5,5 +5,5 @@ First, please ensure that your GCC toolchain and its sysroot are working correct
 Then, As an example, compile using the following command
 	make CC=riscv64-unknown-linux-gnu-gcc
 
-Finally, please place the es-bmcd in usr/local/bin/ directory
+Finally, please place the es-bmcd in usr/bin/ directory
             place S60es-bmcd file in the /etc/init.d/ directory to ensure the daemon program starts automatically
