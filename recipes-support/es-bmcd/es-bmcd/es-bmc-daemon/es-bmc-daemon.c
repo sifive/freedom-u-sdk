@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) ESWIN Electronics Co.Ltd
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,7 +28,7 @@
 #include <sys/select.h>
 #include <dirent.h>
 #include <libgen.h>
-#include "es-bmc-deamon.h"
+#include "es-bmc-daemon.h"
 
 #if 1
 #define SYSLOG(priority, format, ...) do {    \
@@ -392,7 +405,7 @@ int get_power_info(power_info *power_info)
 	return 0;
 }
 
-const static uint32_t SPI_FLASH_OFFSET =  14 * 1024 * 1024;;
+const static uint32_t SPI_FLASH_OFFSET = (16 * 1024 * 1024 - 512 * 1024);
 
 // Function to read SOM information from SPI flash device
 int read_som_info(som_info *info, off_t offset)
