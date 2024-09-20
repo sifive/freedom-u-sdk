@@ -6,7 +6,7 @@ header:
 repos:
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: 88194d4836c838e38d15f19f0930387e948d1e5a
+    refspec: 372ec742917ec2629ff39e386ff9cad5fc8c92ce
     layers:
       .:
 
