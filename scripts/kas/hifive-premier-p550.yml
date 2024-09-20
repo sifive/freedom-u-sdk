@@ -16,3 +16,7 @@ target:
  - demo-coreip-xfce4
 
 machine: hifive-premier-p550
+
+local_conf_header:
+  kmod-native: |
+    PACKAGECONFIG:append:pn-kmod-native = " zstd"
