@@ -1,8 +1,6 @@
 # freedom-u-sdk
 SiFive Freedom Unleashed SDK (FUSDK) layer for OpenEmbedded/Yocto
 
-“Work is in progress for HiFive Premier P550. Full support will be coming soon”
-
 ## Description
 
 FUSDK is based on OpenEmbedded/Yocto framework, allowing to build custom Linux distributions:
@@ -34,7 +32,7 @@ This layer depends on:
 
 ```bash
 mkdir dist && cd dist
-git clone https://github.com/sifive/freedom-u-sdk.git -b dev/fusdk/hifive-premier-p550
+git clone https://github.com/sifive/freedom-u-sdk.git -b rel/fusdk/hifive-premier-p550
 ```
 
 ## Available machines
