@@ -12,6 +12,12 @@ FUSDK is based on OpenEmbedded/Yocto framework, allowing to build custom Linux d
 
 For advanced OE usage we advice to look into [Yocto Project Documentation](http://docs.yoctoproject.org/) and [A practical guide to BitBake](https://a4z.gitlab.io/docs/BitBake/guide.html).
 
+## Additional Documentation
+
+- Software reference manual available [here](https://sifive.com/document-file/hifive-premier-p550-software-reference-manual)
+- Image update procedure is available [here](https://www.sifive.com/document-file/hifive-premier-image-update-procedure)
+- Tools and binaries are available [here](https://github.com/sifive/hifive-premier-p550-tools/tree/master)
+
 ## Dependencies
 
 This layer depends on:
