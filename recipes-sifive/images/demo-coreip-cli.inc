@@ -169,9 +169,6 @@ IMAGE_INSTALL += "\
     perf-python \
     vmtouch \
     libtensorflow-lite \
-    python3-tensorflow-lite \
-    python3-tensorflow-lite-example \
-    python3-tensorflow-lite-demo \
     tensorflow-lite-label-image \
     tensorflow-lite-minimal \
     coremark \
