@@ -7,7 +7,7 @@ repos:
 
   bitbake:
     url: https://git.openembedded.org/bitbake
-    refspec: 06aa6c292813a28c84736193b550fb2d18884d43
+    refspec: c9906bb289dcfd9ae41f10bd5399ccc17a4cc437
     layers:
       .: excluded
 
@@ -15,25 +15,25 @@ repos:
 
   openembedded-core:
     url: https://git.openembedded.org/openembedded-core
-    refspec: 84b407ca5542a6fa828c4b0c62ff60964db73901
+    refspec: ba94110d70ebfb1b4798ecf05389f7ea602b1f55
     layers:
       meta:
 
   meta-clang:
     url: https://github.com/kraj/meta-clang.git
-    refspec: 458566f290258d1fe63e95893bae143d9e2ab8e1
+    refspec: 89878f5f8a081d6abb2edc7c6b6312fdd87d3313
     layers:
       .:
 
   meta-sifive:
     url: https://github.com/sifive/meta-sifive.git
-    refspec: 137b22ffc46b442974c4a0ae705366eff85dafa6
+    refspec: bd4842d0d3139fa367733a0da440da5b7579b1a7
     layers:
       .:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: 5d28ad9899387c05805ff8c445bbce4ffe8ab2a6
+    refspec: d0b910a13fd37b5d471a6bdaf5d212ce0f9465a1
     layers:
       meta-filesystems:
       meta-gnome:
@@ -45,11 +45,11 @@ repos:
 
   meta-tensorflow-lite:
     url: https://github.com/NobuoTsukamoto/meta-tensorflow-lite.git
-    refspec: c6f3a45ed7e41f290f942371bc1dc4354d700143
+    refspec: 4157590a68ee7d9ab0cccb1ed11dfde0665a7f1a
 
   meta-virtualization:
     url: https://git.yoctoproject.org/meta-virtualization
-    refspec: 1640a4dc81f5d06a1e43c9870fefb2a0d016ef81
+    refspec: c1f668c337a56457acacbbefe4d1f1989202ba95
     layers:
       .:
 
@@ -80,4 +80,3 @@ local_conf_header:
 
   tensorflow: |
     BAZEL_TARGET_CPU:riscv64 = "riscv64"
-

@@ -6,7 +6,12 @@ local_conf_header:
   test: |
     DISTRO_FEATURES:append = " ptest"
 
-    EXTRA_IMAGE_FEATURES:append = " debug-tweaks ptest-pkgs ssh-server-openssh"
+    EXTRA_IMAGE_FEATURES:append = " \
+        allow-empty-password \
+        allow-root-login \
+        empty-root-password \
+        ptest-pkgs \
+        ssh-server-openssh"
 
     INHERIT:remove = "extrausers"
 
