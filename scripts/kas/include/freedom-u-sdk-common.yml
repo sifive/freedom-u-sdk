@@ -74,6 +74,7 @@ local_conf_header:
   mirror: |
     PREMIRRORS:prepend = "\
         git://.*/.* https://downloads.yoctoproject.org/mirror/sources/ \
+        gitsm://.*/.* https://downloads.yoctoproject.org/mirror/sources/ \
         ftp://.*/.* https://downloads.yoctoproject.org/mirror/sources/ \
         http://.*/.* https://downloads.yoctoproject.org/mirror/sources/ \
         https://.*/.* https://downloads.yoctoproject.org/mirror/sources/ "
