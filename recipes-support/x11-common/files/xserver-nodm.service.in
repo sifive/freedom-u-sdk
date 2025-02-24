@@ -1,7 +1,7 @@
 [Unit]
 Description=Xserver startup without a display manager
 StartLimitIntervalSec=60s
-StartLimitBurst=10
+StartLimitBurst=20
 
 [Service]
 EnvironmentFile=/etc/default/xserver-nodm
