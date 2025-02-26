@@ -1,0 +1,8 @@
+header:
+  version: 14
+
+local_conf_header:
+
+  clang: |
+    TOOLCHAIN = "clang"
+    TOOLCHAIN:pn-opensbi-sifive = "gcc"
