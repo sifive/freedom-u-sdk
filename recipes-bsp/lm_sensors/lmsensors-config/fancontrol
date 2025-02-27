@@ -4,8 +4,8 @@ DEVNAME=hwmon1=pvt hwmon0=eswin_fan_control
 FCTEMPS=hwmon0/pwm1=hwmon1/temp1_input
 FCFANS=hwmon0/pwm1=hwmon0/fan1_input
 MINTEMP=hwmon0/pwm1=25
-MAXTEMP=hwmon0/pwm1=45
-MINSTART=hwmon0/pwm1=190
-MINSTOP=hwmon0/pwm1=190
-MINPWM=hwmon0/pwm1=190
+MAXTEMP=hwmon0/pwm1=60
+MINSTART=hwmon0/pwm1=25
+MINSTOP=hwmon0/pwm1=25
+MINPWM=hwmon0/pwm1=25
 MAXPWM=hwmon0/pwm1=255
